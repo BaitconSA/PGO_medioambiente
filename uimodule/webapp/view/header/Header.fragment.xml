@@ -1,0 +1,41 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:form="sap.ui.layout.form">
+    
+    <!-- Formulario Superior -->
+   <VBox>
+         <!-- MessageStrip for informational message -->
+         <MessageStrip
+         text="{mainModel>/ObraStatus/state}"
+         type="{mainModel>/ObraStatus/color}"
+         showCloseButton="true"
+         enableFormattedText="true"
+         showIcon="true"
+         class="sapUiResponsiveMargin"/>
+          
+            <form:SimpleForm
+              editable="false"
+              layout="ResponsiveGridLayout">
+                  <form:content>
+                      <core:Title
+                          text="{i18n>workInformation}"
+                      />
+                              <Label class="headerLabel" text="{i18n>partido}" />
+                                <Text text="{mainModel>/HeaderInfo/partido}"/>    
+                                <Label class="headerLabel" text="{i18n>supplierRegistration}"/>
+                                    <Text text="{mainModel>/HeaderInfo/supplierRegistration}"/>
+                    <core:Title text="" level="H4"></core:Title>
+                      <Label class="headerLabel" text="{i18n>P3Description}" />
+                        <Text text="{mainModel>/HeaderInfo/p3Description}"/>
+                          <Label class="headerLabel" text="{i18n>fluido}" />
+                            <Text text="{mainModel>/HeaderInfo/fluid}"/>
+                              <Label class="headerLabel" text="{i18n>tipocontrato}" />
+                                <Text text="{mainModel>/HeaderInfo/contractType}"/>
+                                 <Label class="headerLabel" text="{i18n>systemContration}"/>
+                                    <Text text="{mainModel>/HeaderInfo/razonSocial}"/>
+                  </form:content>
+              </form:SimpleForm>
+          </VBox>
+
+</core:FragmentDefinition>

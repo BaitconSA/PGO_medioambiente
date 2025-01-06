@@ -1,0 +1,37 @@
+<mvc:View controllerName="sap.m.sample.TabContainerIcons.TabContainerIcons"
+		height="100%"
+		xmlns:f="sap.ui.layout.form"
+		xmlns:core="sap.ui.core"
+		xmlns:mvc="sap.ui.core.mvc"
+		xmlns="sap.m">
+		<IconTabBar id="IconTabsOptions" class="sapUiSmallMarginTop">
+            <items>
+                <IconTabFilter key="DAPS" text="{i18n>environmentalPerformance}"> <!-- Diseño Ambiental Planilla Seguimiento-->
+                    <core:Fragment fragmentName="uimodule.view.tables.TablePSDA" type="XML"/> 
+                    <core:Fragment fragmentName="uimodule.view.tables.IconTabsYear" type="XML"/>
+                    <core:Fragment fragmentName="uimodule.view.orderNotesRow.OrderNotesRow" type="XML"/> 
+                    <core:Fragment fragmentName="uimodule.view.rejectedForms.RejectedForms" type="XML"/>
+                    <core:Fragment fragmentName="uimodule.view.rejectedForms.FormDetails" type="XML"/>
+                </IconTabFilter>
+
+                <IconTabFilter key="info" text="{i18n>environmentalDeviatioControl}">
+                    <items>
+                       
+                    </items>
+                </IconTabFilter>
+
+                <IconTabFilter key="info" text="{i18n>environmentalReport}">
+                    <items>
+                       
+                    </items>
+                </IconTabFilter>
+
+                <IconTabFilter key="info" text="{i18n>additionalDocumentation}">
+                    <items>
+                       
+                    </items>
+                </IconTabFilter>
+            </items>
+        </IconTabBar>
+        
+</mvc:View>

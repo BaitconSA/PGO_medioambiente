@@ -1,0 +1,48 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <!-- Segundo Grupo de Pestañas (IconTabBar) para Años -->
+    <VBox class="sapUiMediumMarginTop">
+        <IconTabBar
+            id="yearTabBar"
+            select="onYearTabSelect"
+            class="sapUiResponsiveContentPadding"
+        >
+            <items>
+                <IconTabFilter
+                    key="AñoActual"
+                    text="Año: {mainModel>/DateStartWork}">
+                    <VBox>
+                        <Button
+                            icon="sap-icon://add"
+                            text="{i18n>addYear}"
+                            press="onAddYear"
+                            class="sapUiSmallMarginBottom"
+                        />
+                        <!-- Contenido para el año actual -->
+                        <List
+                            id="yearList"
+                            items="{mainModel>/Years}"
+                        >
+                            <items>
+                                <CustomListItem>
+                                    <VBox>
+                                        <HBox >
+                                            <Input value="{year}" />
+                                            <!-- Botón para Eliminar Año (solo visible si el año es en blanco) -->
+                                            <Button
+                                                icon="sap-icon://delete"
+                                                type="Reject"
+                                                press="onDeleteYear"
+                                                visible="{isYearBlank}"
+                                            />
+                                        </HBox>
+                                       
+                                    </VBox>
+                                </CustomListItem>
+                            </items>
+                        </List>
+                    </VBox>
+                </IconTabFilter>
+            </items>
+        </IconTabBar>
+    </VBox>
+</core:FragmentDefinition>

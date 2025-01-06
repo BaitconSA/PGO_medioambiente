@@ -1,0 +1,33 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:form="sap.ui.layout.form">
+    
+    <VBox>
+        <form:SimpleForm
+            editable="true"
+            layout="ResponsiveGridLayout"
+            id="simpleForm">
+            <form:content>
+                <Label text="{i18n>P3}"/>
+                <Text text="{mainModel>/HeaderInfo/p3}"/>
+                
+                <Label text="{i18n>workInformation}"/>
+                <Text text="{mainModel>/HeaderInfo/workName}"/>
+                
+                <Label text="{i18n>dateOrderInit}"/>
+                <Text text="{mainModel>/StartDate}"/>
+                
+                <Label text="{i18n>environmentalResponsive}"/>
+                <Input
+                    value="{mainModel>/Payload/environmentalResponsive}"
+                    valueState="{mainModel>/Validation/environmentalResponsiveState}"
+                    valueStateText="{mainModel>/Validation/environmentalResponsiveStateText}"
+                    required="true"
+                    width="50%"/>
+            </form:content>
+        </form:SimpleForm>
+      
+    </VBox>
+
+</core:FragmentDefinition>

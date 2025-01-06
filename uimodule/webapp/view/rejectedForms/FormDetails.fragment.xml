@@ -1,0 +1,109 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <VBox class="sapUiMediumMarginTop sapUiResponsiveContentPadding" alignItems="Left">
+        <!-- Panel con título y fecha -->
+        <Panel expand="false"
+        expandable="true">
+            <headerToolbar>
+                <Toolbar>
+                    <Title text="Planilla" />
+                    <ToolbarSpacer />
+                    <Text text="{notasPedidosModel>/fecha}" />
+                </Toolbar>
+            </headerToolbar>
+
+            <!-- Título de la sección -->
+            <Title text="{i18n>orderNumber}" level="H2" />
+
+            <!-- Mini tabla con la cabecera de la orden de pedido -->
+            <Table id="miniTable" class="sapUiTinyMargin" inset="false">
+                <columns>
+                    <Column>
+                        <Text text="{i18n>orderHeader}" />
+                    </Column>
+                    <!-- Las columnas para las notas se crearán dinámicamente en el controlador -->
+                </columns>
+                <items>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="{notasPedidosModel>/orderNumber}" />
+                            <!-- Las celdas para las notas se crearán dinámicamente en el controlador -->
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+
+            <!-- Tabla para los detalles -->
+            <Table class="sapUiTinyMargin" inset="false">
+                <columns>
+                    <!-- Nueva columna: Subproductos del proceso de obra -->
+                    <Column>
+                        <Text text="{i18n>subProducts}" />
+                    </Column>
+                    <!-- Nueva columna: Unidad -->
+                    <Column>
+                        <Text text="{i18n>unit}" />
+                    </Column>
+                    <!-- Columnas existentes traducidas -->
+                    <Column>
+                        <Text text="{i18n>january}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>february}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>march}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>april}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>may}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>june}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>july}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>august}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>september}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>october}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>november}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>december}" />
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem>
+                        <cells>
+                            <!-- Nuevas celdas: Subproductos del proceso de obra y Unidad -->
+                            <Text text="{notasPedidosModel>/subProducts}" />
+                            <Text text="{notasPedidosModel>/unit}" />
+                            <!-- Celdas existentes traducidas -->
+                            <Text text="{notasPedidosModel>/months/january}" />
+                            <Text text="{notasPedidosModel>/months/february}" />
+                            <Text text="{notasPedidosModel>/months/march}" />
+                            <Text text="{notasPedidosModel>/months/april}" />
+                            <Text text="{notasPedidosModel>/months/may}" />
+                            <Text text="{notasPedidosModel>/months/june}" />
+                            <Text text="{notasPedidosModel>/months/july}" />
+                            <Text text="{notasPedidosModel>/months/august}" />
+                            <Text text="{notasPedidosModel>/months/september}" />
+                            <Text text="{notasPedidosModel>/months/october}" />
+                            <Text text="{notasPedidosModel>/months/november}" />
+                            <Text text="{notasPedidosModel>/months/december}" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </Panel>
+    </VBox>
+</core:FragmentDefinition>

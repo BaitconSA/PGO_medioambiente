@@ -1,0 +1,20 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:layout="sap.ui.layout">
+    <Panel
+        class="sapUiSizeCompact"
+        headerText="Planillas Rechazadas"
+        expand="false"
+        expandable="true">
+        <List
+            id="rejectedList"
+            items="{
+                path: '/rejectedForms'
+            }">
+            <items>
+                <StandardListItem
+                    title="{formName}"
+                    description="{formDescription}"/>
+            </items>
+        </List>
+    </Panel>
+
+</core:FragmentDefinition>

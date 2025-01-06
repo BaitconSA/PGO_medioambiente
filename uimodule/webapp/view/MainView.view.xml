@@ -1,0 +1,55 @@
+<mvc:View controllerName="uimodule.controller.MainView"
+    xmlns:mvc="sap.ui.core.mvc" 
+	xmlns:core="sap.ui.core" 
+    xmlns:f="sap.ui.layout.form"
+    displayBlock="true"
+    xmlns="sap.m"
+    height="100%">
+    <Page id="page" title="{i18n>titleApp}">
+        <headerContent> 
+            <!-- MessageView for showing status messages --> 
+             <MessageView items="{mainModel>/ObraStatus}"> 
+                <MessageItem
+                 type="{color}" 
+                 title="{state}" 
+                 subtitle="hola"
+                 description="{mainModel>state}"></MessageItem> 
+            </MessageView>
+        </headerContent>
+        <content>
+        <VBox>
+                <!-- Formulario Superior -->
+                <core:Fragment fragmentName="uimodule.view.header.Header" type="XML"/>  
+
+                <IconTabBar
+                    backgroundDesign="Transparent"
+                    class="sapUiResponsiveContentPadding"
+                    id="IconTabP3_ID"
+                    select="setIconTabsP3">
+                        <content>
+                            <!-- Formulario -->
+                            <core:Fragment fragmentName="uimodule.view.mainForm.MainForm" type="XML"/>   
+                            <!-- Detalles -->
+                            <!-- Fragmento con TabContainer --> 
+                            <core:Fragment fragmentName="uimodule.view.mainIconTabBar.IconTabs" type="XML"/> 
+                            <!-- Archivos -->
+                         </content>
+                         
+                     </IconTabBar>
+                     
+         
+                   
+           
+            </VBox>
+            
+
+        </content>
+
+         <footer>
+            <Toolbar>
+                <ToolbarSpacer/>
+                <Button text="Enviar" press="onSend" type="Emphasized" icon="sap-icon://paper-plane" class="sapUiLargeMarginEnd" width="7%"/>
+            </Toolbar>
+        </footer>
+    </Page>
+</mvc:View>

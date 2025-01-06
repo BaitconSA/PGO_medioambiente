@@ -1,0 +1,37 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+
+    <VBox class="sapUiSmallMarginTop">
+        <Button icon="sap-icon://add" text="{i18n>uploadManualData}" press="onUploadManualDataPSDA" class="sapUiSmallMarginBottom"/>
+
+        <Table id="myTable" inset="false" items="{mainModel>/managementOptionsIcon/PSDAData}">
+            <columns>
+                <Column>
+                    <Text text="{i18n>lastReportedMonth}"/>
+                </Column>
+                <Column>
+                    <Text text="{i18n>monthToReport}"/>
+                </Column>
+                <Column>
+                    <Text text="{i18n>control}"/>
+                </Column>
+                <Column>
+                    <Text text="{i18n>status}"/>
+                </Column>
+                <Column hAlign="Right">
+                    <Text text="{i18n>actions}"/>
+                </Column>
+            </columns>
+            <items>
+                <ColumnListItem>
+                    <cells>
+                        <Input value="{fechaUltimoMesInformado}" liveChange="onInputLiveChange" placeholder="dd/MM/yyyy" valueStateText="Formato requerido: dd/MM/yyyy" change="onValidateDate"/>
+                        <Input value="{fechaMesAInformar}" liveChange="onInputLiveChange" placeholder="MM/yyyy" valueStateText="Formato requerido: MM/yyyy" change="onValidateMonthYear"/>                        <Input value="{control}" liveChange="onInputLiveChange"/>
+                        <Input value="{estado}" liveChange="onInputLiveChange"/>
+                        <Button icon="sap-icon://add" type="Accept" press="onAddManual"/>
+                        <Button icon="sap-icon://add" type="Accept" press="onAddManual"/>
+                    </cells>
+                </ColumnListItem>
+            </items>
+        </Table>
+    </VBox>
+</core:FragmentDefinition>

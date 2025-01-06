@@ -1,0 +1,18 @@
+/* Enter your custom styles here */
+.sapMITBText {
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+.IconFormUploadPSDADialog {
+    color: grey;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.IconFormUploadPSDADialog:hover {
+    color: blue;
+    cursor: pointer;
+    padding: 10px;
+}
