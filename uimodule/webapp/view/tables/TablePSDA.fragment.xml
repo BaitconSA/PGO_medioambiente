@@ -1,7 +1,15 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
 
     <VBox class="sapUiSmallMarginTop">
-        <Button icon="sap-icon://add" text="{i18n>uploadManualData}" press="onUploadManualDataPSDA" class="sapUiSmallMarginBottom"/>
+        <Button
+            icon="sap-icon://add"
+            text="{i18n>uploadManualData}"
+            press=".onOpenDialog"
+            class="sapUiSmallMarginBottom">
+            <customData>
+                <core:CustomData key="param" value="PSDA"/>
+            </customData>
+        </Button>
 
         <Table id="myTable" inset="false" items="{mainModel>/managementOptionsIcon/PSDAData}">
             <columns>

@@ -114,6 +114,21 @@ sap.ui.define(
 							ComentariosGenerales: "",
 							PSDA_Firmada: ""
 						}
+					},
+					// Otros datos adicionales
+					DatosFormularioCDA: {
+						payload: {
+							// Agregar más propiedades según sea necesario
+							uploadCDA: {
+								FechaDeteccion: null,
+								documento: {
+									DocumentacionAdicional: {},
+									File: {},
+									FileName: null
+								}
+							},
+						TablaCDA: []
+						}
 					}
 					
 				});

@@ -15,9 +15,7 @@
                 </IconTabFilter>
 
                 <IconTabFilter key="info" text="{i18n>environmentalDeviatioControl}">
-                    <items>
-                       
-                    </items>
+                    <core:Fragment fragmentName="uimodule.view.controlDesviosAmbientales.TableCDA" type="XML"/>
                 </IconTabFilter>
 
                 <IconTabFilter key="info" text="{i18n>environmentalReport}">

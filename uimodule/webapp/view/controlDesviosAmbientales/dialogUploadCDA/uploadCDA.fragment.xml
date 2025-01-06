@@ -1,0 +1,40 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:u="sap.ui.unified">
+
+    <Dialog
+        id="addDocumentationDialog"
+        title="Cargar el Desvío"
+        stretch="{device>/system/phone}">
+
+        <content>
+            <VBox class="sapUiSmallMargin">
+                <MessageStrip
+                    id="messageStripCDA"
+                    visible="false"
+                    showCloseButton="true"
+                    showIcon="true"/>
+                
+                <Label text="Fecha de detección" />
+                <DatePicker value="{mainModel>/DatosFormularioCDA/payload/FechaDeteccion}" displayFormat="dd.MM.yyyy"/>
+
+                <Label text="Adjuntar Documento" labelFor="fileUploader" />
+                <u:FileUploader
+                    id="fileUploaderCDA"
+                    tooltip="Upload your file to the local server"
+                    uploadComplete="handleUploadComplete" 
+                    change="onSelectFile"/>
+            </VBox>
+        </content>
+        
+        <footer>
+            <Toolbar>
+                <ToolbarSpacer />
+                <Button text="Guardar" press="onSaveDocumentCDA" />
+                <Button text="Cancelar" press="onCancelDialog" />
+            </Toolbar>
+        </footer>
+
+    </Dialog>
+</core:FragmentDefinition>

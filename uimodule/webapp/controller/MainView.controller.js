@@ -4,12 +4,13 @@ sap.ui.define([
     "uimodule/model/modelConfig",
     "uimodule/model/permissionRolesApp",
     "uimodule/services/services",
-    "uimodule/js/TablePsdaFunction"
+    "uimodule/js/TablePsdaFunction",
+    "uimodule/js/TableCDAFunction"
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, Utils, ModelConfig, PermissionUser, Services, TablePsdaFunction) {
+    function (Controller, Utils, ModelConfig, PermissionUser, Services, TablePsdaFunction, TableCDAFunction) {
         "use strict";
 
         return Controller.extend("uimodule.controller.MainView", {
@@ -146,10 +147,39 @@ sap.ui.define([
                 this._oMainModel.setProperty("/Preload/IsLoading", false);
             },
 
-            onUploadManualDataPSDA: function (oEvent) {
+            onOpenDialog: function (oEvent) {
+                const sParam = oEvent.getSource().data("param");
                 const oController = this; 
                 const oModel = this.getView().getModel("mainModel");
-                TablePsdaFunction.onAddManualRow( this.getView(), oController, oModel);
+                if(sParam === "PSDA") {
+                    TablePsdaFunction.onAddManualRow( this.getView(), oController, oModel );
+                } else if (sParam === "CDA") {
+                    TableCDAFunction.onOpenDialogCDA( this.getView(), oController, oModel )
+                }
+                
+            },
+
+            onSelectFile: function (oEvent) {
+              const oView = this.getView();
+              const oModel = oView.getModel("mainModel");
+              TableCDAFunction.onSelectFile( this.getView(), oEvent, oModel );
+            },
+
+            onCancelDialog: function () {
+                this._formatDialogData();
+                // Ocultar el MessageStrip al cerrar el diálogo
+                this.byId("messageStripCDA").setVisible(false);
+                // Cerrar el diálogo sin guardar
+                this.byId("addDocumentationDialog").close();
+                this.byId("addDocumentationDialog").destroy();
+            },
+
+            _formatDialogData: function () {
+                this.getView().byId("fileUploaderCDA").setValue("");
+                const oModel = this.getView().getModel("mainModel");
+                    oModel.setProperty("/DatosFormularioCDA/payload/FechaDeteccion", null);
+                    oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/File", {} );
+                    oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/FileName", null );
             },
 
             onCancelPress: function () {
@@ -200,6 +230,20 @@ sap.ui.define([
                 const oModel = this.getView().getModel("mainModel");
                 // Aquí puedes añadir el código para proceder con el envío.
                 console.log("Envío confirmado", oModel);
+            },
+
+            onSaveDocumentCDA: function (oEvent) {
+                const oModel = this.getView().getModel("mainModel");
+                const oTableCDAData = oModel.getProperty("/DatosFormularioCDA/payload/TablaCDA");
+                const oData = {
+                    fechaDeteccion : oModel.getProperty("/DatosFormularioCDA/payload/FechaDeteccion"),
+                    estado: "Borrador"
+                };
+
+                oTableCDAData.push(oData);
+                 
+
+
             }
             
 
