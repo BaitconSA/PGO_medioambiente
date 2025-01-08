@@ -9,14 +9,14 @@ sap.ui.define([
     return {
 
         _showMessage: function (oView, sTitle, sText, sType) {
-            var oMessageStrip = oView.byId("messageStripCDA");
+            var oMessageStrip = oView.byId("messageStripIA");
 
             oMessageStrip.setText(`${sTitle}: ${sText}`);
             oMessageStrip.setType(sType);
             oMessageStrip.setVisible(true);
         },
 
-        onOpenDialogCDA: function ( oView, oController, oModel ) {
+        onOpenDialogIA: function ( oView, oController, oModel ) {
            /* let aPsdaData = oModel.getProperty("/managementOptionsIcon/PSDAData");
             aPsdaData.push({
                 fechaUltimoMesInformado: "",
@@ -26,27 +26,27 @@ sap.ui.define([
             });
             oModel.setProperty("/managementOptionsIcon/PSDAData", aPsdaData); */
     
-                if (!oView.byId("addDesvioDialog")) {
+                if (!oView.byId("addDocumentationIADialog")) {
                     Fragment.load({
                         id: oView.getId(),
-                        name: "uimodule.view.controlDesviosAmbientales.dialogUploadCDA.uploadCDA",
+                        name: "uimodule.view.informeAmbiental.dialogUploadIA.uploadIA",
                         controller: oController
                     }).then(function (oDialog) {
                         oView.addDependent(oDialog);
                         oDialog.open();
                     });
                 } else {
-                    oView.byId("addDesvioDialog").open();
+                    oView.byId("addDocumentationIADialog").open();
                 }
         },
 
         onSelectFile: function ( oView, oEvent, oModel ) {
             const file = oEvent.getParameter("files")[0];
             // Asegurarse de que 'files' sea un array
-           let files = oModel.getProperty("/DatosFormularioCDA/payload/uploadCDA/documento/DocumentacionAdicional");
+           let files = oModel.getProperty("/DatosFormularioIA/payload/uploadIA/documento/DocumentacionAdicional");
            if (!Array.isArray(files)) {
                files = [];
-               oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/DocumentacionAdicional", files);
+               oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/DocumentacionAdicional", files );
            }
            const duplicate = files.find(doc => doc.nombre === file.name);
 
@@ -54,9 +54,9 @@ sap.ui.define([
                const errorMessage = oView.getModel("i18n").getResourceBundle().getText("duplicateDocName");
                this._showMessage(oView, "Error", errorMessage, "Error");
            } else {
-                oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/File", file);
-                oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/FileName", file.name);
-                this._showMessage(oView, "Éxito", "Desvío adjuntado correctamente.", "Success");
+                oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/File", file);
+                oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/FileName", file.name);
+                this._showMessage(oView, "Éxito", "Informe adjuntado correctamente.", "Success");
            }
         }
     };

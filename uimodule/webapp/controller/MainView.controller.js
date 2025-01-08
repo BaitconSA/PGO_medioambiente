@@ -5,12 +5,14 @@ sap.ui.define([
     "uimodule/model/permissionRolesApp",
     "uimodule/services/services",
     "uimodule/js/TablePsdaFunction",
-    "uimodule/js/TableCDAFunction"
+    "uimodule/js/TableCDAFunction",
+    "uimodule/js/TableIAFunction",
+    "uimodule/js/TableDAFunction"
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, Utils, ModelConfig, PermissionUser, Services, TablePsdaFunction, TableCDAFunction) {
+    function (Controller, Utils, ModelConfig, PermissionUser, Services, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction) {
         "use strict";
 
         return Controller.extend("uimodule.controller.MainView", {
@@ -151,22 +153,34 @@ sap.ui.define([
                 const sParam = oEvent.getSource().data("param");
                 const oController = this; 
                 const oModel = this.getView().getModel("mainModel");
-                if(sParam === "PSDA") {
+                if( sParam === "PSDA" ) {
                     TablePsdaFunction.onAddManualRow( this.getView(), oController, oModel );
-                } else if (sParam === "CDA") {
-                    TableCDAFunction.onOpenDialogCDA( this.getView(), oController, oModel )
+                } else if ( sParam === "CDA" ) {
+                    TableCDAFunction.onOpenDialogCDA( this.getView(), oController, oModel );
+                } else if ( sParam === "IA" ) {
+                    TableIAFunction.onOpenDialogIA( this.getView(), oController, oModel );
+                } else {
+                    TableDAFunction.onOpenDialogDA( this.getView(), oController, oModel );
                 }
                 
             },
 
+            // Seleccion Archivo Adjunto CDA
             onSelectFile: function (oEvent) {
               const oView = this.getView();
               const oModel = oView.getModel("mainModel");
               TableCDAFunction.onSelectFile( this.getView(), oEvent, oModel );
             },
 
+            // Seleccion Archivo Adjunto IA
+            onSelectFileIA: function (oEvent) {
+                const oView = this.getView();
+                const oModel = oView.getModel("mainModel");
+                TableIAFunction.onSelectFile( this.getView(), oEvent, oModel );
+              },
+
             onCancelDialog: function () {
-                this._formatDialogData();
+                this._formatDialogData("CDA");
                 // Ocultar el MessageStrip al cerrar el diálogo
                 this.byId("messageStripCDA").setVisible(false);
                 // Cerrar el diálogo sin guardar
@@ -174,12 +188,28 @@ sap.ui.define([
                 this.byId("addDocumentationDialog").destroy();
             },
 
-            _formatDialogData: function () {
-                this.getView().byId("fileUploaderCDA").setValue("");
+            onCancelDialogIA: function () {
+                this._formatDialogData("IA");
+                // Ocultar el MessageStrip al cerrar el diálogo
+                this.byId("messageStripIA").setVisible(false);
+                // Cerrar el diálogo sin guardar
+                this.byId("addDocumentationIADialog").close();
+                this.byId("addDocumentationIADialog").destroy();
+            },
+
+            _formatDialogData: function ( typedialog ) {
                 const oModel = this.getView().getModel("mainModel");
-                    oModel.setProperty("/DatosFormularioCDA/payload/FechaDeteccion", null);
-                    oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/File", {} );
-                    oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/FileName", null );
+                if( typedialog === "CDA" ) {
+                    this.getView().byId("fileUploaderCDA").setValue("");
+                          oModel.setProperty("/DatosFormularioCDA/payload/FechaDeteccion", null);
+                          oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/File", {} );
+                          oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/FileName", null );
+                } else if (typedialog === "IA") { 
+                    this.getView().byId("fileUploaderIA").setValue("");
+                          oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/File", {} );
+                          oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/FileName", null );
+                }
+                
             },
 
             onCancelPress: function () {
@@ -241,7 +271,20 @@ sap.ui.define([
                 };
 
                 oTableCDAData.push(oData);
-                 
+            },
+
+            onSaveDocumentIA: function ( oEvent ) {
+                console.log("LOGICA PARA GUARDADO DE ARCHIVO IA ")
+            },
+
+            onSaveDocumentDA: function( oEvent ) {
+                const oModel = this.getView().getModel("mainModel");
+                const isValidForm = TableDAFunction.validateForm( oModel );
+
+                if( !isValidForm ){
+                    return;
+                }
+
 
 
             }

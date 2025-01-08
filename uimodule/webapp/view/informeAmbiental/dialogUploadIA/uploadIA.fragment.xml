@@ -1,0 +1,38 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:u="sap.ui.unified">
+
+    <Dialog
+        id="addDocumentationIADialog"
+        title="Cargar Informe Ambiental"
+        stretch="{device>/system/phone}">
+
+        <content>
+            <VBox class="sapUiSmallMargin">
+                <MessageStrip
+                    id="messageStripIA"
+                    visible="false"
+                    showCloseButton="true"
+                    showIcon="true"/>
+                
+
+                <Label text="{i18n>reportAttach}" labelFor="fileUploader" />
+                <u:FileUploader
+                    id="fileUploaderIA"
+                    tooltip="Upload your file to the local server"
+                    uploadComplete="handleUploadComplete" 
+                    change="onSelectFileIA"/>
+            </VBox>
+        </content>
+        
+        <footer>
+            <Toolbar>
+                <ToolbarSpacer />
+                <Button text="Guardar" press="onSaveDocumentIA" />
+                <Button text="Cancelar" press="onCancelDialogIA" />
+            </Toolbar>
+        </footer>
+
+    </Dialog>
+</core:FragmentDefinition>

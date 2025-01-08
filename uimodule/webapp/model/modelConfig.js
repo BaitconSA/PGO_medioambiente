@@ -129,8 +129,43 @@ sap.ui.define(
 							},
 						TablaCDA: []
 						}
-					}
-					
+					},
+
+					//DatosFormularioIA
+					DatosFormularioIA: {
+						payload: {
+							// Agregar más propiedades según sea necesario
+							uploadIA: {
+								documento: {
+									DocumentacionAdicional: {},
+									File: {},
+									FileName: null
+								}
+							},
+						TablaIA: []
+						}
+					},
+
+					// Documentos Adicionales
+					DatosFormularioDA: {
+						payload: {
+							// Agregar más propiedades según sea necesario
+							uploadDA: {
+								descripcion: null,
+								descripcionValueState: "None",
+								descripcionValueStateText: "El campo Descripción es obligatorio",
+								comentarios: null,
+								documento: {
+									DocumentacionAdicional: {},
+									File: {},
+									FileName: null,
+									documentoValueState: "None",
+									documentoValueStateText: "Debe adjuntar un documento",
+								}
+							},
+						TablaDA: []
+						}
+					},
 				});
 			},
 

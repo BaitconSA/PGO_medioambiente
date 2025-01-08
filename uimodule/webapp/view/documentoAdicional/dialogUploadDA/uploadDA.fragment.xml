@@ -1,0 +1,59 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:u="sap.ui.unified">
+
+    <Dialog
+        id="addDocumentationDADialog"
+        title="{i18n>additionalDocumentation}"
+        stretch="{device>/system/phone}">
+
+        <content>
+            <VBox class="sapUiSmallMargin">
+                <MessageStrip
+                    id="messageStripda"
+                    visible="false"
+                    showCloseButton="true"
+                    showIcon="true"/>
+
+                 <!-- Campo de texto para la descripción -->
+                    <Label text="{i18n>description}" required="true" />
+                    <Input
+                        id="descripcionInput"
+                        placeholder="Ingrese la descripción"
+                        maxLength="100" 
+                        value="{mainModel>/DatosFormularioDA/payload/uploadDA/descripcion}"
+                        valueState="{mainModel>/DatosFormularioDA/payload/uploadDA/descripcionValueState}"
+                        valueStateText="{mainModel>/DatosFormularioDA/payload/uploadDA/descripcionValueStateText}"/>
+                
+                 <!-- Campo de adjunto documento -->
+                <Label text="{i18n>attach}" labelFor="fileUploader" required="true" />
+                <u:FileUploader
+                    id="fileUploaderDA"
+                    placeholder="Seleccione documento"
+                    tooltip="Upload your file to the local server"
+                    uploadComplete="handleUploadComplete" 
+                    change="onSelectFileDA"
+                    valueState="{mainModel>/DatosFormularioDA/payload/uploadDA/documento/documentoValueState}"
+                    valueStateText="{mainModel>/DatosFormularioDA/payload/uploadDA/documento/documentoValueStateText}"/>
+
+                <!-- Área de texto para los comentarios -->
+                    <Label text="{i18n>comments}" />
+                    <TextArea
+                        id="comentariosTextArea"
+                        placeholder="Ingrese sus comentarios"
+                        maxLength="100"
+                        rows="4" />
+            </VBox>
+        </content>
+        
+        <footer>
+            <Toolbar>
+                <ToolbarSpacer />
+                <Button text="Guardar" press="onSaveDocumentDA" />
+                <Button text="Cancelar" press="onCancelDialogDA" />
+            </Toolbar>
+        </footer>
+
+    </Dialog>
+</core:FragmentDefinition>

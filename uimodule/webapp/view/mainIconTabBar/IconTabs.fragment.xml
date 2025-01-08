@@ -6,6 +6,7 @@
 		xmlns="sap.m">
 		<IconTabBar id="IconTabsOptions" class="sapUiSmallMarginTop">
             <items>
+                <!-- IconTab -> Tabla Desempeño Ambiental Planilla de seguimiento -->
                 <IconTabFilter key="DAPS" text="{i18n>environmentalPerformance}"> <!-- Diseño Ambiental Planilla Seguimiento-->
                     <core:Fragment fragmentName="uimodule.view.tables.TablePSDA" type="XML"/> 
                     <core:Fragment fragmentName="uimodule.view.tables.IconTabsYear" type="XML"/>
@@ -13,21 +14,18 @@
                     <core:Fragment fragmentName="uimodule.view.rejectedForms.RejectedForms" type="XML"/>
                     <core:Fragment fragmentName="uimodule.view.rejectedForms.FormDetails" type="XML"/>
                 </IconTabFilter>
-
+                <!-- IconTab -> Tabla Control de Desvíos Ambientales -->
                 <IconTabFilter key="info" text="{i18n>environmentalDeviatioControl}">
                     <core:Fragment fragmentName="uimodule.view.controlDesviosAmbientales.TableCDA" type="XML"/>
                 </IconTabFilter>
-
+                <!-- IconTab -> Tabla Informe Ambiental -->
                 <IconTabFilter key="info" text="{i18n>environmentalReport}">
-                    <items>
-                       
-                    </items>
+                    <core:Fragment fragmentName="uimodule.view.informeAmbiental.TableIA" type="XML"/>
                 </IconTabFilter>
-
+                
+                <!-- IconTab -> Documentos Adicionales -->
                 <IconTabFilter key="info" text="{i18n>additionalDocumentation}">
-                    <items>
-                       
-                    </items>
+                    <core:Fragment fragmentName="uimodule.view.documentoAdicional.TableDA" type="XML"/>
                 </IconTabFilter>
             </items>
         </IconTabBar>

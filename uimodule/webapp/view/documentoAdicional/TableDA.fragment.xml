@@ -1,0 +1,57 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <VBox class="sapUiMediumMarginTop sapUiResponsiveContentPadding">
+        <!-- Panel con título -->
+        <Panel>
+            <headerToolbar>
+                <Toolbar>
+                    <Title text="{i18n>additionalDocumentation}" />
+                    <ToolbarSpacer />
+                    <SearchField id="searchFieldDA" width="20%" search=".onSearch"/>
+                    <Button icon="sap-icon://sort" press=".onSort" />
+                    <Button
+                        icon="sap-icon://add"
+                        press=".onOpenDialog">
+                        <customData>
+                            <core:CustomData key="param" value="DA"/>
+                        </customData>
+                    </Button>
+
+                </Toolbar>
+            </headerToolbar>
+
+            <!-- Tabla para control de desvíos ambientales -->
+
+            <!-- Tabla para control de desvíos ambientales -->
+            <Table id="additionalDocumentationTable" class="sapUiTinyMargin" inset="false" items="{mainModel>/DatosFormularioCDA/payload/TablaCDA}">
+                <columns>
+                    <Column>
+                        <Text text="{i18n>description}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>comment}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>deliveryDate}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>state}" />
+                    </Column>
+                    <Column>
+                        <Text text="{i18n>actions}" />
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="{notasPedidosModel>/fechaEntrega}" />
+                            <Text text="{notasPedidosModel>/fechaDeteccion}" />
+                            <Text text="{notasPedidosModel>/estado}" />
+                            <Text text="{notasPedidosModel>/observaciones}" />
+                            <Text text="{notasPedidosModel>/acciones}" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </Panel>
+    </VBox>
+</core:FragmentDefinition>
