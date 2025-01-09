@@ -9,7 +9,6 @@
                 <!-- IconTab -> Tabla Desempeño Ambiental Planilla de seguimiento -->
                 <IconTabFilter key="DAPS" text="{i18n>environmentalPerformance}"> <!-- Diseño Ambiental Planilla Seguimiento-->
                     <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.tables.TablePSDA" type="XML"/> 
-                    <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.tables.IconTabsYear" type="XML"/>
                   <!--  <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.orderNotesRow.OrderNotesRow" type="XML"/> 
                     <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.rejectedForms.RejectedForms" type="XML"/>
                     <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.rejectedForms.FormDetails" type="XML"/> -->
