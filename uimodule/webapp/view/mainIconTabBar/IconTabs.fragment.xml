@@ -8,11 +8,11 @@
             <items>
                 <!-- IconTab -> Tabla Desempeño Ambiental Planilla de seguimiento -->
                 <IconTabFilter key="DAPS" text="{i18n>environmentalPerformance}"> <!-- Diseño Ambiental Planilla Seguimiento-->
-                    <core:Fragment fragmentName="uimodule.view.tables.TablePSDA" type="XML"/> 
-                    <core:Fragment fragmentName="uimodule.view.tables.IconTabsYear" type="XML"/>
-                    <core:Fragment fragmentName="uimodule.view.orderNotesRow.OrderNotesRow" type="XML"/> 
-                    <core:Fragment fragmentName="uimodule.view.rejectedForms.RejectedForms" type="XML"/>
-                    <core:Fragment fragmentName="uimodule.view.rejectedForms.FormDetails" type="XML"/>
+                    <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.tables.TablePSDA" type="XML"/> 
+                    <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.tables.IconTabsYear" type="XML"/>
+                  <!--  <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.orderNotesRow.OrderNotesRow" type="XML"/> 
+                    <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.rejectedForms.RejectedForms" type="XML"/>
+                    <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.rejectedForms.FormDetails" type="XML"/> -->
                 </IconTabFilter>
                 <!-- IconTab -> Tabla Control de Desvíos Ambientales -->
                 <IconTabFilter key="info" text="{i18n>environmentalDeviatioControl}">

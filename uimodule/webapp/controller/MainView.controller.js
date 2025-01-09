@@ -165,6 +165,11 @@ sap.ui.define([
                 
             },
 
+            // Seleccionar PSDA desde el dialog
+            onFileUploaderChange: function(oEvent) {
+                TablePsdaFunction.onFileUploaderChange( oEvent, this.getView() );
+            },
+
             // Seleccion Archivo Adjunto CDA
             onSelectFile: function (oEvent) {
               const oView = this.getView();
@@ -214,6 +219,7 @@ sap.ui.define([
 
             onCancelPress: function () {
                 this.getView().byId("dialogUploadPSDA").close();
+                TablePsdaFunction._resetFileUploader( this.getView() );
             },
 
             onInputLiveChange: function (oEvent) {

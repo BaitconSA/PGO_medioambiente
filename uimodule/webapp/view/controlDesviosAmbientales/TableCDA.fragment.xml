@@ -52,6 +52,8 @@
                     </ColumnListItem>
                 </items>
             </Table>
+
+            
         </Panel>
     </VBox>
 </core:FragmentDefinition>

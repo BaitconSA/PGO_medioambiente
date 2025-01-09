@@ -1,0 +1,43 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:layout="sap.ui.layout" xmlns:u="sap.ui.unified">
+
+    <Dialog id="dialogUploadPSDA" title="{i18n>dialogTitle}" class="sapUiResponsiveContentPadding">
+        <content>
+            <layout:VerticalLayout>
+                <!-- Número Nota de Pedido -->
+                <VBox class="sapUiMediumMarginBottom">
+                    <Label text="{i18n>orderNumber}" required="true" />
+                    <Select 
+                        items="{
+                            path: 'mainModel>/OrderNotes', 
+                            templateShareable: false
+                        }"
+                        selectedKey="{mainModel>/DatosFormularioPSDA/payload/NumeroNotaPedido}">
+                     
+                        <core:Item key="{mainModel>nro_nota_pedido}" text="{mainModel>nro_nota_pedido} - {mainModel>descripcion}" />
+                    </Select>
+                </VBox>
+                
+                <!-- PSDA firmada por RA -->
+                <VBox class="sapUiSmallMarginTop">
+                    <Title level="H2" text="{i18n>psdaSigned}" />
+                    <HBox class="sapUiSmallMarginBottom">
+                        <u:FileUploader 
+                            id="fileUploader" 
+                            change="onFileUploaderChange" 
+                            placeholder="{i18n>selectFile}" 
+                            class="sapUiSmallMarginBeginEnd"/>
+                    </HBox>
+                </VBox>
+                <!-- Contenedor de vista previa --> 
+                 <VBox id="previewContainer" class="sapUiSmallMarginTop"></VBox>
+            </layout:VerticalLayout>
+        </content>
+        <beginButton>
+            <Button text="{i18n>accept}" press="onAcceptPress"/>
+        </beginButton>
+        <endButton>
+            <Button text="{i18n>cancel}" press="onCancelPress"/>
+        </endButton>
+    </Dialog>
+
+</core:FragmentDefinition>

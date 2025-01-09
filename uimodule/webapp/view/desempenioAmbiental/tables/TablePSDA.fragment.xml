@@ -14,10 +14,10 @@
         <Table id="myTable" inset="false" items="{mainModel>/managementOptionsIcon/PSDAData}">
             <columns>
                 <Column>
-                    <Text text="{i18n>lastReportedMonth}"/>
+                    <Text text="{i18n>templateNumber}"/>
                 </Column>
                 <Column>
-                    <Text text="{i18n>monthToReport}"/>
+                    <Text text="{i18n>deliveryDate}"/>
                 </Column>
                 <Column>
                     <Text text="{i18n>control}"/>
