@@ -222,6 +222,18 @@ sap.ui.define([
                 TablePsdaFunction._resetFileUploader( this.getView() );
             },
 
+            //Dialogo Orden de Notas en PSDA
+            onOpenDialogOrderNotes: function () {
+                const oController = this;
+                const oModel = this.getView().getModel("mainModel");
+                TablePsdaFunction.onOpenDialogOrderNotes( this.getView(), oModel, oController );
+            },
+
+            onConfirmDialogOrderNotes: function ( oEvent ) {
+                const oModel = this.getView().getModel("mainModel");
+                TablePsdaFunction.onConfirmDialogOrderNotes( oEvent, oModel )
+            },
+
             onInputLiveChange: function (oEvent) {
                const oModel = this.getView().getModel("mainModel");
                TablePsdaFunction.onInputLiveChange( oEvent, oModel, oEvent.getSource().getId() );

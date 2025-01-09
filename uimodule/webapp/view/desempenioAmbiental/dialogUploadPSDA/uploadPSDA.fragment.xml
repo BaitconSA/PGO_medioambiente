@@ -2,21 +2,9 @@
 
     <Dialog id="dialogUploadPSDA" title="{i18n>dialogTitle}" class="sapUiResponsiveContentPadding">
         <content>
+            <!-- Tabla Notas de Pedido -->
+            <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.orderNotesRow.OrderNotesRow" type="XML"/> 
             <layout:VerticalLayout>
-                <!-- Número Nota de Pedido -->
-                <VBox class="sapUiMediumMarginBottom">
-                    <Label text="{i18n>orderNumber}" required="true" />
-                    <Select 
-                        items="{
-                            path: 'mainModel>/OrderNotes', 
-                            templateShareable: false
-                        }"
-                        selectedKey="{mainModel>/DatosFormularioPSDA/payload/NumeroNotaPedido}">
-                     
-                        <core:Item key="{mainModel>nro_nota_pedido}" text="{mainModel>nro_nota_pedido} - {mainModel>descripcion}" />
-                    </Select>
-                </VBox>
-                
                 <!-- PSDA firmada por RA -->
                 <VBox class="sapUiSmallMarginTop">
                     <Title level="H2" text="{i18n>psdaSigned}" />

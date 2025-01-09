@@ -1,79 +1,45 @@
-<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
-    <VBox class="sapUiMediumMarginTop sapUiResponsiveContentPadding" alignItems="Center">
-        <!-- Título de la sección -->
-        <Title text="{i18n>orderNumber}" level="H2" />
+<core:FragmentDefinition xmlns:mvc="sap.ui.core.mvc" displayBlock="true" xmlns="sap.m"
+	xmlns:form="sap.ui.layout.form" xmlns:u="sap.ui.unified" xmlns:l="sap.ui.layout"
+	xmlns:core="sap.ui.core">
+				<Panel expandable="false" width="auto">
+					<content>
+                        <Table id="ORDER_NOTES_TABLE"  items="{ path: 'mainModel>/OrderNotesTableData', sorter: { path: 'nro_nota_pedido', descending: false} }"  width="auto" noDataText="{i18n>noDataText}" growing="true" growingScrollToLoad="true">
+                            <headerToolbar>
+                              <OverflowToolbar>
+                                <ToolbarSpacer/>
+                                <SearchField 
+                                  liveChange="onSearch" 
+                                  width="auto" 
+                                  class="sapUiTinyMarginEnd"
+                                  layoutData="FlexItemData" />
+                                <Button tooltip="{i18n>ordenar}" icon="sap-icon://sort" press="onSortPh" type="Ghost" class="sapUiTinyMarginEnd"/>
+                                  <Button tooltip="{i18n>agregar}" press="onOpenDialogOrderNotes" icon="sap-icon://add" type="Emphasized" enabled="{=${ActaSancionModel>/isCreate} || ${ActaSancionModel>/isEdit}}"/>
+                                  </OverflowToolbar>
+                            </headerToolbar>
+                            <columns>
+                              <Column  hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                <Text text="{i18n>orderNumber}" />
+                              </Column>
+                              <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                <Text text="{i18n>date}" />
+                              </Column>
+                              <Column hAlign="Left" minScreenWidth="Tablet" demandPopin="true">
+                                <Text text="{i18n>actions}" />
+                              </Column>
+                            </columns>
+                            <items>
+                              <ColumnListItem vAlign="Center">
+                                <cells>
+                                    <Text text="{mainModel>nro_nota_pedido}" />
+                                    <Text text="{mainModel>fecha_envio}"/>
+                                      <HBox >
+                                        <Button class="sapUiTinyMargin" tooltip="{i18n>deleteRowService}" icon="sap-icon://delete" type="Reject" press="onDeleteRowTableReferences($event, 'OS')" visible="{ActaSancionModel>/isEdit}"/>
+                                      </HBox>
+                                </cells>
+                              </ColumnListItem>
+                            </items>
+                          </Table>         
+					</content>
+				</Panel>
 
-        <!-- Tabla para los meses -->
-        <Table class="sapUiTinyMargin" inset="false">
-            <columns>
-                <!-- Nueva columna: Subproductos del proceso de obra -->
-                <Column>
-                    <Text text="{i18n>subProducts}" />
-                </Column>
-                <!-- Nueva columna: Unidad -->
-                <Column>
-                    <Text text="{i18n>unit}" />
-                </Column>
-                <!-- Columnas existentes traducidas -->
-                <Column>
-                    <Text text="{i18n>january}" />
-                </Column>
-                <Column>
-                    <Text text="{i18n>february}" />
-                </Column>
-                <Column>
-                    <Text text="{i18n>march}" />
-                </Column>
-                <Column>
-                    <Text text="{i18n>april}" />
-                </Column>
-                <Column>
-                    <Text text="{i18n>may}" />
-                </Column>
-                <Column>
-                    <Text text="{i18n>june}" />
-                </Column>
-                <Column>
-                    <Text text="{i18n>july}" />
-                </Column>
-                <Column>
-                    <Text text="{i18n>august}" />
-                </Column>
-                <Column>
-                    <Text text="{i18n>september}" />
-                </Column>
-                <Column>
-                    <Text text="{i18n>october}" />
-                </Column>
-                <Column>
-                    <Text text="{i18n>november}" />
-                </Column>
-                <Column>
-                    <Text text="{i18n>december}" />
-                </Column>
-            </columns>
-            <items>
-                <ColumnListItem>
-                    <cells>
-                        <!-- Nuevas celdas: Subproductos del proceso de obra y Unidad -->
-                        <Text text="{notasPedidosModel>/subProducts}" />
-                        <Text text="{notasPedidosModel>/unit}" />
-                        <!-- Celdas existentes traducidas -->
-                        <Text text="{notasPedidosModel>/Enero}" />
-                        <Text text="{notasPedidosModel>/Febrero}" />
-                        <Text text="{notasPedidosModel>/Marzo}" />
-                        <Text text="{notasPedidosModel>/Abril}" />
-                        <Text text="{notasPedidosModel>/Mayo}" />
-                        <Text text="{notasPedidosModel>/Junio}" />
-                        <Text text="{notasPedidosModel>/Julio}" />
-                        <Text text="{notasPedidosModel>/Agosto}" />
-                        <Text text="{notasPedidosModel>/Septiembre}" />
-                        <Text text="{notasPedidosModel>/Octubre}" />
-                        <Text text="{notasPedidosModel>/Noviembre}" />
-                        <Text text="{notasPedidosModel>/Diciembre}" />
-                    </cells>
-                </ColumnListItem>
-            </items>
-        </Table>
-    </VBox>
 </core:FragmentDefinition>

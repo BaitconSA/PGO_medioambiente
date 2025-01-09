@@ -120,13 +120,44 @@ sap.ui.define([
             });
             oView.byId("previewContainer").removeAllItems();
             oView.byId("previewContainer").addItem(oImage);
-        },
+            },
 
         _resetFileUploader: function( oView ) { 
             var oFileUploader = oView.byId("fileUploader"); 
                 oFileUploader.clear(); 
                 oView.byId("previewContainer").removeAllItems(); 
 
+            },
+
+        onOpenDialogOrderNotes: async function ( oView, oModel, oController ) {
+            const oDialog = await this._openDialog("SELECT_ORDER_NOTES", "uimodule.view.desempenioAmbiental.orderNotesRow.OrderNotesDialog", oView, oController);
+            },
+
+        _openDialog: async function (fragmentID, fragmentName, oView, oController ) {
+            let oDialog = oView.byId(`${oView.getId()}--${fragmentID}`);
+            if (!oDialog) {
+                oDialog = await Fragment.load({
+                id: oView.getId(),
+                name: fragmentName,
+                controller: oController
+                });
+                oView.addDependent(oDialog);
             }
+            oDialog.open();
+            return oDialog;
+            },
+
+        onConfirmDialogOrderNotes: async function ( oEvent , oModel ) {
+            const oSource = oEvent.getSource();
+            const aItems = oSource.getItems();
+            const oSelectedItem = [];
+            aItems.forEach(rowList => {
+              if (rowList.isSelected()) {
+                const sPath = rowList.getBindingContext("mainModel")["sPath"];
+                oSelectedItem.push(oModel.getProperty(sPath));
+              }
+            });
+            oModel.setProperty("/OrderNotesTableData", oSelectedItem);
+        }
     };
 });

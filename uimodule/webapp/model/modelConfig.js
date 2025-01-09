@@ -50,6 +50,7 @@ sap.ui.define(
 					},
 
 					OrderNotes: [], // Array de objetos que son los datos de las notas de orden
+					OrderNotesTableData: [], // Información en tabla de Orden de Notas
 
 					// Datos de la tabla
 					TableData: [], // Array de objetos que son los datos de la tabla
