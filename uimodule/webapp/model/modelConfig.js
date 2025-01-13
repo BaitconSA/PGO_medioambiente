@@ -8,6 +8,7 @@ sap.ui.define(
 				return new JSONModel({
 					// Datos de La Obra General
 					ObraData: {},
+					ObraID: null,
 					DateStartWork: null,
 
 					//Estado de la Obra General
@@ -50,7 +51,7 @@ sap.ui.define(
 					},
 
 					OrderNotes: [], // Array de objetos que son los datos de las notas de orden
-					OrderNotesTableData: [], // Información en tabla de Orden de Notas
+					OrderNotesTableData: [], // Información en tabla de Orden de Notas,
 
 					// Datos de la tabla
 					TableData: [], // Array de objetos que son los datos de la tabla
@@ -78,42 +79,30 @@ sap.ui.define(
 					// Validaciones
 					Validations: {
 						IsValid: true,
+						valueStateEnvironmentalResponsive: null,
+						valueStateTextEnvironmentalResponsive: null,
 						Messages: []
 					},
 
 					Years: [], // Array para almacenar los años
+					IDMainEntity: null,
 					DatosFormularioPSDA:{
 						payloadType: "datosFormularioPSDA",
 						payload: {
-								NumeroNotaPedido: "",
-							Subproductos: {
-								Madera: "",
-								Metal: "",
-								Plastico: "",
-								Agregados: "",
-								ExcesoTierra: "",
-								PapelCarton: ""
+							NumeroNotaPedido: null,
+							PSDA_Firmada: null,
+							documento: {
+								DocumentacionAdicional: {},
+								File: {},
+								FileName: null
 							},
-							Residuos: {
-								ResiduosLiquidos: "",
-								ResiduosSolidos: "",
-								ResiduosGenerales: "",
-								ResiduosEspeciales: "",
-								ResiduosAlcantarillado: "",
-								ResiduosPatogenos: ""
-							},
-							Reclamos: {
-								NumeroReclamos: ""
-							},
-							Energia: {
-								ConsumoEnergia: "",
-								ConsumoCombustible: ""
-							},
-							Capacitacion: {
-								HorasCapacitacion: ""
-							},
-							ComentariosGenerales: "",
-							PSDA_Firmada: ""
+							validation: {
+								documentPsdaValueState:null,
+								documentPsdaValueStateText: null,
+							}
+						},
+						TablePSDA: {
+							Data:[]
 						}
 					},
 					// Otros datos adicionales
@@ -172,10 +161,11 @@ sap.ui.define(
 
 			// Nueva función para estructurar el modelo de datos basado en oObraData
 			// eslint-disable-next-line complexity, consistent-return
-			createStructuredModel: function (oModel, oObraData, oUserData, oUserRolesData) {
+			createStructuredModel: function (oModel, oObraData, oInformesData, oUserData, oUserRolesData) {
 
 					// Listas P3 y PI
-					let sStateObra = (oObraData && oObraData["estado"] && oObraData["estado"].ID) || "",
+					let sObraID = oObraData.ID,
+						sStateObra = (oObraData && oObraData["estado"] && oObraData["estado"].ID) || "",
 					    sStateObraDescription = (oObraData && oObraData["estado"] && oObraData["estado"].descripcion) || "",
 						sFechaInicioObra = (oObraData && oObraData["fecha_firma"]) || "",
 						sYearInicioObra = sFechaInicioObra.split("-")[0],
@@ -211,10 +201,15 @@ sap.ui.define(
 						});
 					}
 
+					if( oInformesData.value && oInformesData.value.length > 0 ) {
+						oModel.setProperty( "/DatosFormularioPSDA/TablePSDA/Data", oInformesData.value );
+					}
+
 					// Ejemplo de uso 
 					this.updateObraStatus(oModel, sStateObra, sStateObraDescription);
                     
                     oModel.setProperty( "/ObraData", oObraData );
+					oModel.setProperty( "/ObraID", sObraID );
 					oModel.setProperty( "/DateStartWork", sYearInicioObra );
                     oModel.setProperty( "/UserData", oUserData );
                     oModel.setProperty( "/UserRoles", oUserRolesData );
@@ -265,7 +260,6 @@ sap.ui.define(
 				const emptyOrderNote = { nro_nota_pedido: "", descripcion: "Seleccione del listado una Nota de Pedido -" };
 				const aOrderNotes = [emptyOrderNote, ...aP3Selected[0].nota_pedido.filter(np => np.estado_ID !== "BO")];
 
-				debugger;
                 const sPathHeader = "/HeaderInfo";
     
                 //********* Header App **********

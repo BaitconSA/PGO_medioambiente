@@ -4,15 +4,18 @@ sap.ui.define([
     "uimodule/model/modelConfig",
     "uimodule/model/permissionRolesApp",
     "uimodule/services/services",
+    "uimodule/services/psda_operations",
     "uimodule/js/TablePsdaFunction",
     "uimodule/js/TableCDAFunction",
     "uimodule/js/TableIAFunction",
-    "uimodule/js/TableDAFunction"
+    "uimodule/js/TableDAFunction",
+    "sap/m/MessageBox",
+    "sap/m/MessageToast"
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, Utils, ModelConfig, PermissionUser, Services, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction) {
+    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast) {
         "use strict";
 
         return Controller.extend("uimodule.controller.MainView", {
@@ -65,30 +68,36 @@ sap.ui.define([
                      // Obtener datos de la obra
                     let oObraData = {};
                     try {
-                        oObraData = await Services.getObraData( obraID );
+                        const oObra = Services.getObraData(obraID);
+                        const oInformes = PSDA_operations.getInformes(); // Consulto los informes en su archivo correspondiente 
+                        const [oObraData, oInformesData] = await Promise.all([oObra, oInformes]);
+                    
                         // Armo los P3 / PI / Información necesaria de la Obra.
-                     this._oMainModel = ModelConfig.createStructuredModel( this._oMainModel, oObraData, oUserData, oUserRolesData );
-                        //Permisos del Usuario para Ejecutar la App
-                     const oPermissions =  PermissionUser.evaluateUserPermissions( oUserRolesData );
-                     this._oMainModel.setProperty("/Permissions", oPermissions);
-
-                    // Verificar permisos
-                    if (this.checkPermissions(oPermissions)) {
-                        Utils.showMessage("No tiene permisos para ejecutar esta aplicación.", "Advertencia", "WARNING");
-                    } else {
-                        console.log("El usuario tiene permisos para ejecutar esta aplicación.");
-                    }
-                     const sKey = this._oMainModel.getProperty("/Section/sP3IDDefault");
-                     this._buildIconTabByP3(null, sKey);
+                        this._oMainModel = ModelConfig.createStructuredModel(this._oMainModel, oObraData, oInformesData, oUserData, oUserRolesData);
+                    
+                        // Permisos del Usuario para Ejecutar la App
+                        const oPermissions = PermissionUser.evaluateUserPermissions(oUserRolesData);
+                        this._oMainModel.setProperty("/Permissions", oPermissions);
+                    
+                        // Verificar permisos
+                        if (this.checkPermissions(oPermissions)) {
+                            Utils.showMessage("No tiene permisos para ejecutar esta aplicación.", "Advertencia", "WARNING");
+                        } else {
+                            console.log("El usuario tiene permisos para ejecutar esta aplicación.");
+                        }
+                    
+                        const sKey = this._oMainModel.getProperty("/Section/sP3IDDefault");
+                        this._buildIconTabByP3(null, sKey);
                     } catch (e) {
                         Utils.showMessage("Error al obtener datos de la obra", "Error", "WARNING");
                     }
+                    
                     
                      // Validar que los datos de la obra están presentes
                     if ( !oObraData ) {
                         throw new Error("Datos de obra incompletos o no encontrados.");
                     } else {
-                    Utils.showMessage("Datos cargados exitosamente", "Éxito", "SUCCESS");
+                  //  Utils.showMessage("Datos cargados exitosamente", "Éxito", "SUCCESS");
                 }
 
                     
@@ -167,7 +176,8 @@ sap.ui.define([
 
             // Seleccionar PSDA desde el dialog
             onFileUploaderChange: function(oEvent) {
-                TablePsdaFunction.onFileUploaderChange( oEvent, this.getView() );
+                const oModel = this.getView().getModel("mainModel");
+                TablePsdaFunction.onFileUploaderChange( oEvent, this.getView(), oModel );
             },
 
             // Seleccion Archivo Adjunto CDA
@@ -217,11 +227,6 @@ sap.ui.define([
                 
             },
 
-            onCancelPress: function () {
-                this.getView().byId("dialogUploadPSDA").close();
-                TablePsdaFunction._resetFileUploader( this.getView() );
-            },
-
             //Dialogo Orden de Notas en PSDA
             onOpenDialogOrderNotes: function () {
                 const oController = this;
@@ -247,31 +252,134 @@ sap.ui.define([
                TablePsdaFunction.onValidateMonthYear( oEvent );
             },
 
-            onAddYear: function (oEvent) {
-                const oModel = this.getView().getModel("mainModel");
-                TablePsdaFunction.onAddYearRow( oModel );
+            onCancelPress: function () {
+                this.getView().byId("dialogUploadPSDA").close();
+                TablePsdaFunction._resetFileUploader( this.getView() );
             },
-    
 
-            onSend: function (oEvent) {
+            onSavePSDA: function (oEvent, sAction) {
+                // Busy ON
+                Utils.dialogBusy(true);
+
                 const oModel = this.getView().getModel("mainModel");
-                console.log(oModel);
-            
-                // Mostrar confirmación
-                sap.m.MessageBox.confirm(
-                    "Todos los registros en estado borrador pasarán a pendientes de inspección.",
-                    {
-                        title: "Confirmación",
-                        actions: [sap.m.MessageBox.Action.CANCEL, sap.m.MessageBox.Action.OK],
-                        onClose: function (sAction) {
-                            if (sAction === sap.m.MessageBox.Action.OK) {
-                                // Acción a realizar si se presiona "Aceptar"
-                                this._proceedWithSending();
-                            }
-                        }.bind(this)
+                // Lógica para guardar según la acción
+                if (sAction === "Save") {
+                    // Lógica para guardar
+                    const sObraID = oModel.getProperty("/ObraID");
+                    const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive");
+                    const fechaActual = new Date();
+                    const mesActual = (fechaActual.getMonth() + 1).toString().padStart(2, '0');
+                    const aOrderNotes = oModel.getProperty("/OrderNotesTableData");
+                    const aUploadNotasPedido = aOrderNotes.map(item => ({ nota_pedido_ID: item.ID }));
+                    const aUploadDocumentsPSDA = oModel.getProperty("/DatosFormularioPSDA/payload/documento/DocumentacionAdicional/Documentacion");
+                    
+                    if (aUploadDocumentsPSDA && Array.isArray(aUploadDocumentsPSDA) && aUploadDocumentsPSDA.length > 0) {
+                        aUploadDocumentsPSDA.forEach(doc => {
+                            delete doc.fechaAdjunto;
+                        });
                     }
-                );
+                    
+                    
+                    const invalidField = this._validateFields();
+
+                    if (invalidField) { // Validación de campos obligatorios PSDA
+                        let confirmMessage = this.getResourceBundle().getText("savePSDAConfirm");
+                        MessageBox.confirm(confirmMessage, {
+                            actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                            emphasizedAction: "Aceptar",
+                            onClose: async (sAction) => {
+                              if (sAction !== "Aceptar")
+                                return;
+                              try {
+                                const oPayload = {
+                                resposnable_ambiental: sEnvironmentResponse || "",
+                                fecha_informada: null,
+                                fecha_informar: null,
+                                control: null,
+                                informe_desempenio: [
+                                    {
+                                        informe: [{
+                                            estado_ID: "BO",
+                                            mes: parseInt(mesActual),
+                                            desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
+                                            PSDA_firmada_nombre: aUploadDocumentsPSDA[0]?.PSDA_firmada_nombre,
+                                            PSDA_firmada_ruta: aUploadDocumentsPSDA[0]?.PSDA_firmada_ruta,
+                                            PSDA_firmada_formato: aUploadDocumentsPSDA[0]?.PSDA_firmada_formato
+                                          }]
+                                        }
+                                    ]
+                                }
+                                
+                                const oNewPsdaDocument = await PSDA_operations.onCreatePsdaDocument(oPayload, this.getView());
+                                
+                                // Guardamos el ID de la entidad 'Padre'
+                                oModel.setProperty("/IDMainEntity", oNewPsdaDocument.ID );
+                                oModel.setProperty("/DatosFormularioPSDA/TablePSDA/Data", oNewPsdaDocument );
+                                
+                                this.onCancelPress(); // Cierro el dialogo y vuelvo a cargar información de la App
+                                this._loadData( sObraID );
+                              } catch (error) {
+                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                                MessageToast.show(errorMessage);
+                              } finally {
+                                Utils.dialogBusy(false);
+                              }
+                            }
+                          });
+
+                    } 
+                 
+                    // --- FIN Lógica para guardar ---
+                } else if (sAction === "Send") {
+                    // Lógica para guardar y enviar
+                    console.log(sAction)
+                }
+                
+                Utils.dialogBusy(false);
             },
+
+            _validateFields: function () {
+                const oModel = this.getView().getModel("mainModel");
+                const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive");
+                const aOrderNotesTableData = oModel.getProperty("/OrderNotesTableData");
+                const aDocumentsPSDA = oModel.getProperty("/DatosFormularioPSDA/payload/documento/DocumentacionAdicional/Documentacion");
+
+
+                let isValidate = true;
+
+
+                if (sEnvironmentResponse === null || sEnvironmentResponse === undefined || sEnvironmentResponse.trim() === "") {
+                    oModel.setProperty("/Validation/environmentalResponsiveState", "Error");
+                    oModel.setProperty("/Validation/valueStateTextEnvironmentalResponsive", "El campo Responsable Ambiental es Obligatorio.");
+                    MessageBox.error("Verificar el campo Responsable Ambiental.")
+                    isValidate = false;
+                } else {
+                     // El objeto no está vacío
+                     oModel.setProperty("/Validation/environmentalResponsiveState", "None");
+                     oModel.setProperty("/Validation/valueStateTextEnvironmentalResponsive", "");
+                }
+
+
+                if (!aOrderNotesTableData || aOrderNotesTableData.length === 0) {
+                    MessageBox.error("Debe agregar al menos una nota de pedido antes de guardar.")
+                    return;
+                }
+
+                if (!aDocumentsPSDA || Object.keys(aDocumentsPSDA).length === 0) {
+                    // El objeto está vacío
+                    oModel.setProperty("/DatosFormularioPSDA/payload/validation/documentPsdaValueState", "Error");
+                    oModel.setProperty("/DatosFormularioPSDA/payload/validation/documentPsdaValueStateText", "Debe agregar al menos un documento.");
+                    MessageBox.error("Falta adjuntar el documento PSDA firmado, favor verificar.")
+                    isValidate = false;
+                } else {
+                    // El objeto no está vacío
+                    oModel.setProperty("/DatosFormularioPSDA/payload/validation/documentPsdaValueState", "None");
+                    oModel.setProperty("/DatosFormularioPSDA/payload/validation/documentPsdaValueStateText", "");
+                }
+                
+                
+                return isValidate;
+            },  
             
             // Función para proceder con el envío
             _proceedWithSending: function () {

@@ -13,19 +13,21 @@
                             id="fileUploader" 
                             change="onFileUploaderChange" 
                             placeholder="{i18n>selectFile}" 
-                            class="sapUiSmallMarginBeginEnd"/>
+                            class="sapUiSmallMarginBeginEnd"
+                            valueState="{mainModel>/DatosFormularioPSDA/payload/validation/documentPsdaValueState}"
+                            valueStateText="{mainModel>/DatosFormularioPSDA/payload/validation/documentPsdaValueStateText}"/>
                     </HBox>
                 </VBox>
                 <!-- Contenedor de vista previa --> 
                  <VBox id="previewContainer" class="sapUiSmallMarginTop"></VBox>
             </layout:VerticalLayout>
         </content>
-        <beginButton>
-            <Button text="{i18n>accept}" press="onAcceptPress"/>
-        </beginButton>
-        <endButton>
-            <Button text="{i18n>cancel}" press="onCancelPress"/>
-        </endButton>
+        <buttons>
+                <Button id="ButtonSavePsda" text="{i18n>save}" press="onSavePSDA($event, 'Save')" />
+                <Button text="{i18n>saveSend}" press="onSavePSDA($event, 'Send')" />
+                <Button text="{i18n>cancel}" press="onCancelPress"/>
+
+            </buttons>
     </Dialog>
 
 </core:FragmentDefinition>

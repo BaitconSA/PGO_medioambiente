@@ -11,7 +11,7 @@
             </customData>
         </Button>
 
-        <Table id="myTable" inset="false" items="{mainModel>/managementOptionsIcon/PSDAData}">
+        <Table id="myTable" inset="false" items="{mainModel>/DatosFormularioPSDA/TablePSDA/Data}">
             <columns>
                 <Column>
                     <Text text="{i18n>templateNumber}"/>
@@ -34,7 +34,7 @@
                     <cells>
                         <Input value="{fechaUltimoMesInformado}" liveChange="onInputLiveChange" placeholder="dd/MM/yyyy" valueStateText="Formato requerido: dd/MM/yyyy" change="onValidateDate"/>
                         <Input value="{fechaMesAInformar}" liveChange="onInputLiveChange" placeholder="MM/yyyy" valueStateText="Formato requerido: MM/yyyy" change="onValidateMonthYear"/>                        <Input value="{control}" liveChange="onInputLiveChange"/>
-                        <Input value="{estado}" liveChange="onInputLiveChange"/>
+                        <Input value="{mainModel>estado_ID}" liveChange="onInputLiveChange"/>
                         <Button icon="sap-icon://add" type="Accept" press="onAddManual"/>
                         <Button icon="sap-icon://add" type="Accept" press="onAddManual"/>
                     </cells>

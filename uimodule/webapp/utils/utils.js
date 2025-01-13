@@ -1,7 +1,10 @@
 sap.ui.define([
     "sap/m/MessageBox",
-    "sap/ui/core/BusyIndicator"
-], function (MessageBox, BusyIndicator) {
+    "sap/ui/core/BusyIndicator",
+       "sap/m/MessagePopover",
+    "sap/m/MessagePopoverItem",
+    "sap/m/Button"
+], function (MessageBox, BusyIndicator, MessagePopover, MessagePopoverItem, Button) {
     "use strict";
 
     return {
@@ -28,6 +31,32 @@ sap.ui.define([
                 default:
                     MessageBox.information(sMessage, { title: sTitle });
             }
+        },
+
+        createMessagePopover: function (messages) {
+            var oMessagePopover = new MessagePopover({
+                endButton: new Button({
+                    text: "OK",
+                    press: function () {
+                        oMessagePopover.close();
+                    }
+                })
+            });
+
+            messages.forEach(function (message) {
+                oMessagePopover.addItem(new MessagePopoverItem({
+                    type: message.type,
+                    title: message.title,
+                    description: message.description
+                }));
+            });
+
+            return oMessagePopover;
+        },
+
+        showMessagePopover: function (messages, oControl) {
+            var oMessagePopover = this.createMessagePopover(messages);
+            oMessagePopover.openBy(oControl);
         }
     };
 });

@@ -6,9 +6,10 @@ sap.ui.define([
         "sap/ui/core/UIComponent",
         "sap/ui/Device",
         "uimodule/model/models",
-        "uimodule/services/services"
+        "uimodule/services/services",
+        "uimodule/services/psda_operations"
     ],
-    function (UIComponent, Device, models, Services) {
+    function (UIComponent, Device, models, Services, PSDA_operations) {
         "use strict";
 
         return UIComponent.extend("uimodule.Component", {
@@ -40,6 +41,7 @@ sap.ui.define([
                 const oManifest = this.getManifestObject();
                 const urlCatalog = oManifest.resolveUri("catalog");
                 Services.setUrl(urlCatalog);
+                PSDA_operations.setUrl(urlCatalog);
             }
         });
     }
