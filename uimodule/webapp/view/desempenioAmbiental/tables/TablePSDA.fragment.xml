@@ -25,18 +25,22 @@
                 <Column>
                     <Text text="{i18n>status}"/>
                 </Column>
-                <Column hAlign="Right">
+                <Column hAlign="Left">
                     <Text text="{i18n>actions}"/>
                 </Column>
             </columns>
             <items>
                 <ColumnListItem>
                     <cells>
-                        <Input value="{fechaUltimoMesInformado}" liveChange="onInputLiveChange" placeholder="dd/MM/yyyy" valueStateText="Formato requerido: dd/MM/yyyy" change="onValidateDate"/>
-                        <Input value="{fechaMesAInformar}" liveChange="onInputLiveChange" placeholder="MM/yyyy" valueStateText="Formato requerido: MM/yyyy" change="onValidateMonthYear"/>                        <Input value="{control}" liveChange="onInputLiveChange"/>
-                        <Input value="{mainModel>estado_ID}" liveChange="onInputLiveChange"/>
-                        <Button icon="sap-icon://add" type="Accept" press="onAddManual"/>
-                        <Button icon="sap-icon://add" type="Accept" press="onAddManual"/>
+                        <Label text="{templateNumber}" />
+                        <Label text="{fechaUltimoMesInformado}" />
+                        <Label text="{fechaMesAInformar}"  />               
+                        <GenericTag text="{mainModel>control/descripcion}" design="StatusIconHidden" status="{mainModel>control/state}" />
+                        <HBox>
+                            <Button icon="sap-icon://paper-plane" type="Accept" press="onAddManual" class="sapUiSmallMarginEnd" />
+                            <Button icon="sap-icon://delete" type="Reject" press="onAddManual"/>
+                        </HBox>
+                        
                     </cells>
                 </ColumnListItem>
             </items>

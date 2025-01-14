@@ -18,8 +18,8 @@
         </headerContent>
         <content>
         <VBox>
-                <!-- Formulario Superior -->
-                <core:Fragment fragmentName="uimodule.view.header.Header" type="XML"/>  
+                <!-- Formulario Superior 
+                <core:Fragment fragmentName="uimodule.view.header.Header" type="XML"/>   -->
 
                 <IconTabBar
                     backgroundDesign="Transparent"
