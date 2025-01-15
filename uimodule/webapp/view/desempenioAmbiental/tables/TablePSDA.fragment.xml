@@ -25,6 +25,9 @@
                 <Column>
                     <Text text="{i18n>status}"/>
                 </Column>
+                <Column>
+                    <Text text="{i18n>observations}"/>
+                </Column>
                 <Column hAlign="Left">
                     <Text text="{i18n>actions}"/>
                 </Column>
@@ -34,10 +37,17 @@
                     <cells>
                         <Label text="{templateNumber}" />
                         <Label text="{fechaUltimoMesInformado}" />
-                        <Label text="{fechaMesAInformar}"  />               
-                        <GenericTag text="{mainModel>control/descripcion}" design="StatusIconHidden" status="{mainModel>control/state}" />
+                        <GenericTag text="{mainModel>control/descripcion}" design="StatusIconHidden" status="{mainModel>control/state}" />              
+                        <ObjectStatus text="{mainModel>informe_desempenio/0/informe/0/estado/descripcion}" inverted="true" state="{mainModel>informe_desempenio/0/informe/0/estado/color}"/>
+                        <Label text="{observation}" />
                         <HBox>
-                            <Button icon="sap-icon://paper-plane" type="Accept" press="onAddManual" class="sapUiSmallMarginEnd" />
+                            <Button
+                                icon="sap-icon://detail-view"
+                                type="Accept"
+                                press="onViewDetails"
+                                class="sapUiSmallMarginEnd"
+                            />
+                            <Button icon="sap-icon://paper-plane" type="Emphasized" press="onSendPSDA" class="sapUiSmallMarginEnd" />
                             <Button icon="sap-icon://delete" type="Reject" press="onAddManual"/>
                         </HBox>
                         

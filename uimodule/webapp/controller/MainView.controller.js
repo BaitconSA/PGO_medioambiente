@@ -67,13 +67,14 @@ sap.ui.define([
                     }
                      // Obtener datos de la obra
                     let oObraData = {};
+                    let oView = this.getView();
                     try {
                         const oObra = Services.getObraData(obraID);
                         const oInformes = PSDA_operations.getInformes(); // Consulto los informes en su archivo correspondiente 
                         const [oObraData, oInformesData] = await Promise.all([oObra, oInformes]);
                     
                         // Armo los P3 / PI / Información necesaria de la Obra.
-                        this._oMainModel = ModelConfig.createStructuredModel(this._oMainModel, oObraData, oInformesData, oUserData, oUserRolesData);
+                        this._oMainModel = ModelConfig.createStructuredModel(oView, this._oMainModel, oObraData, oInformesData, oUserData, oUserRolesData);
                     
                         // Permisos del Usuario para Ejecutar la App
                         const oPermissions = PermissionUser.evaluateUserPermissions(oUserRolesData);
@@ -269,6 +270,7 @@ sap.ui.define([
                     const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive");
                     const fechaActual = new Date();
                     const mesActual = (fechaActual.getMonth() + 1).toString().padStart(2, '0');
+                    const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/payload/mesAinformar");
                     const aOrderNotes = oModel.getProperty("/OrderNotesTableData");
                     const aUploadNotasPedido = aOrderNotes.map(item => ({ nota_pedido_ID: item.ID }));
                     const aUploadDocumentsPSDA = oModel.getProperty("/DatosFormularioPSDA/payload/documento/DocumentacionAdicional/Documentacion");
@@ -301,6 +303,7 @@ sap.ui.define([
                                         informe: [{
                                             estado_ID: "BO",
                                             mes: parseInt(mesActual),
+                                            sMesInformar: sMesInformar,
                                             desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
                                             PSDA_firmada_nombre: aUploadDocumentsPSDA[0]?.PSDA_firmada_nombre,
                                             PSDA_firmada_ruta: aUploadDocumentsPSDA[0]?.PSDA_firmada_ruta,
@@ -338,14 +341,57 @@ sap.ui.define([
                 Utils.dialogBusy(false);
             },
 
+            onViewDetails: function ( oEvent ) {
+                const oView = this.getView();
+                const oModel = this.getModel("mainModel");
+                const oController = this;
+                TablePsdaFunction.onViewDetails( oView , oController, oEvent, oModel);
+            },
+
+            onSendPSDA: async function ( oEvent ) {
+                Utils.dialogBusy(true);
+                let oButton = oEvent.getSource();
+                let oItem = oButton.getParent();
+                let oContext = oItem.getBindingContext("mainModel");
+
+                // Obtener los datos de la fila seleccionada
+                let oSelectedRow = oContext.getObject();
+                // Usar desestructuración para acceder directamente al informe
+                const { informe_desempenio: [{ informe }] } = oSelectedRow;
+
+                let informeSeleccionado = informe[0];
+                let sEntity = "InformesDesempenioAmbiental";
+
+                const aOperation = await PSDA_operations.onSendPSDA( sEntity, informeSeleccionado.ID );
+                console.log(aOperation)
+                
+
+                },  
+
+            onCloseDialogPsdaDetail: function () {
+                this.getView().byId("detailsPSDADialog").close();
+            },
+
             _validateFields: function () {
                 const oModel = this.getView().getModel("mainModel");
+                const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/payload/mesAinformar");
                 const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive");
                 const aOrderNotesTableData = oModel.getProperty("/OrderNotesTableData");
                 const aDocumentsPSDA = oModel.getProperty("/DatosFormularioPSDA/payload/documento/DocumentacionAdicional/Documentacion");
 
 
                 let isValidate = true;
+
+                if (sMesInformar === null || sMesInformar === undefined || sMesInformar.trim() === "") {
+                    oModel.setProperty("/Validation/valueStateMesInformar", "Error");
+                    oModel.setProperty("/Validation/valueStateTextMesInformar", "El campo mes a informar es Obligatorio.");
+                    MessageBox.error("Verificar el campo Mes a Informar.")
+                    isValidate = false;
+                } else {
+                     // El objeto no está vacío
+                     oModel.setProperty("/Validation/valueStateMesInformar", "None");
+                     oModel.setProperty("/Validation/valueStateTextMesInformar", "");
+                }
 
 
                 if (sEnvironmentResponse === null || sEnvironmentResponse === undefined || sEnvironmentResponse.trim() === "") {

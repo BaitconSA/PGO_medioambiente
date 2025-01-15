@@ -2,6 +2,27 @@
 
     <Dialog id="dialogUploadPSDA" title="{i18n>dialogTitle}" class="sapUiResponsiveContentPadding">
         <content>
+            <!-- Mes a Informar -->
+            <Label text="{i18n>monthToInform}" labelFor="monthComboBox" class="sapUiSmallMarginEnd"/>
+            <ComboBox id="monthComboBox" 
+            value="{mainModel>/DatosFormularioPSDA/payload/mesAinformar}"
+            valueState="{mainModel>/Validation/valueStateMesInformar}"
+            valueStateText="{mainModel>/Validation/valueStateTextMesInformar}"
+            width="200px" placeholder="{i18n>selectMonth}">
+                <core:Item key="01" text="Enero"/>
+                <core:Item key="02" text="Febrero"/>
+                <core:Item key="03" text="Marzo"/>
+                <core:Item key="04" text="Abril"/>
+                <core:Item key="05" text="Mayo"/>
+                <core:Item key="06" text="Junio"/>
+                <core:Item key="07" text="Julio"/>
+                <core:Item key="08" text="Agosto"/>
+                <core:Item key="09" text="Septiembre"/>
+                <core:Item key="10" text="Octubre"/>
+                <core:Item key="11" text="Noviembre"/>
+                <core:Item key="12" text="Diciembre"/>
+            </ComboBox>
+
             <!-- Tabla Notas de Pedido -->
             <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.orderNotesRow.OrderNotesRow" type="XML"/> 
             <layout:VerticalLayout>

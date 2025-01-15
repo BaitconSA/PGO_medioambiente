@@ -1,0 +1,62 @@
+<core:FragmentDefinition 
+    xmlns="sap.m" 
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout" 
+    xmlns:u="sap.ui.unified"
+    xmlns:form="sap.ui.layout.form">
+    <Dialog id="detailsPSDADialog" title="{i18n>dialogDetailsPSDATitle} " class="sapUiResponsiveContentPadding">
+        <content>
+            <!-- Mes a Informar -->
+            <VBox class="sapUiSmallMargin">
+                <form:SimpleForm columnsM="2" columnsL="2" labelSpanM="4">
+                    <core:Title text=""/>
+                    <!-- Numero Planilla -->
+                    <Label text="{i18n>payrollNumber}" design="Bold" />
+                   <Text text="{mainModel>/DatosFormularioPSDA/TablePSDA/mesInformar}" />
+           
+                       <!-- Fecha de Entrega -->
+                   <Label text="{i18n>deliveryDate}" design="Bold" />
+                    <Text text="{mainModel>/DatosFormularioPSDA/TablePSDA/mesInformar}" />
+
+
+                    <core:Title text=""/>
+                    <!-- Control -->
+                    <Label text="{i18n>control}" design="Bold" />
+                    <GenericTag text="{mainModel>/DatosFormularioPSDA/TablePSDA/control/descripcion}" design="StatusIconHidden" status="{mainModel>/mainModel>/DatosFormularioPSDA/TablePSDA/control/state}" />              
+
+        
+                    <!-- Estado de Planilla -->
+                    <Label text="{i18n>payrollStatus}" design="Bold" />
+                    <ObjectStatus text="{mainModel>/DatosFormularioPSDA/TablePSDA/selectedRow/estado/descripcion}" inverted="true" state="{mainModel>/DatosFormularioPSDA/TablePSDA/selectedRow/estado/color}" />
+                    
+                
+                </form:SimpleForm>
+            </VBox>
+
+
+            <!-- Tabla Notas de Pedido -->
+            <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.orderNotesRow.OrderNotesDetails" type="XML"/> 
+            <layout:VerticalLayout>
+                <!-- PSDA firmada por RA -->
+                <VBox class="sapUiSmallMarginTop">
+                    <Title level="H2" text="{i18n>psdaSigned}" />
+                    <HBox class="sapUiSmallMarginBottom">
+                        <u:FileUploader 
+                            id="fileUploaderPSDAdetail" 
+                            change="onFileUploaderChange" 
+                            placeholder="{i18n>selectFile}" 
+                            class="sapUiSmallMarginBeginEnd"
+                            valueState="{mainModel>/DatosFormularioPSDA/payload/validation/documentPsdaValueState}"
+                            valueStateText="{mainModel>/DatosFormularioPSDA/payload/validation/documentPsdaValueStateText}"/>
+                    </HBox>
+                </VBox>
+                <!-- Contenedor de vista previa --> 
+                 <VBox id="previewContainerDetailPsda" class="sapUiSmallMarginTop"></VBox>
+            </layout:VerticalLayout>
+        </content>
+        <buttons>
+                <Button text="{i18n>close}" press="onCloseDialogPsdaDetail"/>
+
+            </buttons>
+    </Dialog>
+</core:FragmentDefinition>

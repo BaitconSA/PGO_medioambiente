@@ -1,6 +1,8 @@
 sap.ui.define(
-	["sap/ui/model/json/JSONModel", "sap/base/Log"],
-	function (JSONModel, Log) {
+	["sap/ui/model/json/JSONModel", 
+	"sap/base/Log",
+	"uimodule/model/formatter"],
+	function (JSONModel, Log, Formatter) {
 		"use strict";
 
 		return {
@@ -79,6 +81,8 @@ sap.ui.define(
 					// Validaciones
 					Validations: {
 						IsValid: true,
+						valueStateMesInformar: null,
+						valueStateTextMesInformar: null,
 						valueStateEnvironmentalResponsive: null,
 						valueStateTextEnvironmentalResponsive: null,
 						Messages: []
@@ -90,6 +94,7 @@ sap.ui.define(
 						payloadType: "datosFormularioPSDA",
 						payload: {
 							NumeroNotaPedido: null,
+							mesAinformar: null,
 							PSDA_Firmada: null,
 							documento: {
 								DocumentacionAdicional: {},
@@ -102,7 +107,12 @@ sap.ui.define(
 							}
 						},
 						TablePSDA: {
-							Data:[]
+							Data:[],
+							selectedRow: {},
+							numeroPlanilla: null,
+							mesInformar: null,
+							control: {},
+							fechaEntrega: null
 						}
 					},
 					// Otros datos adicionales
@@ -161,7 +171,7 @@ sap.ui.define(
 
 			// Nueva función para estructurar el modelo de datos basado en oObraData
 			// eslint-disable-next-line complexity, consistent-return
-			createStructuredModel: function (oModel, oObraData, oInformesData, oUserData, oUserRolesData) {
+			createStructuredModel: function (oView, oModel, oObraData, oInformesData, oUserData, oUserRolesData) {
 
 					// Listas P3 y PI
 					let sObraID = oObraData.ID,
@@ -202,8 +212,12 @@ sap.ui.define(
 					}
 
 					if( oInformesData.value && oInformesData.value.length > 0 ) {
-						oModel.setProperty( "/DatosFormularioPSDA/TablePSDA/Data", oInformesData.value );
-					}
+						const oInformesDesempenio = oInformesData.value.map( item => ({ 
+							...item, 
+							control: this._getControlForThis(oView, item.informe_desempenio[0].createdAt, item.informe_desempenio[0].informe[0].estado_ID)
+					}));
+						oModel.setProperty( "/DatosFormularioPSDA/TablePSDA/Data", oInformesDesempenio );
+				}
 
 					// Ejemplo de uso 
 					this.updateObraStatus(oModel, sStateObra, sStateObraDescription);
@@ -222,6 +236,53 @@ sap.ui.define(
 				
 			},
 
+			_getControlForThis: function (oView, fechaCreacion, estado, mesInformar) {
+				const aEstadoSetOK = ["PI", "PA", "AP"];
+				const aEstadoSet = ["PE", "BO", "RE"];
+				const today = new Date();
+				today.setHours(0, 0, 0, 0);
+			
+				const fechaCreacionDate = new Date(fechaCreacion);
+			
+				// Si mesInformar es vacío o null, usar el mes actual
+				const mesInformarDate = mesInformar ? new Date(today.getFullYear(), mesInformar - 1) : new Date(today.getFullYear(), today.getMonth());
+			
+				// Calcular la fecha límite basado en el mes a informar
+				const fechaLimite = new Date(mesInformarDate.getFullYear(), mesInformarDate.getMonth() + 1, 3);
+			
+				// Calcular la diferencia en días entre hoy y la fecha límite
+				const dif = (fechaLimite - today) / (1000 * 60 * 60 * 24);
+			
+				if (aEstadoSetOK.includes(estado)) {
+					return {
+						descripcion: oView.getModel("i18n").getResourceBundle().getText("delivered"),
+						state: "Success",
+					};
+				}
+			
+				if (aEstadoSet.includes(estado) && dif >= 2) {
+					return {
+						descripcion: oView.getModel("i18n").getResourceBundle().getText("onTime"),
+						state: "Success",
+					};
+				}
+			
+				if (aEstadoSet.includes(estado) && dif >= 0 && dif < 2) {
+					return {
+						descripcion: oView.getModel("i18n").getResourceBundle().getText("aboutToExpire"),
+						state: "Warning",
+					};
+				}
+			
+				if (aEstadoSet.includes(estado) && dif < 0) {
+					return {
+						descripcion: oView.getModel("i18n").getResourceBundle().getText("expired"),
+						state: "Error",
+					};
+				}
+			},
+			
+			
 			updateObraStatus: function (oModel, sStateObra, sStateObraDescription) {
 				let sColorState;
 				let sFormattedState;

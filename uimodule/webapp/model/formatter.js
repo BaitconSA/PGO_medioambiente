@@ -57,24 +57,24 @@ sap.ui.define(["sap/ui/core/format/NumberFormat"], function (NumberFormat) {
     formattPerformer: function (aArticulos) {
       const aHtmlTextPerformers = [];
       if (aArticulos.length > 0) {
-          aHtmlTextPerformers.push("<ul style='text-align: left;'>");
-          for (const articulo of aArticulos) {
-              if (articulo.articulo) {
-                  aHtmlTextPerformers.push(`
+        aHtmlTextPerformers.push("<ul style='text-align: left;'>");
+        for (const articulo of aArticulos) {
+          if (articulo.articulo) {
+            aHtmlTextPerformers.push(`
                       <li>
                           <strong style='color:green; font-style:italic'>${articulo.articulo.ID} - </strong>
                           <span style='color:#000; font-style:italic'>${articulo.articulo.descripcion}</span>
                       </li>
                   `);
-              }
           }
-          aHtmlTextPerformers.push("</ul>");
+        }
+        aHtmlTextPerformers.push("</ul>");
       } else {
-          aHtmlTextPerformers.push(`<div>sin datos.</div>`);
+        aHtmlTextPerformers.push(`<div>sin datos.</div>`);
       }
       return aHtmlTextPerformers.join("");
-  },
-  
+    },
+
 
     testingmulticombo: function (articulos) {
       if (articulos !== undefined)
@@ -87,34 +87,34 @@ sap.ui.define(["sap/ui/core/format/NumberFormat"], function (NumberFormat) {
 
     formatoPorcentaje: function (sArticuloID, iPorcentaje) {
       if (sArticuloID && iPorcentaje !== undefined && iPorcentaje !== null) {
-          return `Artículo: ${sArticuloID}\nPorcentaje: ${iPorcentaje.toFixed(2)}%`;
+        return `Artículo: ${sArticuloID}\nPorcentaje: ${iPorcentaje.toFixed(2)}%`;
       }
       return `Artículo: ${sArticuloID}\nPorcentaje: Sin porcentaje`;
-  },
+    },
 
-  formatToPercentageArticles: function (aArticulos) {
-    const aHtmlTextPerformers = [];
-    if (aArticulos.length > 0) {
+    formatToPercentageArticles: function (aArticulos) {
+      const aHtmlTextPerformers = [];
+      if (aArticulos.length > 0) {
         aHtmlTextPerformers.push("<ul style='text-align: left;'>");
         for (const articulo of aArticulos) {
-            if (articulo.articulo) {
-                let sPorcentaje = articulo.porcentaje !== null && articulo.porcentaje !== undefined 
-                    ? `${articulo.porcentaje}%` 
-                    : "Sin porcentaje";
-                aHtmlTextPerformers.push(`
+          if (articulo.articulo) {
+            let sPorcentaje = articulo.porcentaje !== null && articulo.porcentaje !== undefined
+              ? `${articulo.porcentaje}%`
+              : "Sin porcentaje";
+            aHtmlTextPerformers.push(`
                     <li>
                         <strong style='color:green; font-style:italic'>${articulo.articulo_ID}</strong>
                         <span style='color:#000; font-style:italic'>${sPorcentaje}</span>
                     </li>
                 `);
-            }
+          }
         }
         aHtmlTextPerformers.push("</ul>");
-    } else {
+      } else {
         aHtmlTextPerformers.push(`<div>sin datos.</div>`);
-    }
-    return aHtmlTextPerformers.join("");
-},
+      }
+      return aHtmlTextPerformers.join("");
+    },
 
 
     _formatCurrency: function (amount) {
@@ -124,19 +124,7 @@ sap.ui.define(["sap/ui/core/format/NumberFormat"], function (NumberFormat) {
       return `$ ${oCurrencyFormat}`;
     },
 
-    formatStatus: function (porcentaje) {
-      if (porcentaje > 10) {
-          return "Error";
-      }
-      return "Success";
-  },
 
-  formatPercentage: function (porcentaje) {
-    if (porcentaje !== null && porcentaje !== undefined) {
-       porcentaje = porcentaje / 100;
-        return porcentaje.toFixed(2);
-    }
-    return "0.00";
-}
+
   };
 });

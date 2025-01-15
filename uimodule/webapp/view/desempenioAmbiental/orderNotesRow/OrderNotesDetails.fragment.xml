@@ -1,0 +1,42 @@
+<core:FragmentDefinition xmlns:mvc="sap.ui.core.mvc" displayBlock="true" xmlns="sap.m"
+	xmlns:form="sap.ui.layout.form" xmlns:u="sap.ui.unified" xmlns:l="sap.ui.layout"
+	xmlns:core="sap.ui.core">
+				<Panel expandable="false" width="auto">
+					<content>
+                        <Table id="ORDER_NOTES_DETAIL_TABLE"  items="{ path: 'mainModel>/DatosFormularioPSDA/TablePSDA/selectedRow/desempenio_nota_pedido', sorter: { path: 'nro_nota_pedido', descending: false} }"  width="auto" noDataText="{i18n>noDataText}" growing="true" growingScrollToLoad="true">
+                            <headerToolbar>
+                              <OverflowToolbar>
+                                <ToolbarSpacer/>
+                                <SearchField 
+                                  liveChange="onSearch" 
+                                  width="auto" 
+                                  class="sapUiTinyMarginEnd"
+                                  layoutData="FlexItemData" />
+                                <Button tooltip="{i18n>ordenar}" icon="sap-icon://sort" press="onSortPh" type="Ghost" class="sapUiTinyMarginEnd"/>
+                                  </OverflowToolbar>
+                            </headerToolbar>
+                            <columns>
+                              <Column  hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                <Text text="{i18n>orderNumber}" />
+                              </Column>
+                              <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                <Text text="{i18n>date}" />
+                              </Column>
+                              <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                <Text text="{i18n>status}" />
+                              </Column>
+                            </columns>
+                            <items>
+                              <ColumnListItem vAlign="Center">
+                                <cells>
+                                    <Text text="{mainModel>nota_pedido/nro_nota_pedido}" />
+                                    <Text text="{mainModel>nota_pedido/fecha_envio}"/>
+                                    <ObjectStatus text="{mainModel>nota_pedido/estado/descripcion}" inverted="true" state="{mainModel>nota_pedido/estado/color}"/>   
+                                </cells>
+                              </ColumnListItem>
+                            </items>
+                          </Table>         
+					</content>
+				</Panel>
+
+</core:FragmentDefinition>

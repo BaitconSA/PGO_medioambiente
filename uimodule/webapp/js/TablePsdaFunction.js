@@ -163,6 +163,7 @@ sap.ui.define([
 
         _resetFileUploader: function( oView ) { 
             const oModel = oView.getModel("mainModel");
+            oModel.setProperty("/DatosFormularioPSDA/payload/mesAinformar", null)
             oModel.setProperty("/OrderNotesTableData", [] );
             oModel.setProperty("/DatosFormularioPSDA/payload/documento/DocumentacionAdicional/Documentacion", {} );
             oModel.setProperty("/DatosFormularioPSDA/payload/documento/File", {} );
@@ -201,6 +202,40 @@ sap.ui.define([
               }
             });
             oModel.setProperty("/OrderNotesTableData", oSelectedItem);
+        },
+
+        //DETALLES DE PSDA
+        onViewDetails: function ( oView, oController, oEvent, oModel ) {
+            var oButton = oEvent.getSource();
+            var oItem = oButton.getParent();
+            var oContext = oItem.getBindingContext("mainModel");
+
+            // Obtener los datos de la fila seleccionada
+            var oSelectedRow = oContext.getObject();
+
+             // Usar desestructuración para acceder directamente al informe
+             const { informe_desempenio: [{ informe }] } = oSelectedRow;
+
+             let informeSeleccionado = informe[0];
+
+             // Establecer el informe en el modelo para el diálogo
+             oModel.setProperty("/DatosFormularioPSDA/TablePSDA/selectedRow", informeSeleccionado );
+             oModel.setProperty("/DatosFormularioPSDA/TablePSDA/mesInformar", informeSeleccionado["mes_informar"] ? informeSeleccionado["mes_informar"] : "Sin Informar" );
+             oModel.setProperty("/DatosFormularioPSDA/TablePSDA/control", oSelectedRow.control );
+             oModel.setProperty("/DatosFormularioPSDA/TablePSDA/fechaEntrega", oSelectedRow.fecha_informada );
+
+            if (!oView.byId("detailsPSDADialog")) {
+                Fragment.load({
+                    id: oView.getId(),
+                    name: "uimodule.view.desempenioAmbiental.details.DetailPSDA",
+                    controller: oController
+                }).then(function (oDialog) {
+                    oView.addDependent(oDialog);
+                    oDialog.open();
+                });
+            } else {
+                oView.byId("detailsPSDADialog").open();
+            }
         }
     };
 });
