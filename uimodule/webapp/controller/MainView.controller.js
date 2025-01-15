@@ -10,15 +10,17 @@ sap.ui.define([
     "uimodule/js/TableIAFunction",
     "uimodule/js/TableDAFunction",
     "sap/m/MessageBox",
-    "sap/m/MessageToast"
+    "sap/m/MessageToast",
+    "uimodule/model/formatter"
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast) {
+    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter) {
         "use strict";
 
         return Controller.extend("uimodule.controller.MainView", {
+            formatter: Formatter,
             onInit: function () {
                 this.getRouter().getRoute("MainView").attachPatternMatched(this._onObjectMatched, this);
             },
@@ -176,9 +178,14 @@ sap.ui.define([
             },
 
             // Seleccionar PSDA desde el dialog
-            onFileUploaderChange: function(oEvent) {
+            onFileUploaderChange: function(oEvent , sParam ) {
                 const oModel = this.getView().getModel("mainModel");
-                TablePsdaFunction.onFileUploaderChange( oEvent, this.getView(), oModel );
+                if( sParam === "Edit") {
+                    TablePsdaFunction.onFileUploaderChange( oEvent, this.getView(), oModel, "Edit" );
+                } else {
+                    TablePsdaFunction.onFileUploaderChange( oEvent, this.getView(), oModel );
+                }
+                
             },
 
             // Seleccion Archivo Adjunto CDA
@@ -229,15 +236,40 @@ sap.ui.define([
             },
 
             //Dialogo Orden de Notas en PSDA
-            onOpenDialogOrderNotes: function () {
-                const oController = this;
-                const oModel = this.getView().getModel("mainModel");
-                TablePsdaFunction.onOpenDialogOrderNotes( this.getView(), oModel, oController );
+            onOpenDialogOrderNotes: function (oEvent, sParam) {
+                if (sParam === "Edit") {
+                    const oController = this;
+                    const oModel = this.getView().getModel("mainModel");
+                    TablePsdaFunction.onOpenDialogOrderNotes( this.getView(), oModel, oController, "Edit" );
+                } else {
+                    const oController = this;
+                    const oModel = this.getView().getModel("mainModel");
+                    TablePsdaFunction.onOpenDialogOrderNotes( this.getView(), oModel, oController );
+                }
             },
 
-            onConfirmDialogOrderNotes: function ( oEvent ) {
-                const oModel = this.getView().getModel("mainModel");
-                TablePsdaFunction.onConfirmDialogOrderNotes( oEvent, oModel )
+            onDeleteOrderNotes: function ( oEvent, sParam ) {
+                    const deleteRecord = oEvent.getSource().getBindingContext("mainModel").getObject(),
+                    oModel = this.getView().getModel("mainModel"),
+                    aData = sParam === "Edit" ? oModel.getProperty("/OrderNotesTableEditData/nota_pedido") : oModel.getProperty("/OrderNotesTableData");
+                    for (let i = 0; i < aData.length; i++) {
+                    if (aData[i] === deleteRecord) {
+                        aData.splice(i, 1);
+                        oModel.refresh();
+                        break;
+                    }
+                 }
+            },
+
+            onConfirmDialogOrderNotes: function ( oEvent, sParam ) {
+                if (sParam === "Edit" ) {
+                    const oModel = this.getView().getModel("mainModel");
+                    TablePsdaFunction.onConfirmDialogOrderNotes( oEvent, oModel, "Edit" )
+                } else {
+                    const oModel = this.getView().getModel("mainModel");
+                    TablePsdaFunction.onConfirmDialogOrderNotes( oEvent, oModel )
+                }
+              
             },
 
             onInputLiveChange: function (oEvent) {
@@ -263,13 +295,13 @@ sap.ui.define([
                 Utils.dialogBusy(true);
 
                 const oModel = this.getView().getModel("mainModel");
+                const sObraID = oModel.getProperty("/ObraID");
+                const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive");
+                const fechaActual = new Date();
+                const mesActual = (fechaActual.getMonth() + 1).toString().padStart(2, '0');
                 // Lógica para guardar según la acción
                 if (sAction === "Save") {
                     // Lógica para guardar
-                    const sObraID = oModel.getProperty("/ObraID");
-                    const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive");
-                    const fechaActual = new Date();
-                    const mesActual = (fechaActual.getMonth() + 1).toString().padStart(2, '0');
                     const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/payload/mesAinformar");
                     const aOrderNotes = oModel.getProperty("/OrderNotesTableData");
                     const aUploadNotasPedido = aOrderNotes.map(item => ({ nota_pedido_ID: item.ID }));
@@ -281,8 +313,7 @@ sap.ui.define([
                         });
                     }
                     
-                    
-                    const invalidField = this._validateFields();
+                    const invalidField = this._validateFields("Save");
 
                     if (invalidField) { // Validación de campos obligatorios PSDA
                         let confirmMessage = this.getResourceBundle().getText("savePSDAConfirm");
@@ -333,9 +364,65 @@ sap.ui.define([
                     } 
                  
                     // --- FIN Lógica para guardar ---
-                } else if (sAction === "Send") {
-                    // Lógica para guardar y enviar
-                    console.log(sAction)
+                } else if (sAction === "SaveEdition") {
+                    // Lógica para Editar y Guardar
+                    const IDdesempenioAmbiental = oModel.getProperty("/DatosFormularioPSDA/EditSection/selectedRow/ID");
+                    const aOrderNotes = oModel.getProperty("/OrderNotesTableEditData/nota_pedido");
+                    const aUploadNotasPedido = aOrderNotes.map(item => ({ nota_pedido_ID: item.ID }));
+                    const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/EditSection/mesInformar");
+                    const oDocument = oModel.getProperty("/DatosFormularioPSDA/EditSection/documentAttachmentData");
+
+                    const invalidField = this._validateFields("SaveEdition");
+                    
+                    if (invalidField) { // Validación de campos obligatorios PSDA
+                        let confirmMessage = this.getResourceBundle().getText("savePSDAConfirm");
+                        MessageBox.confirm(confirmMessage, {
+                            actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                            emphasizedAction: "Aceptar",
+                            onClose: async (sAction) => {
+                              if (sAction !== "Aceptar")
+                                return;
+                              try {
+                                const oPayload = {
+                                resposnable_ambiental: sEnvironmentResponse || "",
+                                fecha_informada: null,
+                                fecha_informar: null,
+                                control: null,
+                                informe_desempenio: [
+                                    {
+                                        informe: [{
+                                            estado_ID: "BO",
+                                            mes: parseInt(mesActual),
+                                            sMesInformar: sMesInformar,
+                                            desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
+                                            PSDA_firmada_nombre: oDocument[0]?.documentoNombre,
+                                            PSDA_firmada_ruta: oDocument[0]?.documentoRuta,
+                                            PSDA_firmada_formato: oDocument[0]?.documentoFormato
+                                          }]
+                                        }
+                                    ]
+                                }
+                                
+                                const oNewPsdaDocument = await PSDA_operations.onUpdatePsdaDocument(IDdesempenioAmbiental, oPayload, this.getView());
+                                
+                                // Guardamos el ID de la entidad 'Padre'
+                                oModel.setProperty("/IDMainEntity", oNewPsdaDocument.ID );
+                                oModel.setProperty("/DatosFormularioPSDA/TablePSDA/Data", oNewPsdaDocument );
+                                
+                                this.onCancelPress(); // Cierro el dialogo y vuelvo a cargar información de la App
+                                this._loadData( sObraID );
+                              } catch (error) {
+                                Utils.dialogBusy(false);
+                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                                MessageToast.show(errorMessage);
+                              } finally {
+                                Utils.dialogBusy(false);
+                              }
+                            }
+                          });
+
+                    } 
+                    
                 }
                 
                 Utils.dialogBusy(false);
@@ -346,6 +433,13 @@ sap.ui.define([
                 const oModel = this.getModel("mainModel");
                 const oController = this;
                 TablePsdaFunction.onViewDetails( oView , oController, oEvent, oModel);
+            },
+
+            onEditPSDA: function ( oEvent ) {
+                const oView = this.getView();
+                const oModel = this.getModel("mainModel");
+                const oController = this;
+                TablePsdaFunction.onEdit( oView , oController, oEvent, oModel);
             },
 
             onSendPSDA: async function ( oEvent ) {
@@ -372,56 +466,103 @@ sap.ui.define([
                 this.getView().byId("detailsPSDADialog").close();
             },
 
-            _validateFields: function () {
-                const oModel = this.getView().getModel("mainModel");
-                const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/payload/mesAinformar");
-                const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive");
-                const aOrderNotesTableData = oModel.getProperty("/OrderNotesTableData");
-                const aDocumentsPSDA = oModel.getProperty("/DatosFormularioPSDA/payload/documento/DocumentacionAdicional/Documentacion");
+            onCloseDialogPsdaEdit: function () {
+                this.getView().byId("editPSDADialog").close();
+            },
 
+            _validateFields: function ( sParam ) {
+                //Comienzo Validaciones para EDICIÓN
+                if( sParam === "SaveEdition") {
+                    const oModel = this.getView().getModel("mainModel");
+                    const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/EditSection/mesInformar");
+                    const aOrderNotesTableData = oModel.getProperty("/OrderNotesTableEditData/nota_pedido");
+                    const aDocumentPSDA = oModel.getProperty("/DatosFormularioPSDA/EditSection/documentAttachmentData");
 
-                let isValidate = true;
+                    let isValidate = true;
 
-                if (sMesInformar === null || sMesInformar === undefined || sMesInformar.trim() === "") {
-                    oModel.setProperty("/Validation/valueStateMesInformar", "Error");
-                    oModel.setProperty("/Validation/valueStateTextMesInformar", "El campo mes a informar es Obligatorio.");
-                    MessageBox.error("Verificar el campo Mes a Informar.")
-                    isValidate = false;
+                    if (sMesInformar === null || sMesInformar === undefined || sMesInformar.trim() === "") {
+                        oModel.setProperty("/DatosFormularioPSDA/EditSection/validation/mesInformarValueState", "Error");
+                        oModel.setProperty("/DatosFormularioPSDA/EditSection/validation/mesInformarTextValueState", "El campo mes a informar es Obligatorio.");
+                        MessageBox.error("Verificar el campo Mes a Informar.")
+                        isValidate = false;
+                    } else {
+                        // El objeto no está vacío
+                        oModel.setProperty("/DatosFormularioPSDA/EditSection/validation/mesInformarValueState", "None");
+                        oModel.setProperty("/DatosFormularioPSDA/EditSection/validation/mesInformarTextValueState", "");
+                    }
+
+                    if (!aOrderNotesTableData || aOrderNotesTableData.length === 0) {
+                        MessageBox.error("Debe agregar al menos una nota de pedido antes de guardar.")
+                        return;
+                    }
+
+                    if (!aDocumentPSDA || Object.keys(aDocumentPSDA).length === 0) {
+                        // El objeto está vacío
+                        oModel.setProperty("/DatosFormularioPSDA/EditSection/validation/documentPsdaEditValueState", "Error");
+                        oModel.setProperty("/DatosFormularioPSDA/EditSection/validation/documentPsdaEditValueStateText", "Debe agregar al menos un documento.");
+                        MessageBox.error("Falta adjuntar el documento PSDA firmado, favor verificar.")
+                        isValidate = false;
+                    } else {
+                        // El objeto no está vacío
+                        oModel.setProperty("/DatosFormularioPSDA/EditSection/validation/documentPsdaEditValueState", "None");
+                        oModel.setProperty("/DatosFormularioPSDA/EditSection/validation/documentPsdaEditValueStateText", "");
+                    }
+
+                    //Fin Validaciones para EDICIÓN
+
+                    //Comienzo Validaciones para CREACIÓN
                 } else {
-                     // El objeto no está vacío
-                     oModel.setProperty("/Validation/valueStateMesInformar", "None");
-                     oModel.setProperty("/Validation/valueStateTextMesInformar", "");
+                    const oModel = this.getView().getModel("mainModel");
+                    const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/payload/mesAinformar");
+                    const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive");
+                    const aOrderNotesTableData = oModel.getProperty("/OrderNotesTableData");
+                    const aDocumentsPSDA = oModel.getProperty("/DatosFormularioPSDA/payload/documento/DocumentacionAdicional/Documentacion");
+
+
+                    let isValidate = true;
+
+                    if (sMesInformar === null || sMesInformar === undefined || sMesInformar.trim() === "") {
+                        oModel.setProperty("/Validation/valueStateMesInformar", "Error");
+                        oModel.setProperty("/Validation/valueStateTextMesInformar", "El campo mes a informar es Obligatorio.");
+                        MessageBox.error("Verificar el campo Mes a Informar.")
+                        isValidate = false;
+                    } else {
+                        // El objeto no está vacío
+                        oModel.setProperty("/Validation/valueStateMesInformar", "None");
+                        oModel.setProperty("/Validation/valueStateTextMesInformar", "");
+                    }
+
+
+                    if (sEnvironmentResponse === null || sEnvironmentResponse === undefined || sEnvironmentResponse.trim() === "") {
+                        oModel.setProperty("/Validation/environmentalResponsiveState", "Error");
+                        oModel.setProperty("/Validation/valueStateTextEnvironmentalResponsive", "El campo Responsable Ambiental es Obligatorio.");
+                        MessageBox.error("Verificar el campo Responsable Ambiental.")
+                        isValidate = false;
+                    } else {
+                        // El objeto no está vacío
+                        oModel.setProperty("/Validation/environmentalResponsiveState", "None");
+                        oModel.setProperty("/Validation/valueStateTextEnvironmentalResponsive", "");
+                    }
+
+
+                    if (!aOrderNotesTableData || aOrderNotesTableData.length === 0) {
+                        MessageBox.error("Debe agregar al menos una nota de pedido antes de guardar.")
+                        return;
+                    }
+
+                    if (!aDocumentsPSDA || Object.keys(aDocumentsPSDA).length === 0) {
+                        // El objeto está vacío
+                        oModel.setProperty("/DatosFormularioPSDA/payload/validation/documentPsdaValueState", "Error");
+                        oModel.setProperty("/DatosFormularioPSDA/payload/validation/documentPsdaValueStateText", "Debe agregar al menos un documento.");
+                        MessageBox.error("Falta adjuntar el documento PSDA firmado, favor verificar.")
+                        isValidate = false;
+                    } else {
+                        // El objeto no está vacío
+                        oModel.setProperty("/DatosFormularioPSDA/payload/validation/documentPsdaValueState", "None");
+                        oModel.setProperty("/DatosFormularioPSDA/payload/validation/documentPsdaValueStateText", "");
+                    }
                 }
-
-
-                if (sEnvironmentResponse === null || sEnvironmentResponse === undefined || sEnvironmentResponse.trim() === "") {
-                    oModel.setProperty("/Validation/environmentalResponsiveState", "Error");
-                    oModel.setProperty("/Validation/valueStateTextEnvironmentalResponsive", "El campo Responsable Ambiental es Obligatorio.");
-                    MessageBox.error("Verificar el campo Responsable Ambiental.")
-                    isValidate = false;
-                } else {
-                     // El objeto no está vacío
-                     oModel.setProperty("/Validation/environmentalResponsiveState", "None");
-                     oModel.setProperty("/Validation/valueStateTextEnvironmentalResponsive", "");
-                }
-
-
-                if (!aOrderNotesTableData || aOrderNotesTableData.length === 0) {
-                    MessageBox.error("Debe agregar al menos una nota de pedido antes de guardar.")
-                    return;
-                }
-
-                if (!aDocumentsPSDA || Object.keys(aDocumentsPSDA).length === 0) {
-                    // El objeto está vacío
-                    oModel.setProperty("/DatosFormularioPSDA/payload/validation/documentPsdaValueState", "Error");
-                    oModel.setProperty("/DatosFormularioPSDA/payload/validation/documentPsdaValueStateText", "Debe agregar al menos un documento.");
-                    MessageBox.error("Falta adjuntar el documento PSDA firmado, favor verificar.")
-                    isValidate = false;
-                } else {
-                    // El objeto no está vacío
-                    oModel.setProperty("/DatosFormularioPSDA/payload/validation/documentPsdaValueState", "None");
-                    oModel.setProperty("/DatosFormularioPSDA/payload/validation/documentPsdaValueStateText", "");
-                }
+                
                 
                 
                 return isValidate;

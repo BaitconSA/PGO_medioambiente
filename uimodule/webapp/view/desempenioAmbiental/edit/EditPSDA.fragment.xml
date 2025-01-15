@@ -1,0 +1,108 @@
+<core:FragmentDefinition 
+    xmlns="sap.m" 
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout" 
+    xmlns:u="sap.ui.unified"
+    xmlns:form="sap.ui.layout.form">
+    <Dialog id="editPSDADialog" title="{i18n>dialogDetailsPSDATitle} " class="sapUiResponsiveContentPadding">
+        <content>
+            <!-- Mes a Informar -->
+            <VBox class="sapUiSmallMargin">
+                <form:SimpleForm columnsM="2" columnsL="2" labelSpanM="4">
+                    <core:Title text=""/>
+                    <!-- Numero Planilla -->
+                    <Label text="{i18n>payrollNumber}" design="Bold" />
+                   <Text text="" />
+           
+                       <!-- Fecha de Entrega -->
+                   <Label text="{i18n>deliveryDate}" design="Bold" />
+                    <Text text="" />
+
+
+                    <core:Title text=""/>
+                    <!-- Control -->
+                    <Label text="{i18n>control}" design="Bold" />
+                    <GenericTag text="{mainModel>/DatosFormularioPSDA/EditSection/control/descripcion}" design="StatusIconHidden" status="{mainModel>/mainModel>/DatosFormularioPSDA/TablePSDA/control/state}" />              
+
+        
+                    <!-- Estado de Planilla -->
+                    <Label text="{i18n>payrollStatus}" design="Bold" />
+                    <ObjectStatus text="{mainModel>/DatosFormularioPSDA/EditSection/selectedRow/estado/descripcion}" inverted="true" state="{mainModel>/DatosFormularioPSDA/TablePSDA/selectedRow/estado/color}" />
+                    
+                
+                </form:SimpleForm>
+            </VBox>
+            <Label text="{i18n>monthToInform}" labelFor="monthComboBox" class="sapUiSmallMarginEnd"/>
+                <ComboBox id="monthComboBoxEdit" 
+                value="{mainModel>/DatosFormularioPSDA/EditSection/mesInformar}"
+                valueState="{mainModel>/DatosFormularioPSDA/validation/mesInformarValueState}"
+                valueStateText="{mainModel>/DatosFormularioPSDA/validation/mesInformarTextValueState}"
+                width="200px" placeholder="{i18n>selectMonth}">
+                    <core:Item key="01" text="Enero"/>
+                    <core:Item key="02" text="Febrero"/>
+                    <core:Item key="03" text="Marzo"/>
+                    <core:Item key="04" text="Abril"/>
+                    <core:Item key="05" text="Mayo"/>
+                    <core:Item key="06" text="Junio"/>
+                    <core:Item key="07" text="Julio"/>
+                    <core:Item key="08" text="Agosto"/>
+                    <core:Item key="09" text="Septiembre"/>
+                    <core:Item key="10" text="Octubre"/>
+                    <core:Item key="11" text="Noviembre"/>
+                    <core:Item key="12" text="Diciembre"/>
+                </ComboBox>
+
+            <!-- Tabla Notas de Pedido -->
+            <core:Fragment fragmentName="uimodule.view.desempenioAmbiental.orderNotesRow.edit.OrderNotesEdit" type="XML"/> 
+            <layout:VerticalLayout>
+                <!-- PSDA firmada por RA -->
+                <VBox class="sapUiSmallMarginTop">
+                    <Title level="H2" text="{i18n>psdaSigned}" />
+                    <HBox class="sapUiSmallMarginBottom">
+                        <u:FileUploader 
+                            id="fileUploaderPSDAedit" 
+                            change="onFileUploaderChange($event, 'Edit')"
+                            placeholder="{i18n>selectFile}" 
+                            class="sapUiSmallMarginBeginEnd"
+                            valueState="{mainModel>/DatosFormularioPSDA/payload/validation/documentPsdaValueState}"
+                            valueStateText="{mainModel>/DatosFormularioPSDA/payload/validation/documentPsdaValueStateText}"/>
+                    </HBox>
+                </VBox> 
+
+                <VBox id="previewContainerEditPsda" class="sapUiSmallMarginTop"></VBox>
+
+                <List id="DocumentDetailsEditSection" items="{ path: 'mainModel>/DatosFormularioPSDA/EditSection/documentAttachmentData' }">
+                    <headerToolbar>
+                        <Toolbar>
+                            <Title text="{i18n>currentDocumentAttachment}" />
+                        </Toolbar>
+                    </headerToolbar>
+                    <CustomListItem>
+                        <HBox>
+                            <VBox>
+                                <Label design="Bold" text="Nombre Documento: " />
+                                <Text text="{mainModel>documentoNombre}" />
+                                
+                                <Label class="sapUiSmallMarginTop" design="Bold" text="Formato: " />
+                                <Text text="{mainModel>documentoFormato}" />
+                                
+                                <Label class="sapUiSmallMarginTop" design="Bold" text="Fecha Creación: " />
+                                <Text text="{ path: 'mainModel>documentoFecha', formatter: '.formatter.formatDateFront'}" />
+                                
+                                <Label class="sapUiSmallMarginTop" design="Bold" text="Mes Actual: " />
+                                <Text text="{mainModel>mesActualCargado}" />
+                            </VBox>
+                        </HBox>
+                    </CustomListItem>
+                </List>
+
+
+            </layout:VerticalLayout>
+        </content>
+        <buttons>
+            <Button id="ButtonSaveEditionPsda" text="{i18n>save}" press="onSavePSDA($event, 'SaveEdition')" />
+            <Button id="ButtonSaveSendEditionPsda" text="{i18n>editSend}" press="onSavePSDA($event, 'SaveSendEdition')" />
+            <Button text="{i18n>close}" press="onCloseDialogPsdaEdit"/>
+         </buttons>
+    </Dialog>
+</core:FragmentDefinition>

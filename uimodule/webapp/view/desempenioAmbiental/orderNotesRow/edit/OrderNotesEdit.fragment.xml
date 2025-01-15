@@ -1,0 +1,49 @@
+<core:FragmentDefinition xmlns:mvc="sap.ui.core.mvc" displayBlock="true" xmlns="sap.m"
+	xmlns:form="sap.ui.layout.form" xmlns:u="sap.ui.unified" xmlns:l="sap.ui.layout"
+	xmlns:core="sap.ui.core">
+				<Panel expandable="false" width="auto">
+					<content>
+                        <Table id="ORDER_NOTES_EDIT_TABLE"  items="{ path: 'mainModel>/OrderNotesTableEditData/nota_pedido', sorter: { path: 'nro_nota_pedido', descending: false} }"  width="auto" noDataText="{i18n>noDataText}" growing="true" growingScrollToLoad="true">
+                            <headerToolbar>
+                              <OverflowToolbar>
+                                <ToolbarSpacer/>
+                                <SearchField 
+                                  liveChange="onSearch" 
+                                  width="auto" 
+                                  class="sapUiTinyMarginEnd"
+                                  layoutData="FlexItemData" />
+                                <Button tooltip="{i18n>ordenar}" icon="sap-icon://sort" press="onSortPh" type="Ghost" class="sapUiTinyMarginEnd"/>
+                                    <Button tooltip="{i18n>agregar}" press="onOpenDialogOrderNotes($event, 'Edit')" icon="sap-icon://add" type="Emphasized" />
+                            </OverflowToolbar>
+                            </headerToolbar>
+                            <columns>
+                              <Column  hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                <Text text="{i18n>orderNumber}" />
+                              </Column>
+                              <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                <Text text="{i18n>date}" />
+                              </Column>
+                              <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true">
+                                <Text text="{i18n>status}" />
+                              </Column>
+                              <Column hAlign="Left" minScreenWidth="Tablet" demandPopin="true">
+                                <Text text="{i18n>actions}" />
+                              </Column>
+                            </columns>
+                            <items>
+                              <ColumnListItem vAlign="Center">
+                                <cells>
+                                    <Text text="{mainModel>nro_nota_pedido}" />
+                                    <Text text="{mainModel>fecha_envio}"/>
+                                    <ObjectStatus text="{mainModel>estado/descripcion}" inverted="true" state="{mainModel>estado/color}"/> 
+                                    <HBox>
+                                        <Button type="Reject" icon="sap-icon://delete" press="onDeleteOrderNotes($event, 'Edit')" />
+                                    </HBox>
+                                </cells>
+                              </ColumnListItem>
+                            </items>
+                          </Table>         
+					</content>
+				</Panel>
+
+</core:FragmentDefinition>

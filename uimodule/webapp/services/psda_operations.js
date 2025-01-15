@@ -161,8 +161,28 @@ sap.ui.define([
 				console.error("Error al enviar el documento:", error);
                 throw error;  // Puedes manejar este error de otras maneras si lo prefieres
 			}
+		},
 
+		onUpdatePsdaDocument: async function (ID, oPayload, oView) {			
+			try { 
+				const oUpdatePSDA = await this.callUpdateService(`DesempeniosAmbientales/${ID}`, oPayload);
+				let message = "";
 
+				if (oUpdatePSDA.error) {
+                    message = "Error al actualizar el documento PSDA";
+                    Utils.showMessage( message , "Error", "ERROR");
+                    Utils.dialogBusy(false);
+                    return;
+                  }
+				  message = "Documento PSDA actualizado con éxito.";
+				  // Invocar el MessagePopover usando el MessageHandler
+				  Utils.showMessage( message , "Actualización Exitosa", "SUCCESS");
+				  Utils.dialogBusy(false);
+			} catch ( error ) {
+				Utils.dialogBusy(false);
+				console.error("Error al actualizar el documento:", error);
+                throw error;  // Puedes manejar este error de otras maneras si lo prefieres
+			}
 		}
         
 

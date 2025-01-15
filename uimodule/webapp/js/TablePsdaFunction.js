@@ -91,7 +91,7 @@ sap.ui.define([
             oModel.setProperty("/Years", aYears);
         },
 
-        onFileUploaderChange: function(oEvent, oView, oModel) {
+        onFileUploaderChange: function(oEvent, oView, oModel, sParam ) {
             var oFileUploader = oEvent.getSource();
             var oFile = oFileUploader.oFileUpload.files[0];
             
@@ -130,14 +130,29 @@ sap.ui.define([
                 MessageBox.error(errorMessage);
                 return;
             }
-        
-            oModel.setProperty("/DatosFormularioPSDA/payload/documento/DocumentacionAdicional/Documentacion", [...fileList, file]);
-            oModel.setProperty("/DatosFormularioPSDA/payload/documento/File", oFile);
+            
+            if ( sParam === "Edit") {
+                oModel.setProperty("/DatosFormularioPSDA/EditSection/documento/DocumentacionAdicional/Documentacion", [...fileList, file]);
+                oModel.setProperty("/DatosFormularioPSDA/EditSection/documento/File", oFile);
+                const aDocumentData = [{
+                    documentoNombre: file.PSDA_firmada_nombre,
+                    documentoFormato: file.PSDA_firmada_formato,
+                    documentoFecha: file.fechaAdjunto,
+                    documentoRuta: file.PSDA_firmada_ruta
+                }];
+                
+
+                 oModel.setProperty("/DatosFormularioPSDA/EditSection/documentAttachmentData", aDocumentData );
+            } else {
+                oModel.setProperty("/DatosFormularioPSDA/payload/documento/DocumentacionAdicional/Documentacion", [...fileList, file]);
+                oModel.setProperty("/DatosFormularioPSDA/payload/documento/File", oFile);
+            }
+            
         
             if (sFileExtension === "pdf") {
-                this._showPDFViewer(sFilePath, oView);
+                this._showPDFViewer(sFilePath, oView, sParam);
             } else if (["jpg", "jpeg", "png", "gif"].indexOf(sFileExtension) !== -1) {
-                this._showImageViewer(sFilePath);
+                this._showImageViewer(sFilePath, sParam );
             } else {
                 // Manejar otros tipos de archivos si es necesario
                 sap.m.MessageToast.show("Tipo de archivo no soportado");
@@ -145,20 +160,38 @@ sap.ui.define([
         },
         
         
-        _showPDFViewer: function(sFilePath, oView) {
-            var oHTML = new HTML({
-                content: "<iframe src='" + sFilePath + "' width='100%' height='300px'></iframe>"
-            });
-            oView.byId("previewContainer").removeAllItems();
-            oView.byId("previewContainer").addItem(oHTML);
+        _showPDFViewer: function(sFilePath, oView, sParam ) {
+            if( sParam === "Edit") {
+                let oHTML = new HTML({
+                    content: "<iframe src='" + sFilePath + "' width='100%' height='300px'></iframe>"
+                });
+                oView.byId("previewContainerEditPsda").removeAllItems();
+                oView.byId("previewContainerEditPsda").addItem(oHTML);
+            } else {
+                let oHTML = new HTML({
+                    content: "<iframe src='" + sFilePath + "' width='100%' height='300px'></iframe>"
+                });
+                oView.byId("previewContainer").removeAllItems();
+                oView.byId("previewContainer").addItem(oHTML);
+            }
+            
         },
         
-        _showImageViewer: function(sFilePath, oView) {
-            var oImage = new sap.m.Image({
-                src: sFilePath
-            });
-            oView.byId("previewContainer").removeAllItems();
-            oView.byId("previewContainer").addItem(oImage);
+        _showImageViewer: function(sFilePath, oView, sParam ) {
+            if(sParam === "Edit") {
+                let oImage = new sap.m.Image({
+                    src: sFilePath
+                });
+                oView.byId("previewContainerEditPsda").removeAllItems();
+                oView.byId("previewContainerEditPsda").addItem(oImage);
+             } else {
+                let oImage = new sap.m.Image({
+                    src: sFilePath
+                });
+                oView.byId("previewContainer").removeAllItems();
+                oView.byId("previewContainer").addItem(oImage);
+             } 
+          
             },
 
         _resetFileUploader: function( oView ) { 
@@ -173,8 +206,11 @@ sap.ui.define([
 
             },
 
-        onOpenDialogOrderNotes: async function ( oView, oModel, oController ) {
-            const oDialog = await this._openDialog("SELECT_ORDER_NOTES", "uimodule.view.desempenioAmbiental.orderNotesRow.OrderNotesDialog", oView, oController);
+        onOpenDialogOrderNotes: async function ( oView, oModel, oController, isEdit ) {
+            if (isEdit === "Edit") {
+                const oDialog = await this._openDialog("SELECT_ORDER_NOTES_EDIT", "uimodule.view.desempenioAmbiental.orderNotesRow.edit.OrderNotesEditDialog", oView, oController);
+            } else {
+                const oDialog = await this._openDialog("SELECT_ORDER_NOTES", "uimodule.view.desempenioAmbiental.orderNotesRow.OrderNotesDialog", oView, oController);            }
             },
 
         _openDialog: async function (fragmentID, fragmentName, oView, oController ) {
@@ -191,17 +227,34 @@ sap.ui.define([
             return oDialog;
             },
 
-        onConfirmDialogOrderNotes: async function ( oEvent , oModel ) {
-            const oSource = oEvent.getSource();
-            const aItems = oSource.getItems();
-            const oSelectedItem = [];
-            aItems.forEach(rowList => {
-              if (rowList.isSelected()) {
-                const sPath = rowList.getBindingContext("mainModel")["sPath"];
-                oSelectedItem.push(oModel.getProperty(sPath));
-              }
-            });
-            oModel.setProperty("/OrderNotesTableData", oSelectedItem);
+        onConfirmDialogOrderNotes: async function ( oEvent , oModel, sParam ) {
+            if (sParam === "Edit") {
+                const oSource = oEvent.getSource();
+                const aItems = oSource.getItems();
+                const oSelectedItem = [];
+                aItems.forEach(rowList => {
+                if (rowList.isSelected()) {
+                    const sPath = rowList.getBindingContext("mainModel")["sPath"];
+                    oSelectedItem.push(oModel.getProperty(sPath));
+                }
+                });
+                const oItemFormatted = {
+                    nota_pedido: oSelectedItem
+                }
+                oModel.setProperty("/OrderNotesTableEditData", oItemFormatted);
+                console.log(oModel)
+            } else {
+                const oSource = oEvent.getSource();
+                const aItems = oSource.getItems();
+                const oSelectedItem = [];
+                aItems.forEach(rowList => {
+                if (rowList.isSelected()) {
+                    const sPath = rowList.getBindingContext("mainModel")["sPath"];
+                    oSelectedItem.push(oModel.getProperty(sPath));
+                }
+                });
+                oModel.setProperty("/OrderNotesTableData", oSelectedItem);
+            }
         },
 
         //DETALLES DE PSDA
@@ -220,7 +273,7 @@ sap.ui.define([
 
              // Establecer el informe en el modelo para el diálogo
              oModel.setProperty("/DatosFormularioPSDA/TablePSDA/selectedRow", informeSeleccionado );
-             oModel.setProperty("/DatosFormularioPSDA/TablePSDA/mesInformar", informeSeleccionado["mes_informar"] ? informeSeleccionado["mes_informar"] : "Sin Informar" );
+             oModel.setProperty("/DatosFormularioPSDA/TablePSDA/mesInformar", informeSeleccionado["mes_informar"] ? informeSeleccionado["mes_informar"] : "" );
              oModel.setProperty("/DatosFormularioPSDA/TablePSDA/control", oSelectedRow.control );
              oModel.setProperty("/DatosFormularioPSDA/TablePSDA/fechaEntrega", oSelectedRow.fecha_informada );
 
@@ -235,6 +288,63 @@ sap.ui.define([
                 });
             } else {
                 oView.byId("detailsPSDADialog").open();
+            }
+        },
+
+        onEdit: function ( oView, oController, oEvent, oModel ) {
+            var oButton = oEvent.getSource();
+            var oItem = oButton.getParent();
+            var oContext = oItem.getBindingContext("mainModel");
+
+            // Obtener los datos de la fila seleccionada
+            var oSelectedRow = oContext.getObject();
+
+             // Usar desestructuración para acceder directamente al informe
+             const { informe_desempenio: [{ informe }] } = oSelectedRow;
+
+             let informeSeleccionado = informe[0];
+             
+             //Almaceno las Notas de Pedido en su propiedad para edicion y mostrar en Dialog
+             const aDesempenioNotaPedido = informeSeleccionado.desempenio_nota_pedido;
+                const aNotasPedido = [];
+
+                aDesempenioNotaPedido.forEach(item => {
+                    if (item.nota_pedido) {
+                        aNotasPedido.push(item.nota_pedido);
+                    }
+                });
+
+            const oOrderNotasFormatter = {
+                nota_pedido: aNotasPedido
+            }
+
+            const aDocumentData = [{
+                documentoNombre: informeSeleccionado.PSDA_firmada_nombre,
+                documentoFormato: informeSeleccionado.PSDA_firmada_formato,
+                documentoFecha: informeSeleccionado.createdAt,
+                mesActualCargado: informeSeleccionado.mes.toString()
+            }];
+            
+
+             oModel.setProperty("/OrderNotesTableEditData", oOrderNotasFormatter);
+             // Establecer el informe en el modelo para el diálogo
+             oModel.setProperty("/DatosFormularioPSDA/EditSection/selectedRow", informeSeleccionado );
+             oModel.setProperty("/DatosFormularioPSDA/EditSection/documentAttachmentData", aDocumentData );
+             oModel.setProperty("/DatosFormularioPSDA/EditSection/mesInformar", informeSeleccionado["mes_informar"] ? informeSeleccionado["mes_informar"] : "Sin Informar" );
+             oModel.setProperty("/DatosFormularioPSDA/EditSection/control", oSelectedRow.control );
+             oModel.setProperty("/DatosFormularioPSDA/EditSection/fechaEntrega", oSelectedRow.fecha_informada );
+
+            if (!oView.byId("editPSDADialog")) {
+                Fragment.load({
+                    id: oView.getId(),
+                    name: "uimodule.view.desempenioAmbiental.edit.EditPSDA",
+                    controller: oController
+                }).then(function (oDialog) {
+                    oView.addDependent(oDialog);
+                    oDialog.open();
+                });
+            } else {
+                oView.byId("editPSDADialog").open();
             }
         }
     };

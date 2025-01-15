@@ -13,10 +13,11 @@ sap.ui.define(["sap/ui/core/format/NumberFormat"], function (NumberFormat) {
       return toString(ID);
     },
 
-    formatDateFront: function (oDate) {
-      if (!oDate) {
+    formatDateFront: function (date) {
+      if (!date) {
         return;
       }
+      let oDate = new Date(date);
       let oYear = oDate.getUTCFullYear();
       let oMonth = oDate.getUTCMonth() + 1;
       let oDay = oDate.getUTCDate();

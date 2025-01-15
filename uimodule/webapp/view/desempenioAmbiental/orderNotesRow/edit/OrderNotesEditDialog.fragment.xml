@@ -1,0 +1,22 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	<SelectDialog
+		id="SELECT_ORDER_NOTES_EDIT"
+		noDataText="No se encontraron Notas de Pedido"
+		title="Elegir Nota/s de Pedido"
+		multiSelect="true"
+		search=".onSearchOrderNotes"
+		confirm=".onConfirmDialogOrderNotes($event, 'Edit')"
+		growing="true"
+		growingThreshold="30"
+		items="{mainModel>/OrderNotes}">
+		<StandardListItem
+			id="ListOrderNotesEdit"
+			title="N° Nota de Pedido:{mainModel>nro_nota_pedido}"
+			description="{mainModel>descripcion}"
+			iconDensityAware="false"
+			iconInset="false"
+			type="Active" />
+	</SelectDialog>
+</core:FragmentDefinition>

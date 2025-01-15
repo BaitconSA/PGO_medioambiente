@@ -54,6 +54,7 @@ sap.ui.define(
 
 					OrderNotes: [], // Array de objetos que son los datos de las notas de orden
 					OrderNotesTableData: [], // Información en tabla de Orden de Notas,
+					OrderNotesTableEditData: [], // Información en tabla de Orden de Notas pero EDICIÓN
 
 					// Datos de la tabla
 					TableData: [], // Array de objetos que son los datos de la tabla
@@ -113,7 +114,28 @@ sap.ui.define(
 							mesInformar: null,
 							control: {},
 							fechaEntrega: null
+						},
+						EditSection: {
+							Data:[],
+							selectedRow: {},
+							numeroPlanilla: null,
+							mesInformar: null,
+							control: {},
+							fechaEntrega: null,
+							isEdit: false,
+							documento: {
+								DocumentacionAdicional: {},
+								File: {},
+								FileName: null
+							},
+							validation: {
+								mesInformarValueState: null,
+								mesInformarTextValueState: null,
+								documentPsdaEditValueState:null,
+								documentPsdaEditValueStateText: null,
+							}
 						}
+
 					},
 					// Otros datos adicionales
 					DatosFormularioCDA: {
@@ -232,6 +254,7 @@ sap.ui.define(
 					oModel.setProperty( sPathSection + "/sP3IDDefault", P3IDefault );
                     oModel.setProperty( sPathSection + "/sPIIDefault", PIIDefault );
 
+					oModel.refresh(true);
                     return oModel;
 				
 			},

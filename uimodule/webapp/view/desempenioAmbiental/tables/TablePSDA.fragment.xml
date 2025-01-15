@@ -41,14 +41,15 @@
                         <ObjectStatus text="{mainModel>informe_desempenio/0/informe/0/estado/descripcion}" inverted="true" state="{mainModel>informe_desempenio/0/informe/0/estado/color}"/>
                         <Label text="{observation}" />
                         <HBox>
-                            <Button
-                                icon="sap-icon://detail-view"
-                                type="Accept"
+                            <core:Icon
+                                src="sap-icon://detail-view"
+                                color="#2471a3"
                                 press="onViewDetails"
                                 class="sapUiSmallMarginEnd"
                             />
-                            <Button icon="sap-icon://paper-plane" type="Emphasized" press="onSendPSDA" class="sapUiSmallMarginEnd" />
-                            <Button icon="sap-icon://delete" type="Reject" press="onAddManual"/>
+                            <core:Icon color="#212121" src="sap-icon://edit"  press="onEditPSDA" class="sapUiSmallMarginEnd" />
+                            <core:Icon src="sap-icon://delete" color="#FF5733" press="onAddManual" class="sapUiSmallMarginEnd" />       
+                            <core:Icon src="sap-icon://paper-plane" color="#27ae60" press="onSendPSDA" class="sapUiSmallMarginEnd" />
                         </HBox>
                         
                     </cells>
