@@ -17,14 +17,6 @@ sap.ui.define([
         },
 
         onOpenDialogIA: function ( oView, oController, oModel ) {
-           /* let aPsdaData = oModel.getProperty("/managementOptionsIcon/PSDAData");
-            aPsdaData.push({
-                fechaUltimoMesInformado: "",
-                fechaMesAInformar: "",
-                control: "",
-                estado: ""
-            });
-            oModel.setProperty("/managementOptionsIcon/PSDAData", aPsdaData); */
     
                 if (!oView.byId("addDocumentationIADialog")) {
                     Fragment.load({

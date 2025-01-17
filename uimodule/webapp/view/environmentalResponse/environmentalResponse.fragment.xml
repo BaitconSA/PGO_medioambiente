@@ -1,0 +1,16 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <Popover
+        id="editPopover"
+        title="{i18n>editEnvironmentalReponse}"
+        contentWidth="300px">
+        <VBox>
+            <Input id="popoverInput" />
+            <HBox justifyContent="End" styleClass="sapUiSmallMarginTop">
+                <Button text="Guardar" type="Accept" press="onSavePress" />
+                <Button text="Cancelar" type="Reject" press="onCancelPress" />
+            </HBox>
+        </VBox>
+    </Popover>
+</core:FragmentDefinition>

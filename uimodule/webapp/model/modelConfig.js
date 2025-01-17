@@ -91,6 +91,9 @@ sap.ui.define(
 
 					Years: [], // Array para almacenar los años
 					IDMainEntity: null,
+					ResponsableAmbiental: {
+						Data: []
+					},
 					DatosFormularioPSDA:{
 						payloadType: "datosFormularioPSDA",
 						payload: {
@@ -254,7 +257,7 @@ sap.ui.define(
 
 			// Nueva función para estructurar el modelo de datos basado en oObraData
 			// eslint-disable-next-line complexity, consistent-return
-			createStructuredModel: function (oView, oModel, oObraData, oInformesData, oControlesData, oUserData, oUserRolesData) {
+			createStructuredModel: function (oView, oModel, oObraData, oResponsableAmbientalData, oInformesData, oControlesData, oUserData, oUserRolesData) {
 
 					// Listas P3 y PI
 					let sObraID = oObraData.ID,
@@ -292,6 +295,10 @@ sap.ui.define(
 								});
 							}
 						});
+					}
+
+					if(oResponsableAmbientalData.value && oResponsableAmbientalData.value.length > 0 ) {
+						oModel.setProperty( "/ResponsableAmbiental/Data", oResponsableAmbientalData.value );
 					}
 
 					if( oInformesData.value && oInformesData.value.length > 0 ) {

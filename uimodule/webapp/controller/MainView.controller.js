@@ -13,12 +13,13 @@ sap.ui.define([
     "uimodule/js/TableDAFunction",
     "sap/m/MessageBox",
     "sap/m/MessageToast",
-    "uimodule/model/formatter"
+    "uimodule/model/formatter",
+    "sap/ui/core/Fragment"
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, CDA_operations, IA_operations, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter) {
+    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, CDA_operations, IA_operations, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter, Fragment) {
         "use strict";
 
         return Controller.extend("uimodule.controller.MainView", {
@@ -74,13 +75,14 @@ sap.ui.define([
                     let oView = this.getView();
                     try {
                         const oObra = Services.getObraData(obraID);
+                        const oResponsableAmbiental = Services.getResponsableAmbiental();
                         const oInformes = PSDA_operations.getInformes(); // Obtengo Informes Planilla de seguimiento desempeño Ambiental
                         const oControlesDesvios = CDA_operations.getControles(); // Obtengo Controles de desvíos ambientales
                         const oInformesAmbientales = IA_operations.getInformes(); // Obtengo Informacion de documentos de Informes Ambientales
-                        const [oObraData, oInformesData, oControlesData, oInformesAmbientalesData] = await Promise.all([oObra, oInformes, oControlesDesvios, oInformesAmbientales]);
+                        const [oObraData, oResponsableAmbientalData, oInformesData, oControlesData, oInformesAmbientalesData] = await Promise.all([oObra, oResponsableAmbiental, oInformes, oControlesDesvios, oInformesAmbientales]);
                     
                         // Armo los P3 / PI / Información necesaria de la Obra.
-                        this._oMainModel = ModelConfig.createStructuredModel(oView, this._oMainModel, oObraData, oInformesData, oControlesData, oInformesAmbientalesData,  oUserData, oUserRolesData);
+                        this._oMainModel = ModelConfig.createStructuredModel(oView, this._oMainModel, oObraData, oResponsableAmbientalData,  oInformesData, oControlesData, oInformesAmbientalesData,  oUserData, oUserRolesData);
                     
                         // Permisos del Usuario para Ejecutar la App
                         const oPermissions = PermissionUser.evaluateUserPermissions(oUserRolesData);
@@ -163,6 +165,43 @@ sap.ui.define([
             _clearTableMain: function () {
                 this._oMainModel.setProperty("/TableData", []);
                 this._oMainModel.setProperty("/Preload/IsLoading", false);
+            },
+
+            onSaveEnvironmentalResponsive: function ( oEvent ) {
+                const oModel = this.getView().getModel("mainModel");
+                const sEnvironmentalResponsive = oModel.getProperty("/Payload/environmentalResponsive");
+// Validación de campos obligatorios PSDA
+                    let confirmMessage = this.getResourceBundle().getText("saveEnvironmentalResponseConfirm");
+                    MessageBox.confirm(confirmMessage, {
+                        actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                        emphasizedAction: "Aceptar",
+                        onClose: async (sAction) => {
+                          if (sAction !== "Aceptar")
+                            return;
+                          try {
+                            const oPayload = {
+                                responsable_ambiental: sEnvironmentalResponsive
+                            }
+                            
+                            const oNewEnvironmentalResponsive = await Services.onCreateEnvironmentalResponsive(oPayload, this.getView());
+
+                            console.log(oNewEnvironmentalResponsive);
+                            this.onClosePopover(); // Cierro el popover y vuelvo a cargar información de la App
+                            this._loadData( sObraID );
+                          } catch (error) {
+                            const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                            MessageToast.show(errorMessage);
+                          } finally {
+                            Utils.dialogBusy(false);
+                          }
+                        }
+                      });
+
+            },
+
+            onClosePopover: function () {
+                this.getView().byId("editPopover").close();
+
             },
 
             onOpenDialog: function (oEvent) {
@@ -307,12 +346,26 @@ sap.ui.define([
                TablePsdaFunction.onInputLiveChange( oEvent, oModel, oEvent.getSource().getId() );
             },
 
-            onValidateDate: function (oEvent) {
-               TablePsdaFunction.onValidateDate( oEvent );
-            },
 
-            onValidateMonthYear: function (oEvent) {
-               TablePsdaFunction.onValidateMonthYear( oEvent );
+
+            onEditEnvironmentalResponsive: function (oEvent) {
+                var oInput = this.byId("inputField");
+                var sValue = oInput.getValue();
+    
+                if (!this._oPopover) {
+                    Fragment.load({
+                        name: "uimodule.view.environmentalResponse.environmentalResponse",
+                        controller: this
+                    }).then(function (oPopover) {
+                        this._oPopover = oPopover;
+                        this.getView().addDependent(this._oPopover);
+                        this._oPopover.openBy(oEvent.getSource());
+                        this.byId("popoverInput").setValue(sValue);
+                    }.bind(this));
+                } else {
+                    this._oPopover.openBy(oEvent.getSource());
+                    this.byId("popoverInput").setValue(sValue);
+                }
             },
 
             onCancelPress: function (sParam) {
@@ -373,23 +426,13 @@ sap.ui.define([
                                 return;
                               try {
                                 const oPayload = {
-                                resposnable_ambiental: sEnvironmentResponse || "",
-                                fecha_informada: null,
-                                fecha_informar: null,
-                                control: null,
-                                informe_desempenio: [
-                                    {
-                                        informe: [{
-                                            estado_ID: "BO",
-                                            mes: parseInt(mesActual),
-                                            sMesInformar: sMesInformar,
-                                            desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
-                                            PSDA_firmada_nombre: aUploadDocumentsPSDA[0]?.PSDA_firmada_nombre,
-                                            PSDA_firmada_ruta: aUploadDocumentsPSDA[0]?.PSDA_firmada_ruta,
-                                            PSDA_firmada_formato: aUploadDocumentsPSDA[0]?.PSDA_firmada_formato
-                                          }]
-                                        }
-                                    ]
+                                    estado_ID: "BO",
+                                    mes: parseInt(mesActual),
+                                    sMesInformar: sMesInformar,
+                                    desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
+                                    PSDA_firmada_nombre: aUploadDocumentsPSDA[0]?.PSDA_firmada_nombre,
+                                    PSDA_firmada_ruta: aUploadDocumentsPSDA[0]?.PSDA_firmada_ruta,
+                                    PSDA_firmada_formato: aUploadDocumentsPSDA[0]?.PSDA_firmada_formato
                                 }
                                 
                                 const oNewPsdaDocument = await PSDA_operations.onCreatePsdaDocument(oPayload, this.getView());

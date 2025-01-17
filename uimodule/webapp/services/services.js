@@ -1,7 +1,8 @@
 // @ts-nocheck
 sap.ui.define([
-	"sap/ui/core/mvc/Controller"
-], function (Controller) {
+	"sap/ui/core/mvc/Controller",
+	"uimodule/utils/utils",
+], function (Controller, Utils) {
 	"use strict";
 
 	return {
@@ -237,7 +238,36 @@ sap.ui.define([
 				body: JSON.stringify(oPayload)
 			});
 			return await oData.json();
-		}
+		},
+
+		getResponsableAmbiental: function () {
+				//const url = `Obras/${ID}?$expand=${expandParams}`;
+				const url = `DesempeniosAmbientales`;
+			
+				return this.callGetService(url);
+		},
+
+		onCreateEnvironmentalResponsive: async function (oPayload, oView ) {
+            try {
+                const oNewResponsable = await this.callPostService("DesempeniosAmbientales", oPayload);
+                let message = null;
+
+                if (oNewResponsable.error) {
+                    message = "Error al crear el reponsable ambiental";
+                    Utils.showMessage( message , "Error", "ERROR");
+                    Utils.dialogBusy(false);
+                    return;
+                  }
+                message = "Responsable ambiental creado con éxito.";
+                // Invocar el MessagePopover usando el MessageHandler
+                Utils.showMessage( message , "Creación de Documento", "SUCCESS");
+
+                return oNewPsdaDocument;
+            } catch (error) {
+                console.error("Error al crear el documento:", error);
+                throw error;  // Puedes manejar este error de otras maneras si lo prefieres
+            }
+        },
 
 	};
 });

@@ -111,7 +111,7 @@ sap.ui.define([
 
         onCreatePsdaDocument: async function (oPayload, oView ) {
             try {
-                const oNewPsdaDocument = await this.callPostService("DesempeniosAmbientales", oPayload);
+                const oNewPsdaDocument = await this.callPostService("InformesDesempenioAmbiental", oPayload);
                 let message = null;
 
                 if (oNewPsdaDocument.error) {
