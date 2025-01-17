@@ -57,6 +57,8 @@ sap.ui.define([
         showMessagePopover: function (messages, oControl) {
             var oMessagePopover = this.createMessagePopover(messages);
             oMessagePopover.openBy(oControl);
-        }
+        },
+
+    
     };
 });

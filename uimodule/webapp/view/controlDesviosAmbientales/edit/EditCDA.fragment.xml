@@ -1,0 +1,62 @@
+<core:FragmentDefinition 
+    xmlns="sap.m" 
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout" 
+    xmlns:u="sap.ui.unified"
+    xmlns:form="sap.ui.layout.form">
+    <Dialog id="editCDADialog" title="{i18n>dialogEditCDATitle} " class="sapUiResponsiveContentPadding">
+        <content>
+            <!-- Mes a Informar -->
+            <VBox class="sapUiSmallMargin">
+                <MessageStrip
+                    id="messageStripCDA"
+                    visible="false"
+                    showCloseButton="true"
+                    showIcon="true"/>
+                
+                <Label text="Fecha de detección" />
+                <DatePicker 
+                value="{mainModel>/DatosFormularioCDA/EditSection/FechaDeteccion}" 
+                displayFormat="dd.MM.yyyy"
+                valueState="{mainModel>/DatosFormularioCDA/EditSection/validation/dateOfDetectionValueState}"
+                valueStateText="{mainModel>/DatosFormularioCDA/EditSection/validation/dateOfDetectionTextValueState}">
+             </DatePicker>
+            
+
+                <Label text="Adjuntar Documento" labelFor="fileUploader" />
+                <u:FileUploader
+                    id="fileUploaderCDA"
+                    tooltip="Upload your file to the local server"
+                    change="onFileUploaderChange($event, 'documentCDA_edit')"
+                    valueState="{mainModel>/DatosFormularioCDA/EditSection/validation/documentCdaValueState}"
+                    valueStateText="{mainModel>/DatosFormularioCDA/EditSection/validation/documentCdaEditValueStateText}"
+                    />
+            </VBox>
+            <List id="DocumentDetailSectionCDA" items="{ path: 'mainModel>/DatosFormularioCDA/EditSection/documentAttachmentData' }">
+                <headerToolbar>
+                    <Toolbar>
+                        <Title text="{i18n>currentDocumentAttachment}" />
+                    </Toolbar>
+                </headerToolbar>
+                <CustomListItem>
+                    <HBox class="sapUiSmallMargin">
+                        <VBox>
+                            <Label design="Bold" text="Nombre Documento: " />
+                            <Text text="{mainModel>documentoNombre}" />
+                            
+                            <Label class="sapUiSmallMarginTop" design="Bold" text="Fecha Creación: " />
+                            <Text text="{ path: 'mainModel>documentoFecha', formatter: '.formatter.formatDateFront'}" />
+                            
+                        </VBox>
+                    </HBox>
+                </CustomListItem>
+            </List>
+           
+        </content>
+        <buttons>
+            <Button id="ButtonSaveEditionCda" text="{i18n>save}" press="onSaveCDA($event, 'documentCDA_edit')" />
+            <Button id="ButtonSaveSendEditionCda" text="{i18n>editSend}" press="onSavePSDA($event, 'documentCDA_edit')" />
+            <Button text="{i18n>close}" press="onCloseDialogPsdaEdit"/>
+         </buttons>
+    </Dialog>
+</core:FragmentDefinition>

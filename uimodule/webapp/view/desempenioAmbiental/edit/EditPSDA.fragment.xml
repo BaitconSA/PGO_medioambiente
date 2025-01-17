@@ -34,19 +34,19 @@
             </VBox>
             <Label text="{i18n>monthToInform}" labelFor="monthComboBox" class="sapUiSmallMarginEnd"/>
                 <ComboBox id="monthComboBoxEdit" 
-                value="{mainModel>/DatosFormularioPSDA/EditSection/mesInformar}"
+                selectedKey="{mainModel>/DatosFormularioPSDA/EditSection/mesInformar}"
                 valueState="{mainModel>/DatosFormularioPSDA/validation/mesInformarValueState}"
                 valueStateText="{mainModel>/DatosFormularioPSDA/validation/mesInformarTextValueState}"
                 width="200px" placeholder="{i18n>selectMonth}">
-                    <core:Item key="01" text="Enero"/>
-                    <core:Item key="02" text="Febrero"/>
-                    <core:Item key="03" text="Marzo"/>
-                    <core:Item key="04" text="Abril"/>
-                    <core:Item key="05" text="Mayo"/>
-                    <core:Item key="06" text="Junio"/>
-                    <core:Item key="07" text="Julio"/>
-                    <core:Item key="08" text="Agosto"/>
-                    <core:Item key="09" text="Septiembre"/>
+                    <core:Item key="1" text="Enero"/>
+                    <core:Item key="2" text="Febrero"/>
+                    <core:Item key="3" text="Marzo"/>
+                    <core:Item key="4" text="Abril"/>
+                    <core:Item key="5" text="Mayo"/>
+                    <core:Item key="6" text="Junio"/>
+                    <core:Item key="7" text="Julio"/>
+                    <core:Item key="8" text="Agosto"/>
+                    <core:Item key="9" text="Septiembre"/>
                     <core:Item key="10" text="Octubre"/>
                     <core:Item key="11" text="Noviembre"/>
                     <core:Item key="12" text="Diciembre"/>
@@ -57,11 +57,11 @@
             <layout:VerticalLayout>
                 <!-- PSDA firmada por RA -->
                 <VBox class="sapUiSmallMarginTop">
-                    <Title level="H2" text="{i18n>psdaSigned}" />
+                    <Title level="H2" text="{i18n>modifiedPsdaSigned}" />
                     <HBox class="sapUiSmallMarginBottom">
                         <u:FileUploader 
                             id="fileUploaderPSDAedit" 
-                            change="onFileUploaderChange($event, 'Edit')"
+                            change="onFileUploaderChange($event, 'documentPSDA_edit')"
                             placeholder="{i18n>selectFile}" 
                             class="sapUiSmallMarginBeginEnd"
                             valueState="{mainModel>/DatosFormularioPSDA/payload/validation/documentPsdaValueState}"

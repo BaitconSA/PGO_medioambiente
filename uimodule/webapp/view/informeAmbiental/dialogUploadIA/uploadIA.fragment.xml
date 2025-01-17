@@ -4,7 +4,7 @@
     xmlns:u="sap.ui.unified">
 
     <Dialog
-        id="addDocumentationIADialog"
+        id="dialogUploadIA"
         title="Cargar Informe Ambiental"
         stretch="{device>/system/phone}">
 
@@ -21,15 +21,37 @@
                 <u:FileUploader
                     id="fileUploaderIA"
                     tooltip="Upload your file to the local server"
-                    uploadComplete="handleUploadComplete" 
-                    change="onSelectFileIA"/>
+                    change="onFileUploaderChange($event, 'documentIA_create')"
+                    valueState="{mainModel>/DatosFormularioIA/payload/uploadIA/validation/documentIaValueState}"
+                    valueStateText="{mainModel>/DatosFormularioIA/payload/uploadIA/validation/documentIaEditValueStateText}"/>
             </VBox>
         </content>
-        
+        <List id="DocumentCreateInfoIA" items="{ path: 'mainModel>/DatosFormularioIA/payload/uploadIA/documentAttachmentData' }">
+            <headerToolbar>
+                <Toolbar>
+                    <Title text="{i18n>currentDocumentAttachment}" />
+                </Toolbar>
+            </headerToolbar>
+            <CustomListItem>
+                <HBox class="sapUiSmallMargin">
+                    <VBox>
+                        <Label design="Bold" text="Nombre Documento: " />
+                        <Text text="{mainModel>documentoNombre}" />
+                        
+                        <Label class="sapUiSmallMarginTop" design="Bold" text="Formato: " />
+                        <Text text="{mainModel>documentoFormato}" />
+                        
+                        <Label class="sapUiSmallMarginTop" design="Bold" text="Fecha Creación: " />
+                        <Text text="{ path: 'mainModel>documentoFecha', formatter: '.formatter.formatDateFront'}" />
+                        
+                    </VBox>
+                </HBox>
+            </CustomListItem>
+        </List>
         <footer>
             <Toolbar>
                 <ToolbarSpacer />
-                <Button text="Guardar" press="onSaveDocumentIA" />
+                <Button text="Guardar"  press="onSaveIA($event, 'documentIA_create')" />
                 <Button text="Cancelar" press="onCancelDialogIA" />
             </Toolbar>
         </footer>

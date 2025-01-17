@@ -4,7 +4,7 @@
     xmlns:u="sap.ui.unified">
 
     <Dialog
-        id="addDocumentationDialog"
+        id="dialogUploadCDA"
         title="Cargar el Desvío"
         stretch="{device>/system/phone}">
 
@@ -17,22 +17,51 @@
                     showIcon="true"/>
                 
                 <Label text="Fecha de detección" />
-                <DatePicker value="{mainModel>/DatosFormularioCDA/payload/FechaDeteccion}" displayFormat="dd.MM.yyyy"/>
+                <DatePicker 
+                value="{mainModel>/DatosFormularioCDA/payload/FechaDeteccion}" 
+                displayFormat="dd.MM.yyyy"
+                valueState="{mainModel>/DatosFormularioCDA/payload/uploadCDA/validation/dateOfDetectionValueState}"
+                valueStateText="{mainModel>/DatosFormularioCDA/payload/uploadCDA/validation/dateOfDetectionTextValueState}">
+             </DatePicker>
+            
 
                 <Label text="Adjuntar Documento" labelFor="fileUploader" />
                 <u:FileUploader
                     id="fileUploaderCDA"
                     tooltip="Upload your file to the local server"
-                    uploadComplete="handleUploadComplete" 
-                    change="onSelectFile"/>
+                    change="onFileUploaderChange($event, 'documentCDA_create')"
+                    valueState="{mainModel>/DatosFormularioCDA/payload/uploadCDA/validation/documentCdaValueState}"
+                    valueStateText="{mainModel>/DatosFormularioCDA/payload/uploadCDA/validation/documentCdaEditValueStateText}"
+                    />
             </VBox>
         </content>
-        
+        <List id="DocumentDetailSectionCDA" items="{ path: 'mainModel>/DatosFormularioCDA/payload/uploadCDA/documentAttachmentData' }">
+            <headerToolbar>
+                <Toolbar>
+                    <Title text="{i18n>currentDocumentAttachment}" />
+                </Toolbar>
+            </headerToolbar>
+            <CustomListItem>
+                <HBox class="sapUiSmallMargin">
+                    <VBox>
+                        <Label design="Bold" text="Nombre Documento: " />
+                        <Text text="{mainModel>documentoNombre}" />
+                        
+                        <Label class="sapUiSmallMarginTop" design="Bold" text="Formato: " />
+                        <Text text="{mainModel>documentoFormato}" />
+                        
+                        <Label class="sapUiSmallMarginTop" design="Bold" text="Fecha Creación: " />
+                        <Text text="{ path: 'mainModel>documentoFecha', formatter: '.formatter.formatDateFront'}" />
+                        
+                    </VBox>
+                </HBox>
+            </CustomListItem>
+        </List>
         <footer>
             <Toolbar>
                 <ToolbarSpacer />
-                <Button text="Guardar" press="onSaveDocumentCDA" />
-                <Button text="Cancelar" press="onCancelDialog" />
+                <Button text="Guardar" press="onSaveCDA($event, 'documentCDA_create')" />
+                <Button text="Cancelar" press="onCancelDialogCDA" />
             </Toolbar>
         </footer>
 

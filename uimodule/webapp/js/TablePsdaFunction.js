@@ -271,8 +271,25 @@ sap.ui.define([
 
              let informeSeleccionado = informe[0];
 
+             const aDesempenioNotaPedido = informeSeleccionado.desempenio_nota_pedido;
+             const aNotasPedido = [];
+
+             aDesempenioNotaPedido.forEach(item => {
+                 if (item.nota_pedido) {
+                     aNotasPedido.push(item.nota_pedido);
+                 }
+             });
+
+         const aDocumentData = [{
+             documentoNombre: informeSeleccionado.PSDA_firmada_nombre,
+             documentoFormato: informeSeleccionado.PSDA_firmada_formato,
+             documentoFecha: informeSeleccionado.createdAt,
+             mesActualCargado: informeSeleccionado.mes.toString()
+         }];
+
              // Establecer el informe en el modelo para el diálogo
              oModel.setProperty("/DatosFormularioPSDA/TablePSDA/selectedRow", informeSeleccionado );
+             oModel.setProperty("/DatosFormularioPSDA/TablePSDA/documentAttachmentData", aDocumentData );
              oModel.setProperty("/DatosFormularioPSDA/TablePSDA/mesInformar", informeSeleccionado["mes_informar"] ? informeSeleccionado["mes_informar"] : "" );
              oModel.setProperty("/DatosFormularioPSDA/TablePSDA/control", oSelectedRow.control );
              oModel.setProperty("/DatosFormularioPSDA/TablePSDA/fechaEntrega", oSelectedRow.fecha_informada );
