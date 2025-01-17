@@ -36,20 +36,8 @@
                          </content>
                          
                      </IconTabBar>
-                     
-         
-                   
-           
+
             </VBox>
-            
-
         </content>
-
-         <footer>
-            <Toolbar>
-                <ToolbarSpacer/>
-                <Button text="Enviar" press="onSend" type="Emphasized" icon="sap-icon://paper-plane" class="sapUiLargeMarginEnd" width="7%"/>
-            </Toolbar>
-        </footer>
     </Page>
 </mvc:View>
