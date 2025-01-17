@@ -266,12 +266,7 @@ sap.ui.define([
             // Obtener los datos de la fila seleccionada
             var oSelectedRow = oContext.getObject();
 
-             // Usar desestructuración para acceder directamente al informe
-             const { informe_desempenio: [{ informe }] } = oSelectedRow;
-
-             let informeSeleccionado = informe[0];
-
-             const aDesempenioNotaPedido = informeSeleccionado.desempenio_nota_pedido;
+             const aDesempenioNotaPedido = oSelectedRow.desempenio_nota_pedido;
              const aNotasPedido = [];
 
              aDesempenioNotaPedido.forEach(item => {
@@ -281,16 +276,16 @@ sap.ui.define([
              });
 
          const aDocumentData = [{
-             documentoNombre: informeSeleccionado.PSDA_firmada_nombre,
-             documentoFormato: informeSeleccionado.PSDA_firmada_formato,
-             documentoFecha: informeSeleccionado.createdAt,
-             mesActualCargado: informeSeleccionado.mes.toString()
+             documentoNombre: oSelectedRow.PSDA_firmada_nombre,
+             documentoFormato: oSelectedRow.PSDA_firmada_formato,
+             documentoFecha: oSelectedRow.createdAt,
+             mesActualCargado: oSelectedRow.mes.toString()
          }];
 
              // Establecer el informe en el modelo para el diálogo
-             oModel.setProperty("/DatosFormularioPSDA/TablePSDA/selectedRow", informeSeleccionado );
+             oModel.setProperty("/DatosFormularioPSDA/TablePSDA/selectedRow", oSelectedRow );
              oModel.setProperty("/DatosFormularioPSDA/TablePSDA/documentAttachmentData", aDocumentData );
-             oModel.setProperty("/DatosFormularioPSDA/TablePSDA/mesInformar", informeSeleccionado["mes_informar"] ? informeSeleccionado["mes_informar"] : "" );
+             oModel.setProperty("/DatosFormularioPSDA/TablePSDA/mesInformar", oSelectedRow["mes_informar"] ? oSelectedRow["mes_informar"] : "" );
              oModel.setProperty("/DatosFormularioPSDA/TablePSDA/control", oSelectedRow.control );
              oModel.setProperty("/DatosFormularioPSDA/TablePSDA/fechaEntrega", oSelectedRow.fecha_informada );
 
@@ -316,13 +311,10 @@ sap.ui.define([
             // Obtener los datos de la fila seleccionada
             var oSelectedRow = oContext.getObject();
 
-             // Usar desestructuración para acceder directamente al informe
-             const { informe_desempenio: [{ informe }] } = oSelectedRow;
-
-             let informeSeleccionado = informe[0];
+           
              
              //Almaceno las Notas de Pedido en su propiedad para edicion y mostrar en Dialog
-             const aDesempenioNotaPedido = informeSeleccionado.desempenio_nota_pedido;
+             const aDesempenioNotaPedido = oSelectedRow.desempenio_nota_pedido;
                 const aNotasPedido = [];
 
                 aDesempenioNotaPedido.forEach(item => {
@@ -336,18 +328,18 @@ sap.ui.define([
             }
 
             const aDocumentData = [{
-                documentoNombre: informeSeleccionado.PSDA_firmada_nombre,
-                documentoFormato: informeSeleccionado.PSDA_firmada_formato,
-                documentoFecha: informeSeleccionado.createdAt,
-                mesActualCargado: informeSeleccionado.mes.toString()
+                documentoNombre: oSelectedRow.PSDA_firmada_nombre,
+                documentoFormato: oSelectedRow.PSDA_firmada_formato,
+                documentoFecha: oSelectedRow.createdAt,
+                mesActualCargado: oSelectedRow.mes.toString()
             }];
             
 
              oModel.setProperty("/OrderNotesTableEditData", oOrderNotasFormatter);
              // Establecer el informe en el modelo para el diálogo
-             oModel.setProperty("/DatosFormularioPSDA/EditSection/selectedRow", informeSeleccionado );
+             oModel.setProperty("/DatosFormularioPSDA/EditSection/selectedRow", oSelectedRow );
              oModel.setProperty("/DatosFormularioPSDA/EditSection/documentAttachmentData", aDocumentData );
-             oModel.setProperty("/DatosFormularioPSDA/EditSection/mesInformar", informeSeleccionado["mes_informar"] ? informeSeleccionado["mes_informar"] : "Sin Informar" );
+             oModel.setProperty("/DatosFormularioPSDA/EditSection/mesInformar", oSelectedRow["mes_informar"] ? oSelectedRow["mes_informar"] : "Sin Informar" );
              oModel.setProperty("/DatosFormularioPSDA/EditSection/control", oSelectedRow.control );
              oModel.setProperty("/DatosFormularioPSDA/EditSection/fechaEntrega", oSelectedRow.fecha_informada );
 

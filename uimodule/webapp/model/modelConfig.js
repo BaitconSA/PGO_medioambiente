@@ -301,13 +301,20 @@ sap.ui.define(
 						oModel.setProperty( "/ResponsableAmbiental/Data", oResponsableAmbientalData.value );
 					}
 
-					if( oInformesData.value && oInformesData.value.length > 0 ) {
-						const oInformesDesempenio = oInformesData.value.map( item => ({ 
-							...item, 
-							control: this._getControlForThis(oView, item.informe_desempenio[0].createdAt, item.informe_desempenio[0].informe[0].estado_ID)
-						}));
-						oModel.setProperty( "/DatosFormularioPSDA/TablePSDA/Data", oInformesDesempenio );
-					}
+					
+
+				if (oInformesData.value && oInformesData.value.length > 0) {
+					const oInformesDesempenio = oInformesData.value.map(item => {					
+							return {
+								...item,
+								control: this._getControlForThis(oView,
+									item.createdAt,
+									item.estado_ID)
+							};
+
+					});
+					oModel.setProperty("/DatosFormularioPSDA/TablePSDA/Data", oInformesDesempenio);
+				}
 
 				if( oControlesData.value && oControlesData.value.length > 0 ) {
 					oModel.setProperty( "/DatosFormularioCDA/TableCDA/Data", oControlesData.value );

@@ -428,7 +428,7 @@ sap.ui.define([
                                 const oPayload = {
                                     estado_ID: "BO",
                                     mes: parseInt(mesActual),
-                                    sMesInformar: sMesInformar,
+                                    mes_informar: sMesInformar,
                                     desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
                                     PSDA_firmada_nombre: aUploadDocumentsPSDA[0]?.PSDA_firmada_nombre,
                                     PSDA_firmada_ruta: aUploadDocumentsPSDA[0]?.PSDA_firmada_ruta,
@@ -700,18 +700,6 @@ sap.ui.define([
                         // El objeto no está vacío
                         oModel.setProperty("/Validation/valueStateMesInformar", "None");
                         oModel.setProperty("/Validation/valueStateTextMesInformar", "");
-                    }
-
-
-                    if (sEnvironmentResponse === null || sEnvironmentResponse === undefined || sEnvironmentResponse.trim() === "") {
-                        oModel.setProperty("/Validation/environmentalResponsiveState", "Error");
-                        oModel.setProperty("/Validation/valueStateTextEnvironmentalResponsive", "El campo Responsable Ambiental es Obligatorio.");
-                        MessageBox.error("Verificar el campo Responsable Ambiental.")
-                        isValidate = false;
-                    } else {
-                        // El objeto no está vacío
-                        oModel.setProperty("/Validation/environmentalResponsiveState", "None");
-                        oModel.setProperty("/Validation/valueStateTextEnvironmentalResponsive", "");
                     }
 
 

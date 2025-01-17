@@ -38,7 +38,7 @@
                         <Label text="{templateNumber}" />
                         <Label text="{fechaUltimoMesInformado}" />
                         <GenericTag text="{mainModel>control/descripcion}" design="StatusIconHidden" status="{mainModel>control/state}" />              
-                        <ObjectStatus text="{mainModel>informe_desempenio/0/informe/0/estado/descripcion}" inverted="true" state="{mainModel>informe_desempenio/0/informe/0/estado/color}"/>
+                        <ObjectStatus text="{mainModel>estado/descripcion}" inverted="true" state="{mainModel>estado/color}"/>
                         <Label text="{observation}" />
                         <HBox>
                             <core:Icon

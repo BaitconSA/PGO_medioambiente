@@ -133,11 +133,11 @@ sap.ui.define([
 
         getInformes: function () {
             const expandParams = [
-				"informe_desempenio($expand=informe($expand=estado,desempenio_nota_pedido($expand=nota_pedido($expand=estado)))),control_desvio,informe_ambiental,documentacion_adicional"
+				"estado,desempenio_nota_pedido($expand=nota_pedido)"
 			].join("");
 		
 			//const url = `Obras/${ID}?$expand=${expandParams}`;
-			const url = `DesempeniosAmbientales?$expand=${expandParams}`;
+			const url = `InformesDesempenioAmbiental?$expand=${expandParams}`;
 		
 			return this.callGetService(url);
         },
