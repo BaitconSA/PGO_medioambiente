@@ -107,40 +107,39 @@ sap.ui.define([
 			this._urlCatalog = urlCatalog;		
         },
 
+        getControles: async function () {
+            const expandParams = [
+				"desempenio,estado"
+			].join("");
+		
+			//const url = `Obras/${ID}?$expand=${expandParams}`;
+			const url = `ControlesDesviosAmbientales?$expand=${expandParams}`;
+		
+			return this.callGetService(url);
+        },
 
-
-        onCreatePsdaDocument: async function (oPayload, oView ) {
+        onCreateCDADocument: async function (oPayload, oView ) {
             try {
-                const oNewPsdaDocument = await this.callPostService("DesempeniosAmbientales", oPayload);
+                const oNewCdaDocument = await this.callPostService("ControlesDesviosAmbientales", oPayload);
                 let message = null;
 
-                if (oNewPsdaDocument.error) {
+                if (oNewCdaDocument.error) {
                     message = "Error al crear el documento PSDA";
                     Utils.showMessage( message , "Error", "ERROR");
                     Utils.dialogBusy(false);
                     return;
                   }
-                message = "Documento PSDA creado con éxito.";
+                message = "Documento control de desvío creado con éxito.";
                 // Invocar el MessagePopover usando el MessageHandler
                 Utils.showMessage( message , "Creación de Documento", "SUCCESS");
 
-                return oNewPsdaDocument;
+                return oNewCdaDocument;
             } catch (error) {
                 console.error("Error al crear el documento:", error);
                 throw error;  // Puedes manejar este error de otras maneras si lo prefieres
             }
         },
 
-        getInformes: function () {
-            const expandParams = [
-				"informe_desempenio($expand=informe($expand=estado,desempenio_nota_pedido($expand=nota_pedido($expand=estado)))),control_desvio,informe_ambiental,documentacion_adicional"
-			].join("");
-		
-			//const url = `Obras/${ID}?$expand=${expandParams}`;
-			const url = `DesempeniosAmbientales?$expand=${expandParams}`;
-		
-			return this.callGetService(url);
-        },
 
 		onSendPSDA: async function( sEntity, ID ) {
 			try { 

@@ -22,7 +22,7 @@
             <!-- Tabla para control de desvíos ambientales -->
 
             <!-- Tabla para control de desvíos ambientales -->
-            <Table id="environmentalDeviationControlTable" class="sapUiTinyMargin" inset="false" items="{mainModel>/DatosFormularioCDA/payload/TablaCDA}">
+            <Table id="environmentalDeviationControlTable" class="sapUiTinyMargin" inset="false" items="{mainModel>/DatosFormularioCDA/TableCDA/Data}">
                 <columns>
                     <Column>
                         <Text text="{i18n>fechaEntrega}" />
@@ -43,11 +43,21 @@
                 <items>
                     <ColumnListItem>
                         <cells>
-                            <Text text="{notasPedidosModel>/fechaEntrega}" />
-                            <Text text="{notasPedidosModel>/fechaDeteccion}" />
-                            <Text text="{notasPedidosModel>/estado}" />
-                            <Text text="{notasPedidosModel>/observaciones}" />
-                            <Text text="{notasPedidosModel>/acciones}" />
+                            <Text text="{mainModel>fechaEntrega}" />
+                            <Text text="{mainModel>fecha_deteccion}" />
+                             <ObjectStatus text="{mainModel>estado/descripcion}" inverted="true" state="{mainModel>estado/color}"/>
+                            <Text text="{mainModel>observaciones}" />
+                                <HBox>
+                                    <core:Icon
+                                        src="sap-icon://detail-view"
+                                        color="#2471a3"
+                                        press="onViewDetails"
+                                        class="sapUiSmallMarginEnd"
+                                    />
+                                    <core:Icon color="#212121" src="sap-icon://edit"  press="onEditCDA" class="sapUiSmallMarginEnd" />
+                                    <core:Icon src="sap-icon://delete" color="#FF5733" press="onAddManual" class="sapUiSmallMarginEnd" />       
+                                    <core:Icon src="sap-icon://paper-plane" color="#27ae60" press="onSendPSDA" class="sapUiSmallMarginEnd" />
+                                </HBox>
                         </cells>
                     </ColumnListItem>
                 </items>

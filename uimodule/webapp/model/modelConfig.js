@@ -110,6 +110,7 @@ sap.ui.define(
 						TablePSDA: {
 							Data:[],
 							selectedRow: {},
+							documentAttachmentData: [], // Datos del documento adjuntado
 							numeroPlanilla: null,
 							mesInformar: null,
 							control: {},
@@ -121,6 +122,7 @@ sap.ui.define(
 							numeroPlanilla: null,
 							mesInformar: null,
 							control: {},
+							documentAttachmentData: [], // Datos del documento adjuntado
 							fechaEntrega: null,
 							isEdit: false,
 							documento: {
@@ -147,9 +149,38 @@ sap.ui.define(
 									DocumentacionAdicional: {},
 									File: {},
 									FileName: null
-								}
+								},
+								validation: {
+									dateOfDetectionValueState: null,
+									dateOfDetectionTextValueState: null,
+									documentCdaValueState:null,
+									documentCdaEditValueStateText: null,
+								},
+								documentAttachmentData: [], // Datos del documento adjuntado
 							},
-						TablaCDA: []
+						},
+						TableCDA: {
+							Data: []
+						},
+						EditSection: {
+							Data:[],
+								selectedRow: {},
+								numeroPlanilla: null,
+								documentAttachmentData: [], // Datos del documento adjuntado
+								fechaEntrega: null,
+								isEdit: false,
+								FechaDeteccion: null,
+								documento: {
+									DocumentacionAdicional: {},
+									File: {},
+									FileName: null
+								},
+								validation: {
+									dateOfDetectionValueState: null,
+									dateOfDetectionTextValueState: null,
+									documentCdaValueState:null,
+									documentCdaEditValueStateText: null,
+								}
 						}
 					},
 
@@ -158,13 +189,43 @@ sap.ui.define(
 						payload: {
 							// Agregar más propiedades según sea necesario
 							uploadIA: {
+								FechaDeteccion: null,
 								documento: {
 									DocumentacionAdicional: {},
 									File: {},
 									FileName: null
-								}
+								},
+								validation: {
+									dateOfDetectionValueState: null,
+									dateOfDetectionTextValueState: null,
+									documentIaValueState:null,
+									documentIaEditValueStateText: null,
+								},
+								documentAttachmentData: [], // Datos del documento adjuntado
 							},
-						TablaIA: []
+						},
+						TableIa: {
+							Data: []
+						},
+						EditSection: {
+							Data:[],
+								selectedRow: {},
+								numeroPlanilla: null,
+								documentAttachmentData: [], // Datos del documento adjuntado
+								fechaEntrega: null,
+								isEdit: false,
+								FechaDeteccion: null,
+								documento: {
+									DocumentacionAdicional: {},
+									File: {},
+									FileName: null
+								},
+								validation: {
+									dateOfDetectionValueState: null,
+									dateOfDetectionTextValueState: null,
+									documentIaValueState:null,
+									documentIaEditValueStateText: null,
+								}
 						}
 					},
 
@@ -193,7 +254,7 @@ sap.ui.define(
 
 			// Nueva función para estructurar el modelo de datos basado en oObraData
 			// eslint-disable-next-line complexity, consistent-return
-			createStructuredModel: function (oView, oModel, oObraData, oInformesData, oUserData, oUserRolesData) {
+			createStructuredModel: function (oView, oModel, oObraData, oInformesData, oControlesData, oUserData, oUserRolesData) {
 
 					// Listas P3 y PI
 					let sObraID = oObraData.ID,
@@ -237,8 +298,12 @@ sap.ui.define(
 						const oInformesDesempenio = oInformesData.value.map( item => ({ 
 							...item, 
 							control: this._getControlForThis(oView, item.informe_desempenio[0].createdAt, item.informe_desempenio[0].informe[0].estado_ID)
-					}));
+						}));
 						oModel.setProperty( "/DatosFormularioPSDA/TablePSDA/Data", oInformesDesempenio );
+					}
+
+				if( oControlesData.value && oControlesData.value.length > 0 ) {
+					oModel.setProperty( "/DatosFormularioCDA/TableCDA/Data", oControlesData.value );
 				}
 
 					// Ejemplo de uso 

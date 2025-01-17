@@ -58,6 +58,73 @@ sap.ui.define([
                 oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/FileName", file.name);
                 this._showMessage(oView, "Éxito", "Informe adjuntado correctamente.", "Success");
            }
-        }
+        },
+
+        onFileUploaderChange: function(oEvent, oView, oModel, sParam ) {
+            let oFileUploader = oEvent.getSource();
+            let oFile = oFileUploader.oFileUpload.files[0];
+            
+            // Verificar si no hay un archivo seleccionado
+            if (!oFile) {
+                sap.m.MessageToast.show("No se ha seleccionado ningún archivo");
+                return;
+            }
+            
+            let sFilePath = URL.createObjectURL(oFile);
+            let sFileExtension = oFile.name.split('.').pop().toLowerCase();
+        
+            // Datos URL documentación
+            const sObraID = oModel.getProperty("/ObraData").ID;
+            const sP3Codigo = oModel.getProperty("/HeaderInfo/p3");
+            const sRegistroProveedor = oModel.getProperty("/HeaderInfo/supplierRegistration");
+            const sFolder = "Desvios Ambientales";
+        
+            const files = oModel.getProperty("/DatosFormularioIA/payload/uploadIA/documento/DocumentacionAdicional/Documentacion") || [];
+            const sUrl = `/Obras/${sObraID}_${sRegistroProveedor}/${sP3Codigo}/Medio Ambiente/${sFolder}`;
+            const file = {
+                PSDA_firmada_nombre: oFile.name,
+                PSDA_firmada_formato: oFile.type,
+                PSDA_firmada_ruta: sUrl,
+                fechaAdjunto: new Date()
+            };
+        
+            // Verificar si files es un array, de lo contrario, inicializarlo como array vacío
+            const fileList = Array.isArray(files) ? files : [];
+        
+            // Buscar duplicados en el array de archivos
+            const duplicate = fileList.find(doc => doc.PSDA_firmada_nombre === file.PSDA_firmada_nombre);
+        
+            if (duplicate) {
+                const errorMessage = oView.getModel("i18n").getResourceBundle().getText("duplicateDocName");
+                MessageBox.error(errorMessage);
+                return;
+            }
+
+            const aDocumentData = [{
+                documentoNombre: file.PSDA_firmada_nombre,
+                documentoFormato: file.PSDA_firmada_formato,
+                documentoFecha: file.fechaAdjunto,
+                documentoRuta: file.PSDA_firmada_ruta
+            }];
+            
+            if ( sParam === "Edit") {
+                oModel.setProperty("/DatosFormularioIA/EditSection/documento/DocumentacionAdicional/Documentacion", [...fileList, file]);
+                oModel.setProperty("/DatosFormularioIA/EditSection/documento/documento/File", oFile);
+                oModel.setProperty("/DatosFormularioIA/EditSection/documentAttachmentData", aDocumentData );
+            } else {
+                oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/DocumentacionAdicional", [...fileList, file]);
+                oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/File", oFile);
+                oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documentAttachmentData", aDocumentData );
+            }
+        },
+
+        _resetFileUploader: function( oView ) { 
+            const oModel = oView.getModel("mainModel");
+            oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documentAttachmentData", [] );
+            oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/DocumentacionAdicional/Documentacion", {} );
+            oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/File", {} );
+            let oFileUploader = oView.byId("fileUploaderIA"); 
+                oFileUploader.clear();
+            }
     };
 });

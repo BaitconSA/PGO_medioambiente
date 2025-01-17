@@ -5,6 +5,8 @@ sap.ui.define([
     "uimodule/model/permissionRolesApp",
     "uimodule/services/services",
     "uimodule/services/psda_operations",
+    "uimodule/services/cda_operations",
+    "uimodule/services/ia_operations",
     "uimodule/js/TablePsdaFunction",
     "uimodule/js/TableCDAFunction",
     "uimodule/js/TableIAFunction",
@@ -16,7 +18,7 @@ sap.ui.define([
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter) {
+    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, CDA_operations, IA_operations, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter) {
         "use strict";
 
         return Controller.extend("uimodule.controller.MainView", {
@@ -72,11 +74,13 @@ sap.ui.define([
                     let oView = this.getView();
                     try {
                         const oObra = Services.getObraData(obraID);
-                        const oInformes = PSDA_operations.getInformes(); // Consulto los informes en su archivo correspondiente 
-                        const [oObraData, oInformesData] = await Promise.all([oObra, oInformes]);
+                        const oInformes = PSDA_operations.getInformes(); // Obtengo Informes Planilla de seguimiento desempeño Ambiental
+                        const oControlesDesvios = CDA_operations.getControles(); // Obtengo Controles de desvíos ambientales
+                        const oInformesAmbientales = IA_operations.getInformes(); // Obtengo Informacion de documentos de Informes Ambientales
+                        const [oObraData, oInformesData, oControlesData, oInformesAmbientalesData] = await Promise.all([oObra, oInformes, oControlesDesvios, oInformesAmbientales]);
                     
                         // Armo los P3 / PI / Información necesaria de la Obra.
-                        this._oMainModel = ModelConfig.createStructuredModel(oView, this._oMainModel, oObraData, oInformesData, oUserData, oUserRolesData);
+                        this._oMainModel = ModelConfig.createStructuredModel(oView, this._oMainModel, oObraData, oInformesData, oControlesData, oInformesAmbientalesData,  oUserData, oUserRolesData);
                     
                         // Permisos del Usuario para Ejecutar la App
                         const oPermissions = PermissionUser.evaluateUserPermissions(oUserRolesData);
@@ -177,16 +181,37 @@ sap.ui.define([
                 
             },
 
-            // Seleccionar PSDA desde el dialog
-            onFileUploaderChange: function(oEvent , sParam ) {
+            onFileUploaderChange: function(oEvent, sParam) {
                 const oModel = this.getView().getModel("mainModel");
-                if( sParam === "Edit") {
-                    TablePsdaFunction.onFileUploaderChange( oEvent, this.getView(), oModel, "Edit" );
-                } else {
-                    TablePsdaFunction.onFileUploaderChange( oEvent, this.getView(), oModel );
+            
+                switch (sParam) {
+                    case "documentPSDA_edit":
+                        // Sección Desempeño Ambiental (Edición Documento)
+                        TablePsdaFunction.onFileUploaderChange(oEvent, this.getView(), oModel, "Edit");
+                        break;
+            
+                    case "documentCDA_create":
+                        // Sección Control Desvios Ambientales (Subida -> Documento)
+                        TableCDAFunction.onFileUploaderChange(oEvent, this.getView(), oModel, "Create");
+                        break;
+            
+                    case "documentCDA_edit":
+                        // Sección Control Desvios Ambientales (Edición -> Documento)
+                        TableCDAFunction.onFileUploaderChange(oEvent, this.getView(), oModel, "Edit");
+                        break;
+            
+                    case "documentIA_create":
+                        // Sección Informes Ambientales (Creación -> Documento)
+                        TableIAFunction.onFileUploaderChange(oEvent, this.getView(), oModel, "Create");
+                        break;
+            
+                    default:
+                        // Sección Desempeño Ambiental (Subida Documento)
+                        TablePsdaFunction.onFileUploaderChange(oEvent, this.getView(), oModel);
+                        break;
                 }
-                
             },
+            
 
             // Seleccion Archivo Adjunto CDA
             onSelectFile: function (oEvent) {
@@ -202,13 +227,13 @@ sap.ui.define([
                 TableIAFunction.onSelectFile( this.getView(), oEvent, oModel );
               },
 
-            onCancelDialog: function () {
+              onCancelDialogCDA: function () {
                 this._formatDialogData("CDA");
                 // Ocultar el MessageStrip al cerrar el diálogo
                 this.byId("messageStripCDA").setVisible(false);
                 // Cerrar el diálogo sin guardar
-                this.byId("addDocumentationDialog").close();
-                this.byId("addDocumentationDialog").destroy();
+                this.byId("dialogUploadCDA").close();
+                this.byId("dialogUploadCDA").destroy();
             },
 
             onCancelDialogIA: function () {
@@ -227,10 +252,15 @@ sap.ui.define([
                           oModel.setProperty("/DatosFormularioCDA/payload/FechaDeteccion", null);
                           oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/File", {} );
                           oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/FileName", null );
+                          oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documentAttachmentData", [] );
                 } else if (typedialog === "IA") { 
                     this.getView().byId("fileUploaderIA").setValue("");
                           oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/File", {} );
                           oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/FileName", null );
+                } else if (typedialog === "EditPSDA") {
+                          oModel.setProperty("/DatosFormularioPSDA/EditSection/documento/DocumentacionAdicional", {} );
+                          oModel.setProperty("/DatosFormularioPSDA/EditSection/documento/File", {} );
+                          oModel.setProperty("/DatosFormularioPSDA/EditSection/documento/FileName", null );
                 }
                 
             },
@@ -285,10 +315,28 @@ sap.ui.define([
                TablePsdaFunction.onValidateMonthYear( oEvent );
             },
 
-            onCancelPress: function () {
-                this.getView().byId("dialogUploadPSDA").close();
-                TablePsdaFunction._resetFileUploader( this.getView() );
+            onCancelPress: function (sParam) {
+                const oView = this.getView();
+                
+                const actionMapping = {
+                    "saveDialogCDA": () => {
+                        oView.byId("dialogUploadCDA").close();
+                        TableCDAFunction._resetFileUploader(oView);
+                    },
+                    "saveDialogIA": () => {
+                        oView.byId("dialogUploadIA").close();
+                        TableIAFunction._resetFileUploader(oView);
+                    }
+                };
+            
+                if (actionMapping[sParam]) {
+                    actionMapping[sParam]();
+                } else {
+                    oView.byId("dialogUploadPSDA").close();
+                    TablePsdaFunction._resetFileUploader(oView);
+                }
             },
+            
 
             onSavePSDA: function (oEvent, sAction) {
                 // Busy ON
@@ -350,7 +398,7 @@ sap.ui.define([
                                 oModel.setProperty("/IDMainEntity", oNewPsdaDocument.ID );
                                 oModel.setProperty("/DatosFormularioPSDA/TablePSDA/Data", oNewPsdaDocument );
                                 
-                                this.onCancelPress(); // Cierro el dialogo y vuelvo a cargar información de la App
+                                this.onCancelPress("EditDialog"); // Cierro el dialogo y vuelvo a cargar información de la App
                                 this._loadData( sObraID );
                               } catch (error) {
                                 const errorMessage = this.getResourceBundle().getText("errorCreateADS");
@@ -384,32 +432,19 @@ sap.ui.define([
                                 return;
                               try {
                                 const oPayload = {
-                                resposnable_ambiental: sEnvironmentResponse || "",
-                                fecha_informada: null,
-                                fecha_informar: null,
-                                control: null,
-                                informe_desempenio: [
-                                    {
-                                        informe: [{
-                                            estado_ID: "BO",
-                                            mes: parseInt(mesActual),
-                                            sMesInformar: sMesInformar,
-                                            desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
-                                            PSDA_firmada_nombre: oDocument[0]?.documentoNombre,
-                                            PSDA_firmada_ruta: oDocument[0]?.documentoRuta,
-                                            PSDA_firmada_formato: oDocument[0]?.documentoFormato
-                                          }]
-                                        }
-                                    ]
-                                }
+                                    estado_ID: "BO",
+                                    mes: parseInt(mesActual),
+                                    mes_informar: sMesInformar,
+                                    desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
+                                    PSDA_firmada_nombre: oDocument[0]?.documentoNombre,
+                                    PSDA_firmada_ruta: oDocument[0]?.documentoRuta,
+                                    PSDA_firmada_formato: oDocument[0]?.documentoFormato        
+                                };
                                 
                                 const oNewPsdaDocument = await PSDA_operations.onUpdatePsdaDocument(IDdesempenioAmbiental, oPayload, this.getView());
                                 
-                                // Guardamos el ID de la entidad 'Padre'
-                                oModel.setProperty("/IDMainEntity", oNewPsdaDocument.ID );
-                                oModel.setProperty("/DatosFormularioPSDA/TablePSDA/Data", oNewPsdaDocument );
-                                
-                                this.onCancelPress(); // Cierro el dialogo y vuelvo a cargar información de la App
+                                this.onCloseDialogPsdaEdit()// Cierro el dialogo y vuelvo a cargar información de la App
+
                                 this._loadData( sObraID );
                               } catch (error) {
                                 Utils.dialogBusy(false);
@@ -434,12 +469,28 @@ sap.ui.define([
                 const oController = this;
                 TablePsdaFunction.onViewDetails( oView , oController, oEvent, oModel);
             },
+             // Formateador de mes
+            onFormatMonth: function(monthNumber) {
+            const months = [
+                "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+            ];
+
+            return months[monthNumber - 1] || "Mes inválido";
+        },
 
             onEditPSDA: function ( oEvent ) {
                 const oView = this.getView();
                 const oModel = this.getModel("mainModel");
                 const oController = this;
                 TablePsdaFunction.onEdit( oView , oController, oEvent, oModel);
+            },
+
+            onEditCDA: function ( oEvent ) {
+                const oView = this.getView();
+                const oModel = this.getModel("mainModel");
+                const oController = this;
+                TableCDAFunction.onEdit( oView , oController, oEvent, oModel);
             },
 
             onSendPSDA: async function ( oEvent ) {
@@ -467,18 +518,19 @@ sap.ui.define([
             },
 
             onCloseDialogPsdaEdit: function () {
+                this._formatDialogData("EditPSDA");
                 this.getView().byId("editPSDADialog").close();
+                this.byId("editPSDADialog").destroy();
             },
 
             _validateFields: function ( sParam ) {
+                let isValidate = true;
+                const oModel = this.getView().getModel("mainModel");
                 //Comienzo Validaciones para EDICIÓN
                 if( sParam === "SaveEdition") {
-                    const oModel = this.getView().getModel("mainModel");
                     const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/EditSection/mesInformar");
                     const aOrderNotesTableData = oModel.getProperty("/OrderNotesTableEditData/nota_pedido");
                     const aDocumentPSDA = oModel.getProperty("/DatosFormularioPSDA/EditSection/documentAttachmentData");
-
-                    let isValidate = true;
 
                     if (sMesInformar === null || sMesInformar === undefined || sMesInformar.trim() === "") {
                         oModel.setProperty("/DatosFormularioPSDA/EditSection/validation/mesInformarValueState", "Error");
@@ -508,11 +560,86 @@ sap.ui.define([
                         oModel.setProperty("/DatosFormularioPSDA/EditSection/validation/documentPsdaEditValueStateText", "");
                     }
 
-                    //Fin Validaciones para EDICIÓN
+                    //Fin Validaciones para EDICIÓN PSDA
 
-                    //Comienzo Validaciones para CREACIÓN
+                    
+                } else if ( sParam === "documentCDA_create") {
+                    //Comienzo Validaciones para CREACIÓN CDA
+                    const sDateOfDetection = oModel.getProperty("/DatosFormularioCDA/payload/FechaDeteccion");
+                    const aDocumentsCDA = oModel.getProperty("/DatosFormularioCDA/payload/uploadCDA/documento/DocumentacionAdicional");  
+
+                    //Validacion Fecha Detecion
+                    if (sDateOfDetection === null || sDateOfDetection === undefined || sDateOfDetection.trim() === "") {
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/dateOfDetectionValueState", "Error");
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/dateOfDetectionTextValueState", "El campo Fecha Detección es Obligatorio.");
+                        MessageBox.error("Verificar el campo Fecha de Detacción.")
+                        isValidate = false;
+                    } else {
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/dateOfDetectionValueState", "None");
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/dateOfDetectionTextValueState", "");
+                    }
+
+                    //Validacion documento CDA
+                    if (!aDocumentsCDA || Object.keys(aDocumentsCDA).length === 0) {
+                        // El objeto está vacío
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentCdaValueState", "Error");
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentCdaEditValueStateText", "Debe agregar al menos un documento.");
+                        MessageBox.error("Falta adjuntar el documento de Control Desvío, favor verificar.")
+                        isValidate = false;
+                    } else {
+                        // El objeto no está vacío
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentCdaValueState", "None");
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentCdaEditValueStateText", "");
+                    }
+
+
+
+                } else if ( sParam === "documentCDA_save" ) {
+                      //Comienzo Validaciones para CREACIÓN CDA
+                      const sDateOfDetection = oModel.getProperty("/DatosFormularioCDA/EditSection/FechaDeteccion");
+                      const aDocumentsCDA = oModel.getProperty("/DatosFormularioCDA/EditSection/documento/DocumentacionAdicional");  
+  
+                      //Validacion Fecha Detecion
+                      if (sDateOfDetection === null || sDateOfDetection === undefined || sDateOfDetection.trim() === "") {
+                          oModel.setProperty("/DatosFormularioCDA/EditSection/validation/dateOfDetectionValueState", "Error");
+                          oModel.setProperty("/DatosFormularioCDA/EditSection/validation/dateOfDetectionTextValueState", "El campo Fecha Detección es Obligatorio.");
+                          MessageBox.error("Verificar el campo Fecha de Detacción.")
+                          isValidate = false;
+                      } else {
+                          oModel.setProperty("/DatosFormularioCDA/EditSection/validation/dateOfDetectionValueState", "None");
+                          oModel.setProperty("/DatosFormularioCDA/EditSection/validation/dateOfDetectionTextValueState", "");
+                      }
+  
+                      //Validacion documento CDA
+                      if (!aDocumentsCDA || Object.keys(aDocumentsCDA).length === 0) {
+                          // El objeto está vacío
+                          oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentCdaValueState", "Error");
+                          oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentCdaEditValueStateText", "Debe agregar al menos un documento.");
+                          MessageBox.error("Falta adjuntar el documento de Control Desvío, favor verificar.")
+                          isValidate = false;
+                      } else {
+                          // El objeto no está vacío
+                          oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentCdaValueState", "None");
+                          oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentCdaEditValueStateText", "");
+                      }
+                } else if ( sParam === "documentIA_create") {
+                    const oDocumentIA = oModel.getProperty("/DatosFormularioIA/payload/uploadIA/documento/DocumentacionAdicional");
+                    
+                    //Validacion documento IA
+                    if (!oDocumentIA || Object.keys(oDocumentIA).length === 0) {
+                        // El objeto está vacío
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentIaValueState", "Error");
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentIaEditValueStateText", "Debe agregar al menos un documento.");
+                        MessageBox.error("Falta adjuntar el documento de Informe Ambiental, favor verificar.")
+                        isValidate = false;
+                    } else {
+                        // El objeto no está vacío
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentIaValueState", "None");
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentIaEditValueStateText", "");
+                    }
+
                 } else {
-                    const oModel = this.getView().getModel("mainModel");
+                    //Comienzo Validaciones para CREACIÓN PSDA
                     const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/payload/mesAinformar");
                     const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive");
                     const aOrderNotesTableData = oModel.getProperty("/OrderNotesTableData");
@@ -575,19 +702,158 @@ sap.ui.define([
                 console.log("Envío confirmado", oModel);
             },
 
-            onSaveDocumentCDA: function (oEvent) {
-                const oModel = this.getView().getModel("mainModel");
-                const oTableCDAData = oModel.getProperty("/DatosFormularioCDA/payload/TablaCDA");
-                const oData = {
-                    fechaDeteccion : oModel.getProperty("/DatosFormularioCDA/payload/FechaDeteccion"),
-                    estado: "Borrador"
-                };
+            onSaveCDA: function (oEvent, sAction) {
+               // Busy ON
+               Utils.dialogBusy(true);
 
-                oTableCDAData.push(oData);
+               const oModel = this.getView().getModel("mainModel");
+               const sObraID = oModel.getProperty("/ObraID");
+               const IDdesempenioAmbiental = oModel.getProperty("/DatosFormularioPSDA/EditSection/selectedRow/ID");
+               const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive") || "Gustavo Quintana";
+               const sDateOfDetection = oModel.getProperty("/DatosFormularioCDA/payload/uploadCDA/FechaDeteccion");
+               const aUploadDocumentCDA = oModel.getProperty("/DatosFormularioCDA/payload/uploadCDA/documento/DocumentacionAdicional");
+                   
+                   if (aUploadDocumentCDA && Array.isArray(aUploadDocumentCDA) && aUploadDocumentCDA.length > 0) {
+                    aUploadDocumentCDA.forEach(doc => {
+                           delete doc.fechaAdjunto;
+                       });
+                   }
+               const fechaActual = new Date();
+               const mesActual = (fechaActual.getMonth() + 1).toString().padStart(2, '0');
+               // Lógica para guardar según la acción
+               if (sAction === "documentCDA_create") {                   
+                   const invalidField = this._validateFields("documentCDA_create");
+
+                   if (invalidField) { // Validación de campos obligatorios PSDA
+                       let confirmMessage = this.getResourceBundle().getText("saveDocumentCda");
+                       MessageBox.confirm(confirmMessage, {
+                           actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                           emphasizedAction: "Aceptar",
+                           onClose: async (sAction) => {
+                             if (sAction !== "Aceptar")
+                               return;
+                             try {
+                               const oPayload = {   
+                                    desempenio_ID: IDdesempenioAmbiental,     
+                                    fecha_deteccion:  sDateOfDetection,                          
+                                    estado_ID: "BO",
+                                    nombre_archivo: aUploadDocumentCDA[0]?.PSDA_firmada_nombre,
+                                    ruta: aUploadDocumentCDA[0]?.PSDA_firmada_ruta,
+                                    observaciones: null                              
+                               }
+                               
+                               const oNewCdaDocument = await CDA_operations.onCreateCDADocument(oPayload, this.getView());
+                               
+                               // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
+                               this.onCancelPress("saveDialogCDA"); // Cierro el dialogo y vuelvo a cargar información de la App
+                               this._loadData( sObraID );
+                             } catch (error) {
+                               const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                               MessageToast.show(errorMessage);
+                             } finally {
+                               Utils.dialogBusy(false);
+                             }
+                           }
+                         });
+
+                   } 
+
+               } else {
+                //  ----- > EDITAR Y GUARDAR EL -> 'CDA' -----
+                const invalidField = this._validateFields("documentCDA_save");
+
+                if (invalidField) { // Validación de campos obligatorios PSDA
+                    let confirmMessage = this.getResourceBundle().getText("editDocumentCda");
+                    MessageBox.confirm(confirmMessage, {
+                        actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                        emphasizedAction: "Aceptar",
+                        onClose: async (sAction) => {
+                          if (sAction !== "Aceptar")
+                            return;
+                          try {
+                            const oPayload = {   
+                                 desempenio_ID: IDdesempenioAmbiental,     
+                                 fecha_deteccion:  sDateOfDetection,                          
+                                 estado_ID: "BO",
+                                 nombre_archivo: aUploadDocumentCDA[0]?.PSDA_firmada_nombre,
+                                 ruta: aUploadDocumentCDA[0]?.PSDA_firmada_ruta,
+                                 observaciones: null                              
+                            }
+                            
+                            const oNewCdaDocument = await CDA_operations.onCreateCDADocument(oPayload, this.getView());
+                            
+                            // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
+                            this.onCancelPress("saveDialogCDA"); // Cierro el dialogo y vuelvo a cargar información de la App
+                            this._loadData( sObraID );
+                          } catch (error) {
+                            const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                            MessageToast.show(errorMessage);
+                          } finally {
+                            Utils.dialogBusy(false);
+                          }
+                        }
+                      });
+
+                     } 
+               }
+               
+               Utils.dialogBusy(false);
             },
 
-            onSaveDocumentIA: function ( oEvent ) {
-                console.log("LOGICA PARA GUARDADO DE ARCHIVO IA ")
+            onSaveIA: function ( oEvent, sAction ) {
+                   // Busy ON
+               Utils.dialogBusy(true);
+
+               const oModel = this.getView().getModel("mainModel");
+               const sObraID = oModel.getProperty("/ObraID");
+               const IDdesempenioAmbiental = oModel.getProperty("/DatosFormularioPSDA/EditSection/selectedRow/ID");
+               const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive") || "Gustavo Quintana";
+               const aUploadDocumentIA = oModel.getProperty("/DatosFormularioIA/payload/uploadIA/documento/DocumentacionAdicional");
+                   
+                   if (aUploadDocumentIA && Array.isArray(aUploadDocumentIA) && aUploadDocumentIA.length > 0) {
+                    aUploadDocumentIA.forEach(doc => {
+                           delete doc.fechaAdjunto;
+                       });
+                   }
+               const fechaActual = new Date();
+               const mesActual = (fechaActual.getMonth() + 1).toString().padStart(2, '0');
+               // Lógica para guardar según la acción
+               if (sAction === "documentIA_create") {                   
+                   const invalidField = this._validateFields("documentIA_create");
+
+                   if (invalidField) { // Validación de campos obligatorios PSDA
+                       let confirmMessage = this.getResourceBundle().getText("saveDocumentIA");
+                       MessageBox.confirm(confirmMessage, {
+                           actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                           emphasizedAction: "Aceptar",
+                           onClose: async (sAction) => {
+                             if (sAction !== "Aceptar")
+                               return;
+                             try {
+                               const oPayload = {   
+                                    desempenio_ID: IDdesempenioAmbiental,                            
+                                    estado_ID: "BO",
+                                    nombre_archivo: aUploadDocumentIA[0]?.PSDA_firmada_nombre,
+                                    ruta: aUploadDocumentIA[0]?.PSDA_firmada_ruta,
+                                    observaciones: null                              
+                               }
+                               
+                               const oNewIaDocument = await IA_operations.onCreateIaDocument(oPayload, this.getView());
+                               
+                               // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
+                               this.onCancelPress("saveDialogIA"); // Cierro el dialogo y vuelvo a cargar información de la App
+                               this._loadData( sObraID );
+                             } catch (error) {
+                               const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                               MessageToast.show(errorMessage);
+                             } finally {
+                               Utils.dialogBusy(false);
+                             }
+                           }
+                         });
+
+                   } 
+               }
             },
 
             onSaveDocumentDA: function( oEvent ) {

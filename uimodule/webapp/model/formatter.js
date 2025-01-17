@@ -123,9 +123,7 @@ sap.ui.define(["sap/ui/core/format/NumberFormat"], function (NumberFormat) {
       let oCurrencyFormat = NumberFormat.getCurrencyInstance();
       oCurrencyFormat = oCurrencyFormat.format(amount); // Replace "USD" with your desired currency code
       return `$ ${oCurrencyFormat}`;
-    },
-
-
+    }
 
   };
 });
