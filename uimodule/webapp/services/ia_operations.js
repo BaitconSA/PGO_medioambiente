@@ -111,7 +111,6 @@ sap.ui.define([
             const expandParams = [
 				"desempenio,estado"
 			].join("");
-		
 			//const url = `Obras/${ID}?$expand=${expandParams}`;
 			const url = `InformesAmbientales?$expand=${expandParams}`;
 		
