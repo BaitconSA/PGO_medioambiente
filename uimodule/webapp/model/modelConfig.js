@@ -361,18 +361,26 @@ sap.ui.define(
 
 					});
 					oModel.setProperty("/DatosFormularioPSDA/TablePSDA/Data", oInformesDesempenio);
+				} else {
+					oModel.setProperty( "/DatosFormularioDA/TablePSDA/Data", [] );
 				}
 
 				if( oControlesData.value && oControlesData.value.length > 0 ) {
 					oModel.setProperty( "/DatosFormularioCDA/TableCDA/Data", oControlesData.value );
+				} else {
+					oModel.setProperty( "/DatosFormularioDA/TableCDA/Data", [] );
 				}
 
 				if( oInformesAmbientalesData.value && oInformesAmbientalesData.value.length > 0) {
 					oModel.setProperty( "/DatosFormularioIA/TableIA/Data", oInformesAmbientalesData.value );
+				} else {
+					oModel.setProperty( "/DatosFormularioDA/TableIA/Data", [] );
 				}
 
 				if( oDocumentacionAdicionalData.value && oDocumentacionAdicionalData.value.length > 0) {
 					oModel.setProperty( "/DatosFormularioDA/TableDA/Data", oDocumentacionAdicionalData.value );
+				} else {
+					oModel.setProperty( "/DatosFormularioDA/TableDA/Data", [] );
 				}
 
 

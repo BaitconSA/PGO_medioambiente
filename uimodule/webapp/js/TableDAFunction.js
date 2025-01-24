@@ -2,8 +2,9 @@ sap.ui.define([
     "sap/m/MessageBox",
     "sap/m/MessageToast",
     "sap/ui/core/format/DateFormat",
-    "sap/ui/core/Fragment"
-], function (MessageBox, MessageToast, DateFormat, Fragment) {
+    "sap/ui/core/Fragment",
+    "uimodule/services/da_operations"
+], function (MessageBox, MessageToast, DateFormat, Fragment, DA_operations) {
     "use strict";
 
     return {
@@ -186,6 +187,35 @@ sap.ui.define([
             } else {
                 oView.byId("editDialogDA").open();
             }
+        },
+
+        _handleDeleteDaDocument: async function (oEvent, oView, oModel, oController) {
+            let confirmMessage = oView.getModel("i18n").getResourceBundle().getText("deleteDaDocument");
+        
+            return new Promise((resolve, reject) => {
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar")
+                            return reject();
+        
+                        try {
+                            let oButton = oEvent.getSource();
+                            let oItem = oButton.getParent();
+                            let oContext = oItem.getBindingContext("mainModel");
+        
+                            // Obtener los datos de la fila seleccionada
+                            let oSelectedRow = oContext.getObject();
+        
+                            await DA_operations.deleteRow(oSelectedRow.ID, oController);
+                            resolve();
+                        } catch (error) {
+                            reject(error);
+                        }
+                    }
+                });
+            });
         }
     };
 });

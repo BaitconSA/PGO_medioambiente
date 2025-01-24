@@ -141,9 +141,93 @@ sap.ui.define([
 			return response;
 		  },
 
-		  setUrl: function (urlCatalog, _urlWF) {
+		  createFolderDMS: async function (Obra, Proveedor, P3) {
+			const urlPrincipal = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}`;
+
+			const respFolderRegistros = await fetch(urlPrincipal, {
+			  method: "POST",
+			  body: this.getFormDMS(`Planilla Seguimiento Desempenio Ambiental`),
+			});
+			return await Promise.all([
+			  respFolderRegistros.json(),
+			]); 
+		  },
+	  
+		  getFormDMS: function (folder) {
+			const oForm = new FormData();
+			oForm.append("cmisaction", "createFolder");
+			oForm.append("propertyId[0]", "cmis:name");
+			oForm.append("propertyValue[0]", folder);
+			oForm.append("propertyId[1]", "cmis:objectTypeId");
+			oForm.append("propertyValue[1]", "cmis:folder");
+			oForm.append("_charset_", "UTF-8");
+			oForm.append("succinct", true);
+			return oForm;
+		  },
+	  
+		  postDMSFile: async function (File, Obra, Proveedor, P3, PI, Folder) {
+			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${Folder}/`;
+			const oForm = new FormData();
+			oForm.append("cmisaction", "createDocument");
+			oForm.append("propertyId[0]", "cmis:name");
+			oForm.append("propertyValue[0]", File.name);
+			oForm.append("propertyId[1]", "cmis:objectTypeId");
+			oForm.append("propertyValue[1]", "cmis:document");
+			oForm.append("_charset_", "UTF-8");
+			oForm.append("includeAllowableActions", true);
+			oForm.append("succinct", true);
+			oForm.append("media", File);
+			const resp = await fetch(url, {
+			  method: "POST",
+			  body: oForm,
+			});
+			return await resp.json();
+		  },
+	  
+		  getFileDMS: async function (Obra, Proveedor, P3, PI, Folder, FileName) {
+			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${PI}/Registros de obra/${Folder}/${FileName}`;
+			const image = await fetch(url);
+			return await image.blob();
+		  },
+	  
+		  deleteFileDMS: async function (Obra, Proveedor, P3, PI, Folder, FileName) {
+			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${PI}/Registros de obra/${Folder}/${FileName}`;
+			const oForm = new FormData();
+			oForm.append("cmisAction", "delete");
+			await fetch(url, {
+			  method: 'POST',
+			  body: oForm
+			});
+		  },
+	  
+		  getSignedFile: async function (oPayload) {
+			const url = `${this._urlDocuSignApi}/DocumentsDocuSign`;
+			const oData = await fetch(url, {
+			  method: "POST",
+			  headers: {
+				"Content-Type": "application/json",
+			  },
+			  body: JSON.stringify(oPayload),
+			});
+			return await oData.blob();
+		  },
+	  
+		  createPdf: async function (oPayload) {
+			const url = `${this._urlPdfApi}/`;
+			const oData = await fetch(url, {
+			  method: "POST",
+			  headers: {
+				'Content-Type': 'application/json'
+			  },
+			  body: JSON.stringify(oPayload)
+			});
+			return await oData.json();
+		  },
+
+		  setUrl: function (urlCatalog, _urlWF, urlDMS) {
 			this._urlCatalog = urlCatalog;	
 			this._urlWF = _urlWF;	
+			this._urlDMS = urlDMS;
         },
 
 		getResponsables: function (ID) {

@@ -61,7 +61,7 @@
                                 <core:Icon 
                                     src="sap-icon://delete" 
                                     color="#FF5733" 
-                                    press="onAddManual" 
+                                    press="onDeleteIaDocument" 
                                     class="sapUiSmallMarginEnd" 
                                     visible="{mainModel>permisos/canDelete}" />       
                                 <core:Icon 

@@ -50,8 +50,8 @@ sap.ui.define([
             
                     if (isLocalhost) {
                         // Lógica para LOCAL TESTING
-                       oUserRolesData = { value: ["PGO_Inspector"] };
-                        //oUserRolesData = { value: ["PGO_Contratista"] };
+                      // oUserRolesData = { value: ["PGO_Inspector"] };
+                        oUserRolesData = { value: ["PGO_Contratista"] };
                         oUserData = { "Nombre": "gustavo.quintana@datco.net" };
                     } else {
                         try {
@@ -85,7 +85,8 @@ sap.ui.define([
                     const oControlesDesvios = CDA_operations.getControles(); // Obtengo Controles de desvíos ambientales
                     const oInformesAmbientales = IA_operations.getInformes(); // Obtengo Información de documentos de Informes Ambientales
                     const oDocumentacionAdicional = DA_operations.getDocumentos(); // Obtengo Información de documentos adicionales
-            
+                    
+                    oModel.refresh(true);
                     const [oObraData, oResponsableAmbientalData, oUsuariosMedioAmbienteData, oInformesData, oControlesData, oInformesAmbientalesData, oDocumentacionAdicionalData] = await Promise.all([
                         oObra, oResponsableAmbiental, oUsuarios, oInformes, oControlesDesvios, oInformesAmbientales, oDocumentacionAdicional
                     ]);
@@ -441,7 +442,7 @@ sap.ui.define([
                         oView.byId("editDialogIA").close();
                         TableIAFunction._resetFileUploader(oView, "Edit");
                     },
-                    "saveDialogDA": () => {
+                    "dialogUploadDA": () => {
                         oView.byId("dialogUploadDA").close();
                         TableDAFunction._resetFileUploader(oView, "Create");
                     },
@@ -463,11 +464,12 @@ sap.ui.define([
 
                 const oModel = this.getView().getModel("mainModel");
                 const sObraID = oModel.getProperty("/ObraID");
-                const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive");
+                const sP3Codigo = oModel.getProperty("/HeaderInfo/p3");
+                const sRegistroProveedor = oModel.getProperty("/HeaderInfo/supplierRegistration");
                 const fechaActual = new Date();
                 const mesActual = (fechaActual.getMonth() + 1).toString().padStart(2, '0');
                 // Lógica para guardar según la acción
-                if (sAction === "Save") {
+                if (sAction === "Save" || sAction === "Send") {
                     // Lógica para guardar
                     const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/payload/mesAinformar");
                     const aOrderNotes = oModel.getProperty("/OrderNotesTableData");
@@ -493,7 +495,7 @@ sap.ui.define([
                              Utils.dialogBusy(true);
                               try {
                                 const oPayload = {
-                                    estado_ID: "BO",
+                                    estado_ID: sAction === "Save" ? "BO" : "PI",
                                     mes: parseInt(mesActual),
                                     mes_informar: sMesInformar,
                                     desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
@@ -503,7 +505,16 @@ sap.ui.define([
                                 }
                                 
                                 const oNewPsdaDocument = await PSDA_operations.onCreatePsdaDocument(oPayload, this.getView());
-                                
+
+                                // SE COMENTA PARA TESTING   
+                                await PSDA_operations.createFolderDMS(sObraID, sRegistroProveedor, sP3Codigo);
+                               
+                                const sFolder = "Planilla Seguimiento Desempenio Ambiental";
+                                   /* -- Post información adjunto al servicio -- */
+                                aUploadDocumentsPSDA.forEach(doc => {
+                                    PSDA_operations.postDMSFile( doc, sObraID , sRegistroProveedor, sP3Codigo, sFolder );
+                                });
+
                                 this.onCancelPress("EditDialog"); // Cierro el dialogo y vuelvo a cargar información de la App
                               } catch (error) {
                                 const errorMessage = this.getResourceBundle().getText("errorCreateADS");
@@ -623,6 +634,7 @@ sap.ui.define([
                 TablePsdaFunction.onEdit( oView , oController, oEvent, oModel);
             },
 
+            // || --> Edit / Delete CDA || <--
             onEditCDA: function ( oEvent ) {
                 const oView = this.getView();
                 const oModel = this.getModel("mainModel");
@@ -630,6 +642,21 @@ sap.ui.define([
                 TableCDAFunction.onEdit( oView , oController, oEvent, oModel);
             },
 
+            onDeleteCdaDocument: function (oEvent) {
+                const oView = this.getView();
+                const oModel = this.getModel("mainModel");
+                const oController = this;
+            
+                const sObraID = oModel.getProperty("/ObraID");
+            
+                // Llamar a la función que muestra el cuadro de confirmación y maneja la eliminación
+                TableCDAFunction._handleDeleteCdaDocument(oEvent, oView, oModel, oController)
+                    .then(() => this._loadData(sObraID))
+                    .catch(error => console.error("Error al eliminar el documento:", error));
+            },
+            // || --> FIN Edit / Delete CDA || <--
+
+            // || -->  Edit / Delete IA || <--
             onEditIA: function ( oEvent ) { 
                 const oView = this.getView();
                 const oModel = this.getModel("mainModel");
@@ -637,11 +664,39 @@ sap.ui.define([
                 TableIAFunction.onEdit( oView , oController, oEvent, oModel);
             },
 
+            onDeleteIaDocument: function (oEvent) {
+                const oView = this.getView();
+                const oModel = this.getModel("mainModel");
+                const oController = this;
+            
+                const sObraID = oModel.getProperty("/ObraID");
+            
+                // Llamar a la función que muestra el cuadro de confirmación y maneja la eliminación
+                TableIAFunction._handleDeleteIaDocument(oEvent, oView, oModel, oController)
+                    .then(() => this._loadData(sObraID))
+                    .catch(error => console.error("Error al eliminar el documento:", error));
+            },
+             // || --> FIN Edit / Delete IA || <--
+
+
             onEditDA: function ( oEvent ) { 
                 const oView = this.getView();
                 const oModel = this.getModel("mainModel");
                 const oController = this;
                 TableDAFunction.onEdit( oView , oController, oEvent, oModel);
+            },
+
+            onDeleteDaDocument: function (oEvent) {
+                const oView = this.getView();
+                const oModel = this.getModel("mainModel");
+                const oController = this;
+            
+                const sObraID = oModel.getProperty("/ObraID");
+            
+                // Llamar a la función que muestra el cuadro de confirmación y maneja la eliminación
+                TableDAFunction._handleDeleteDaDocument(oEvent, oView, oModel, oController)
+                    .then(() => this._loadData(sObraID))
+                    .catch(error => console.error("Error al eliminar el documento:", error));
             },
 
             // -----> ||  OPERACIONES PSDA  || <-----
@@ -1616,6 +1671,8 @@ sap.ui.define([
 
                const oModel = this.getView().getModel("mainModel");
                const sObraID = oModel.getProperty("/ObraID");
+               const sP3Codigo = oModel.getProperty("/HeaderInfo/p3");
+                const sRegistroProveedor = oModel.getProperty("/HeaderInfo/supplierRegistration");
                const IDdesempenioAmbiental = oModel.getProperty("/ResponsableAmbiental/ID");
                const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive") || "Gustavo Quintana";
                const sDateOfDetection = oModel.getProperty("/DatosFormularioCDA/payload/uploadCDA/FechaDeteccion");
@@ -1651,15 +1708,25 @@ sap.ui.define([
                                }
                                
                                const oNewCdaDocument = await CDA_operations.onCreateCDADocument(oPayload, this.getView());
+
+                                // SE COMENTA PARA TESTING   
+                                await CDA_operations.createFolderDMS(sObraID, sRegistroProveedor, sP3Codigo);
+                               
+                                const sFolder = "Control Desvio Ambiental";
+                                   /* -- Post información adjunto al servicio -- */
+                                   aUploadDocumentCDA.forEach(doc => {
+                                    CDA_operations.postDMSFile( doc, sObraID , sRegistroProveedor, sP3Codigo, sFolder );
+                                });
                                
                                // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
                                this.onCancelPress("saveDialogCDA"); // Cierro el dialogo y vuelvo a cargar información de la App
-                               this._loadData( sObraID );
+                            
                              } catch (error) {
                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
                                MessageToast.show(errorMessage);
                              } finally {
                                Utils.dialogBusy(false);
+                               this._loadData( sObraID );
                              }
                            }
                          });
@@ -1718,6 +1785,8 @@ sap.ui.define([
                Utils.dialogBusy(true);
 
                const oModel = this.getView().getModel("mainModel");
+               const sP3Codigo = oModel.getProperty("/HeaderInfo/p3");
+               const sRegistroProveedor = oModel.getProperty("/HeaderInfo/supplierRegistration");
                const sObraID = oModel.getProperty("/ObraID");
                const IDdesempenioAmbiental = oModel.getProperty("/ResponsableAmbiental/ID"); //  ---> ID Desempenio Ambiental
                const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive") || "Gustavo Quintana";
@@ -1752,15 +1821,24 @@ sap.ui.define([
                                }
                                
                                const oNewIaDocument = await IA_operations.onCreateIaDocument(oPayload, this.getView());
-                               
+
+                                // SE COMENTA PARA TESTING   
+                                await IA_operations.createFolderDMS(sObraID, sRegistroProveedor, sP3Codigo);
+                                
+                                const sFolder = "Informe Ambiental";
+                                    /* -- Post información adjunto al servicio -- */
+                                aUploadDocumentIA.forEach(doc => {
+                                    IA_operations.postDMSFile( doc, sObraID , sRegistroProveedor, sP3Codigo, sFolder );
+                                });
                                // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
                                this.onCancelPress("saveDialogIA"); // Cierro el dialogo y vuelvo a cargar información de la App
-                               this._loadData( sObraID );
+                    
                              } catch (error) {
                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
                                MessageToast.show(errorMessage);
                              } finally {
                                Utils.dialogBusy(false);
+                               this._loadData( sObraID );
                              }
                            }
                          });
@@ -1812,6 +1890,8 @@ sap.ui.define([
                Utils.dialogBusy(true);
 
                const oModel = this.getView().getModel("mainModel");
+               const sP3Codigo = oModel.getProperty("/HeaderInfo/p3");
+               const sRegistroProveedor = oModel.getProperty("/HeaderInfo/supplierRegistration");
                const sObraID = oModel.getProperty("/ObraID");
                const IDdesempenioAmbiental = oModel.getProperty("/ResponsableAmbiental/ID"); //  ---> ID Desempenio Ambiental
               
@@ -1850,15 +1930,25 @@ sap.ui.define([
                                };
                                
                                const oNewDaDocument = await DA_operations.onCreateDaDocument(oPayload, this.getView());
+
+                                // SE COMENTA PARA TESTING   
+                                await DA_operations.createFolderDMS(sObraID, sRegistroProveedor, sP3Codigo);
+                                
+                                const sFolder = "Documentos Adicionales";
+                                    /* -- Post información adjunto al servicio -- */
+                                 aUploadDocumentDA.forEach(doc => {
+                                    DA_operations.postDMSFile( doc, sObraID , sRegistroProveedor, sP3Codigo, sFolder );
+                                });
                                
                                // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
-                               this.onCancelPress("saveDialogDA"); // Cierro el dialogo y vuelvo a cargar información de la App
-                               this._loadData( sObraID );
+                               this.onCancelPress("dialogUploadDA"); // Cierro el dialogo y vuelvo a cargar información de la App
+                              
                              } catch (error) {
                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
                                MessageToast.show(errorMessage);
                              } finally {
                                Utils.dialogBusy(false);
+                               this._loadData( sObraID );
                              }
                            }
                          });

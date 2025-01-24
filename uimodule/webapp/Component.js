@@ -45,11 +45,13 @@ sap.ui.define([
                 const urlCatalog = oManifest.resolveUri("catalog");
                 const urlWF = oManifest.resolveUri("bpmworkflowruntime");
                 const urlDMS = oManifest.resolveUri("dms");
-                Services.setUrl(urlCatalog, urlWF, urlDMS);
-                PSDA_operations.setUrl(urlCatalog, urlWF, urlDMS );
-                CDA_operations.setUrl(urlCatalog, urlWF, urlDMS );
-                IA_operations.setUrl(urlCatalog, urlWF, urlDMS );
-                DA_operations.setUrl(urlCatalog, urlWF, urlDMS);
+                const urlUserApi = oManifest.resolveUri("user-api");
+                const urlPdfApi = oManifest.resolveUri("generatePDF");
+                Services.setUrl(urlCatalog, urlWF, urlDMS, urlUserApi, urlPdfApi);
+                PSDA_operations.setUrl(urlCatalog, urlWF, urlDMS, urlUserApi, urlPdfApi );
+                CDA_operations.setUrl(urlCatalog, urlWF, urlDMS, urlUserApi, urlPdfApi );
+                IA_operations.setUrl(urlCatalog, urlWF, urlDMS, urlUserApi, urlPdfApi );
+                DA_operations.setUrl(urlCatalog, urlWF, urlDMS, urlUserApi, urlPdfApi);
             }
         });
     }

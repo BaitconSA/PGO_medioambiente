@@ -121,10 +121,95 @@ sap.ui.define([
 			});
 			return response;
 		  },
+		  createFolderDMS: async function (Obra, Proveedor, P3) {
+			const urlPrincipal = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}`;
+			const respFolderRegistros = await fetch(urlPrincipal, {
+			  method: "POST",
+			  body: this.getFormDMS(`Control Desvio Ambiental`),
+			});
+			
+			return await Promise.all([
+			  respFolderRegistros.json(),
+			]);
+		  },
+	  
+		  getFormDMS: function (folder) {
+			const oForm = new FormData();
+			oForm.append("cmisaction", "createFolder");
+			oForm.append("propertyId[0]", "cmis:name");
+			oForm.append("propertyValue[0]", folder);
+			oForm.append("propertyId[1]", "cmis:objectTypeId");
+			oForm.append("propertyValue[1]", "cmis:folder");
+			oForm.append("_charset_", "UTF-8");
+			oForm.append("succinct", true);
+			return oForm;
+		  },
+	  
+		  postDMSFile: async function (File, Obra, Proveedor, P3, Folder) {
+			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${Folder}/`;
+			const oForm = new FormData();
+			oForm.append("cmisaction", "createDocument");
+			oForm.append("propertyId[0]", "cmis:name");
+			oForm.append("propertyValue[0]", File.name);
+			oForm.append("propertyId[1]", "cmis:objectTypeId");
+			oForm.append("propertyValue[1]", "cmis:document");
+			oForm.append("_charset_", "UTF-8");
+			oForm.append("includeAllowableActions", true);
+			oForm.append("succinct", true);
+			oForm.append("media", File);
+			const resp = await fetch(url, {
+			  method: "POST",
+			  body: oForm,
+			});
+			return await resp.json();
+		  },
+	  
+		  getFileDMS: async function (Obra, Proveedor, P3, PI, Folder, FileName) {
+			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${PI}/Registros de obra/${Folder}/${FileName}`;
+			const image = await fetch(url);
+			return await image.blob();
+		  },
+	  
+		  deleteFileDMS: async function (Obra, Proveedor, P3, PI, Folder, FileName) {
+			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${PI}/Registros de obra/${Folder}/${FileName}`;
+			const oForm = new FormData();
+			oForm.append("cmisAction", "delete");
+			await fetch(url, {
+			  method: 'POST',
+			  body: oForm
+			});
+		  },
+	  
+		  getSignedFile: async function (oPayload) {
+			const url = `${this._urlDocuSignApi}/DocumentsDocuSign`;
+			const oData = await fetch(url, {
+			  method: "POST",
+			  headers: {
+				"Content-Type": "application/json",
+			  },
+			  body: JSON.stringify(oPayload),
+			});
+			return await oData.blob();
+		  },
+	  
+		  createPdf: async function (oPayload) {
+			const url = `${this._urlPdfApi}/`;
+			const oData = await fetch(url, {
+			  method: "POST",
+			  headers: {
+				'Content-Type': 'application/json'
+			  },
+			  body: JSON.stringify(oPayload)
+			});
+			return await oData.json();
+		  },
 
-		setUrl: function (urlCatalog, _urlWF) {
+		  setUrl: function (urlCatalog, _urlWF, urlDMS,  urlUserApi, urlPdfApi) {
 			this._urlCatalog = urlCatalog;	
-			this._urlWF = _urlWF;	
+			this._urlWF = _urlWF;
+			this._urlDMS = urlDMS;	
+			this._urlUserApi = urlUserApi;
+			this._urlPdfApi = urlPdfApi;
         },
 
         getControles: async function () {
@@ -159,6 +244,30 @@ sap.ui.define([
                 throw error;  // Puedes manejar este error de otras maneras si lo prefieres
             }
         },
+
+		deleteRow: async function (ID) {
+			try {
+				Utils.dialogBusy(true);
+				const oDeletePSDA = await this.callDeleteService(`ControlesDesviosAmbientales/${ID}`);
+				let message = "";
+		
+				if (oDeletePSDA.error) {
+					message = "Error al eliminar el documento control desvios ambientales";
+					Utils.showMessage(message, "Error", "ERROR");
+					Utils.dialogBusy(false);
+					return;
+				}
+		
+				message = "Documento control desvios ambientales eliminado con éxito.";
+				// Invocar el MessagePopover usando el MessageHandler
+				Utils.showMessage(message, "Actualización Exitosa", "SUCCESS");
+				Utils.dialogBusy(false);
+			} catch (error) {
+				Utils.dialogBusy(false);
+				console.error("Error al eliminar el documento:", error);
+				throw error;  // Puedes manejar este error de otras maneras si lo prefieres
+			}
+		},
 
 
 		onUpdateCdaDocument: async function (ID, oPayload, oView) {			
