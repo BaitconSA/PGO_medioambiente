@@ -1,20 +1,38 @@
 {
     "_version": "1.60.0",
-    "sap.app": {
+    "sap.cloud": {
+        "service": "com.aysa.pgo",
+        "public": true
+      },
+      "sap.app": {
         "id": "uimodule",
         "type": "application",
         "i18n": "i18n/i18n.properties",
         "applicationVersion": {
-            "version": "0.0.1"
+          "version": "0.0.1"
         },
         "title": "{{appTitle}}",
         "description": "{{appDescription}}",
-        "resources": "resources.json",
-        "sourceTemplate": {
-            "id": "@sap-ux/fiori-freestyle-writer:basic",
-            "version": "0.21.10"
-        }
-    },
+        "crossNavigation": {
+          "inbounds": {
+            "intent1": {
+              "signature": {
+                "parameters": {},
+                "additionalParameters": "allowed"
+              },
+              "semanticObject": "pgomedioambiente",
+              "action": "display",
+              "icon": "sap-icon://",
+              "title": "{{appTitle}}",
+              "deviceTypes": {
+                "desktop": true,
+                "tablet": true,
+                "phone": true
+              }
+            }
+          }
+        }  
+      },
     "sap.ui": {
         "technology": "UI5",
         "icons": {
