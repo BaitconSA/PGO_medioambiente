@@ -10,7 +10,8 @@
                     <Button icon="sap-icon://sort" press=".onSort" />
                     <Button
                         icon="sap-icon://add"
-                        press=".onOpenDialog">
+                        press=".onOpenDialog"
+                        visible="{mainModel>/UserActionPermissions/canUploadDA}">
                         <customData>
                             <core:CustomData key="param" value="DA"/>
                         </customData>
@@ -22,7 +23,7 @@
             <!-- Tabla para control de desvíos ambientales -->
 
             <!-- Tabla para control de desvíos ambientales -->
-            <Table id="additionalDocumentationTable" class="sapUiTinyMargin" inset="false" items="{mainModel>/DatosFormularioCDA/payload/TablaCDA}">
+            <Table id="additionalDocumentationTable" class="sapUiTinyMargin" inset="false" items="{mainModel>/DatosFormularioDA/TableDA/Data}">
                 <columns>
                     <Column>
                         <Text text="{i18n>description}" />
@@ -37,17 +38,61 @@
                         <Text text="{i18n>state}" />
                     </Column>
                     <Column>
+                        <Text text="{i18n>observations}" />
+                    </Column>
+                    <Column>
                         <Text text="{i18n>actions}" />
                     </Column>
                 </columns>
                 <items>
                     <ColumnListItem>
                         <cells>
-                            <Text text="{notasPedidosModel>/fechaEntrega}" />
-                            <Text text="{notasPedidosModel>/fechaDeteccion}" />
-                            <Text text="{notasPedidosModel>/estado}" />
-                            <Text text="{notasPedidosModel>/observaciones}" />
-                            <Text text="{notasPedidosModel>/acciones}" />
+                            <Text text="{mainModel>descripcion}" />
+                            <Text text="{mainModel>comentarios}" />
+                            <Text text="{mainModel>fecha_Entrega}" />
+                            <ObjectStatus text="{mainModel>estado/descripcion}" inverted="true" state="{mainModel>estado/color}"/>
+                            <Text text="{mainModel>observaciones}" />
+                            <HBox>
+                                <core:Icon 
+                                        xmlns:core="sap.ui.core"
+                                        src="sap-icon://detail-view"
+                                        color="#2471a3"
+                                        press="onViewDetails($event, 'documentDA_details')"
+                                        class="sapUiSmallMarginEnd"
+                                        visible="{mainModel>permisos/canView}"
+                                    />
+
+                                <core:Icon 
+                                    color="#212121" 
+                                    src="sap-icon://edit"  
+                                    press="onEditDA" 
+                                    class="sapUiSmallMarginEnd"
+                                    visible="{mainModel>permisos/canEdit}" />
+                                <core:Icon 
+                                    src="sap-icon://delete" 
+                                    color="#FF5733" 
+                                    press="onAddManual" 
+                                    class="sapUiSmallMarginEnd"
+                                    visible="{mainModel>permisos/canDelete}" />       
+                                <core:Icon 
+                                    src="sap-icon://paper-plane" 
+                                    color="#27ae60" 
+                                    press="onSendDA" 
+                                    class="sapUiSmallMarginEnd"
+                                    visible="{mainModel>permisos/canSend}" />
+                                <Button
+                                    icon="sap-icon://accept" 
+                                    type="Accept" 
+                                    press="onApproveDA" 
+                                    class="sapUiSmallMarginEnd"
+                                    visible="{mainModel>permisos/canApprove}" />
+                                <Button
+                                    icon="sap-icon://decline" 
+                                    type="Reject" 
+                                    press="onRejectDA" 
+                                    class="sapUiSmallMarginEnd"
+                                    visible="{mainModel>permisos/canReject}" />
+                            </HBox>
                         </cells>
                     </ColumnListItem>
                 </items>

@@ -9,9 +9,10 @@ sap.ui.define([
         "uimodule/services/services",
         "uimodule/services/psda_operations",
         "uimodule/services/cda_operations",
-        "uimodule/services/ia_operations"
+        "uimodule/services/ia_operations",
+        "uimodule/services/da_operations"
     ],
-    function (UIComponent, Device, models, Services, PSDA_operations, CDA_operations, IA_operations) {
+    function (UIComponent, Device, models, Services, PSDA_operations, CDA_operations, IA_operations, DA_operations) {
         "use strict";
 
         return UIComponent.extend("uimodule.Component", {
@@ -42,10 +43,13 @@ sap.ui.define([
                 // Implementación de servicios
                 const oManifest = this.getManifestObject();
                 const urlCatalog = oManifest.resolveUri("catalog");
-                Services.setUrl(urlCatalog);
-                PSDA_operations.setUrl(urlCatalog);
-                CDA_operations.setUrl(urlCatalog);
-                IA_operations.setUrl(urlCatalog);
+                const urlWF = oManifest.resolveUri("bpmworkflowruntime");
+                const urlDMS = oManifest.resolveUri("dms");
+                Services.setUrl(urlCatalog, urlWF, urlDMS);
+                PSDA_operations.setUrl(urlCatalog, urlWF, urlDMS );
+                CDA_operations.setUrl(urlCatalog, urlWF, urlDMS );
+                IA_operations.setUrl(urlCatalog, urlWF, urlDMS );
+                DA_operations.setUrl(urlCatalog, urlWF, urlDMS);
             }
         });
     }

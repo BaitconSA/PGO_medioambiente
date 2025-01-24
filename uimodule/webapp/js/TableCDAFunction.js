@@ -90,7 +90,7 @@ sap.ui.define([
             if ( sParam === "Edit") {
                 oModel.setProperty("/DatosFormularioCDA/EditSection/documento/DocumentacionAdicional/Documentacion", [...fileList, file]);
                 oModel.setProperty("/DatosFormularioCDA/EditSection/documento/documento/File", oFile);
-                oModel.setProperty("/DatosFormularioPSDA/EditSection/documentAttachmentData", aDocumentData );
+                oModel.setProperty("/DatosFormularioCDA/EditSection/documentAttachmentData", aDocumentData );
             } else {
                 oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/DocumentacionAdicional", [...fileList, file]);
                 oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/File", oFile);
@@ -99,25 +99,79 @@ sap.ui.define([
             
         },
 
-        _resetFileUploader: function( oView ) { 
+        _resetFileUploader: function( oView, sAction ) { 
             const oModel = oView.getModel("mainModel");
-            oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/FechaDeteccion", null);
-            oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documentAttachmentData", [] );
-            oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/DocumentacionAdicional/Documentacion", {} );
-            oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/File", {} );
-            let oFileUploader = oView.byId("fileUploaderCDA"); 
-                oFileUploader.clear();
+            if ( sAction === "Create") {
+                oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/FechaDeteccion", null);
+                oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documentAttachmentData", [] );
+                oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/DocumentacionAdicional/Documentacion", {} );
+                oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/File", {} );
+                let oFileUploader = oView.byId("fileUploaderCDA"); 
+                    oFileUploader.clear();
+            } else {
+                oModel.setProperty("/DatosFormularioCDA/EditSection/FechaDeteccion", null);
+                oModel.setProperty("/DatosFormularioCDA/EditSection/documentAttachmentData", [] );
+                oModel.setProperty("/DatosFormularioCDA/EditSection/documento/DocumentacionAdicional/Documentacion", {} );
+                oModel.setProperty("/DatosFormularioCDA/EditSection/documento/File", {} );
+                let oFileUploader = oView.byId("fileUploaderCDAedit"); 
+                    oFileUploader.clear();
+            }
+        },
+           
+
+            onViewDetails: function ( oView, oController, oEvent, oModel ) {
+                let oButton = oEvent.getSource();
+                let oItem = oButton.getParent();
+                let oContext = oItem.getBindingContext("mainModel");
+                let oSelectedRow = oContext.getObject();
+
+    
+             const aDocumentData = [{
+                 documentoNombre: oSelectedRow.nombre_archivo,
+                 documentoFecha: oSelectedRow.createdAt
+             }];
+    
+                 // Establecer el informe en el modelo para el diálogo
+                 oModel.setProperty("/DatosFormularioCDA/DetailSection/selectedRow", oSelectedRow );
+                 oModel.setProperty("/DatosFormularioCDA/DetailSection/documentAttachmentData", aDocumentData );
+
+    
+                if (!oView.byId("detailCDADialog")) {
+                    Fragment.load({
+                        id: oView.getId(),
+                        name: "uimodule.view.controlDesviosAmbientales.detail.DetailCDA",
+                        controller: oController
+                    }).then(function (oDialog) {
+                        oView.addDependent(oDialog);
+                        oDialog.open();
+                    });
+                } else {
+                    oView.byId("detailCDADialog").open();
+                }
             },
 
             onEdit: function (  oView , oController, oEvent, oModel ) {
                 let oButton = oEvent.getSource();
                 let oItem = oButton.getParent();
                 let oContext = oItem.getBindingContext("mainModel");
+                let sFormattedDate = "";
+
+                let oDateFormat = sap.ui.core.format.DateFormat.getDateTimeInstance({
+                    pattern: "dd/MM/yyyy"
+                });
+                
     
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
-    
-           
+
+                if (oSelectedRow.fecha_deteccion) {
+                    let oDate = new Date(oSelectedRow.fecha_deteccion + "T00:00:00"); // Añadir tiempo para evitar conversión a UTC
+                    let localDate = new Date(oDate.getTime() + oDate.getTimezoneOffset() * 60000); // Ajustar a zona horaria local
+                     sFormattedDate = oDateFormat.format(localDate); // Formatear la fecha
+                }
+                
+                oSelectedRow.formattedFechaDeteccion = sFormattedDate;
+
                 const aDocumentData = [{
                     documentoNombre: oSelectedRow.nombre_archivo,
                     documentoFecha: oSelectedRow.createdAt

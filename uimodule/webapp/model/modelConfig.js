@@ -21,8 +21,14 @@ sap.ui.define(
 					// Datos de usuario
 					UserRoles: {},
 					UserData: {},
-					Permissions: {},
-
+					UsuariosMedioAmbientes: [],
+					UserActionPermissions: {
+						canUploadEditEnvironmentResponsable: false,
+						canUploadPSDA: false,
+						canUploadCDA: false,
+						canUploadIA: false,
+						canUploadDA: false,
+					},
 					// Información del header
 					HeaderInfo: {
 						workName: null,
@@ -91,9 +97,7 @@ sap.ui.define(
 
 					Years: [], // Array para almacenar los años
 					IDMainEntity: null,
-					ResponsableAmbiental: {
-						Data: []
-					},
+					ResponsableAmbiental: {},
 					DatosFormularioPSDA:{
 						payloadType: "datosFormularioPSDA",
 						payload: {
@@ -165,6 +169,10 @@ sap.ui.define(
 						TableCDA: {
 							Data: []
 						},
+						DetailSection: {
+							selectedRow: {},
+							documentAttachmentData: [], // Datos del documento adjuntado
+						},
 						EditSection: {
 							Data:[],
 								selectedRow: {},
@@ -192,7 +200,6 @@ sap.ui.define(
 						payload: {
 							// Agregar más propiedades según sea necesario
 							uploadIA: {
-								FechaDeteccion: null,
 								documento: {
 									DocumentacionAdicional: {},
 									File: {},
@@ -207,25 +214,26 @@ sap.ui.define(
 								documentAttachmentData: [], // Datos del documento adjuntado
 							},
 						},
-						TableIa: {
+						TableIA: {
 							Data: []
 						},
+						DetailSection: {
+							selectedRow: {},
+							documentAttachmentData: [], // Datos del documento adjuntado
+						},
 						EditSection: {
-							Data:[],
+								Data:[],
 								selectedRow: {},
 								numeroPlanilla: null,
 								documentAttachmentData: [], // Datos del documento adjuntado
 								fechaEntrega: null,
 								isEdit: false,
-								FechaDeteccion: null,
 								documento: {
 									DocumentacionAdicional: {},
 									File: {},
 									FileName: null
 								},
 								validation: {
-									dateOfDetectionValueState: null,
-									dateOfDetectionTextValueState: null,
 									documentIaValueState:null,
 									documentIaEditValueStateText: null,
 								}
@@ -247,9 +255,39 @@ sap.ui.define(
 									FileName: null,
 									documentoValueState: "None",
 									documentoValueStateText: "Debe adjuntar un documento",
+								},
+								documentAttachmentData: [], // Datos del documento adjuntado
+							}
+						},
+						TableDA: {
+							Data: []
+						},
+						DetailSection: {
+							descripcion: null,
+							comentarios: null,
+							selectedRow: {},
+							documentAttachmentData: [], // Datos del documento adjuntado
+						},
+						EditSection: {
+								Data:[],
+								selectedRow: {},
+								descripcion: null,
+								comentarios: null,
+								numeroPlanilla: null,
+								documentAttachmentData: [], // Datos del documento adjuntado
+								fechaEntrega: null,
+								isEdit: false,
+								documento: {
+									DocumentacionAdicional: {},
+									File: {},
+									FileName: null
+								},
+								validation: {
+									descripcionValueState: "None",
+									descripcionValueStateText: "El campo Descripción es obligatorio",
+									documentDAValueState:null,
+									documentDAEditValueStateText: null,
 								}
-							},
-						TablaDA: []
 						}
 					},
 				});
@@ -257,7 +295,8 @@ sap.ui.define(
 
 			// Nueva función para estructurar el modelo de datos basado en oObraData
 			// eslint-disable-next-line complexity, consistent-return
-			createStructuredModel: function (oView, oModel, oObraData, oResponsableAmbientalData, oInformesData, oControlesData, oUserData, oUserRolesData) {
+			createStructuredModel: function (oView, oModel, oObraData, oResponsableAmbientalData, oInformesData, 
+					oControlesData, oInformesAmbientalesData, oDocumentacionAdicionalData, oUserData, oUserRolesData) {
 
 					// Listas P3 y PI
 					let sObraID = oObraData.ID,
@@ -298,8 +337,16 @@ sap.ui.define(
 					}
 
 					if(oResponsableAmbientalData.value && oResponsableAmbientalData.value.length > 0 ) {
-						oModel.setProperty( "/ResponsableAmbiental/Data", oResponsableAmbientalData.value );
+						oModel.setProperty("/ResponsableAmbiental", oResponsableAmbientalData.value[0] );
 					}
+
+					if(oUserRolesData["value"].includes("PGO_Contratista")) {
+                        oModel.setProperty("/UserActionPermissions/canUploadEditEnvironmentResponsable", true);
+                        oModel.setProperty("/UserActionPermissions/canUploadPSDA", true);
+                        oModel.setProperty("/UserActionPermissions/canUploadCDA", true);
+                        oModel.setProperty("/UserActionPermissions/canUploadIA", true);
+                        oModel.setProperty("/UserActionPermissions/canUploadDA", true);
+                    } 
 
 					
 
@@ -319,6 +366,15 @@ sap.ui.define(
 				if( oControlesData.value && oControlesData.value.length > 0 ) {
 					oModel.setProperty( "/DatosFormularioCDA/TableCDA/Data", oControlesData.value );
 				}
+
+				if( oInformesAmbientalesData.value && oInformesAmbientalesData.value.length > 0) {
+					oModel.setProperty( "/DatosFormularioIA/TableIA/Data", oInformesAmbientalesData.value );
+				}
+
+				if( oDocumentacionAdicionalData.value && oDocumentacionAdicionalData.value.length > 0) {
+					oModel.setProperty( "/DatosFormularioDA/TableDA/Data", oDocumentacionAdicionalData.value );
+				}
+
 
 					// Ejemplo de uso 
 					this.updateObraStatus(oModel, sStateObra, sStateObraDescription);

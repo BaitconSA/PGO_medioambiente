@@ -2,13 +2,13 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
     <Popover
-        id="editPopover"
-        title="{i18n>editEnvironmentalReponse}"
+        id="editPopoverIA"
+        title="{i18n>rejectDocumentTitle}"
         contentWidth="300px">
         <VBox>
-            <Input id="popoverInput" />
+            <TextArea id="popoverInputRejectIA" />
             <HBox justifyContent="End" styleClass="sapUiSmallMarginTop">
-                <Button text="Guardar" type="Accept" press="onSavePress" />
+                <Button text="Guardar" type="Accept" press="onSaveJustificationRejectIA" />
             </HBox>
         </VBox>
     </Popover>

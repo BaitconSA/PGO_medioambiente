@@ -7,6 +7,8 @@ sap.ui.define([
     "uimodule/services/psda_operations",
     "uimodule/services/cda_operations",
     "uimodule/services/ia_operations",
+    "uimodule/services/da_operations",
+    "uimodule/services/Approvers",
     "uimodule/js/TablePsdaFunction",
     "uimodule/js/TableCDAFunction",
     "uimodule/js/TableIAFunction",
@@ -19,13 +21,14 @@ sap.ui.define([
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, CDA_operations, IA_operations, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter, Fragment) {
+    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, CDA_operations, IA_operations, DA_operations, Approvers, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter, Fragment) {
         "use strict";
 
         return Controller.extend("uimodule.controller.MainView", {
             formatter: Formatter,
             onInit: function () {
                 this.getRouter().getRoute("MainView").attachPatternMatched(this._onObjectMatched, this);
+                this._contextPath = null;
             },
 
             _onObjectMatched: function (oEvent) {
@@ -37,22 +40,22 @@ sap.ui.define([
                 this._loadData( sObraID );   
             },
 
-            _loadData: async function ( obraID ) {
-                // Preload
-                Utils.dialogBusy(true);
-
+            _loadData: async function (obraID) {            
+                    // Obtener datos de la obra
+                    Utils.dialogBusy(true);
                 try {
                     // Verificar si la aplicación se está ejecutando en localhost
-                     const isLocalhost = window.location.hostname === "localhost";
-                     let oUserData, oUserRolesData; 
-                     
-                     if (isLocalhost) {
+                    const isLocalhost = window.location.hostname === "localhost";
+                    let oUserData, oUserRolesData;
+            
+                    if (isLocalhost) {
                         // Lógica para LOCAL TESTING
-                        oUserRolesData = { value: ["PGO_Inspector"] };
+                       oUserRolesData = { value: ["PGO_Inspector"] };
+                        //oUserRolesData = { value: ["PGO_Contratista"] };
                         oUserData = { "Nombre": "gustavo.quintana@datco.net" };
-                      } else {
-
+                    } else {
                         try {
+                            Utils.dialogBusy(true);
                             // Lógica para DEPLOY
                             const oUser = Services.getUser();
                             const oUserRoles = Services.getUserRoles();
@@ -61,69 +64,61 @@ sap.ui.define([
                             Utils.showMessage("Error al obtener datos de usuario o roles", "Error", "WARNING");
                         }
                     }
-
+            
                     // Validar que los datos de usuario están presentes y continuar el flujo
                     if (!oUserData) {
                         Utils.showMessage("Datos de usuario incompletos o no encontrados.", "Advertencia", "WARNING");
+                        return;
                     }
-
-                    if (!oUserRolesData ) {
+            
+                    if (!oUserRolesData) {
                         Utils.showMessage("Roles de usuario incompletos o no encontrados.", "Advertencia", "WARNING");
-                    }
-                     // Obtener datos de la obra
-                    let oObraData = {};
-                    let oView = this.getView();
-                    try {
-                        const oObra = Services.getObraData(obraID);
-                        const oResponsableAmbiental = Services.getResponsableAmbiental();
-                        const oInformes = PSDA_operations.getInformes(); // Obtengo Informes Planilla de seguimiento desempeño Ambiental
-                        const oControlesDesvios = CDA_operations.getControles(); // Obtengo Controles de desvíos ambientales
-                        const oInformesAmbientales = IA_operations.getInformes(); // Obtengo Informacion de documentos de Informes Ambientales
-                        const [oObraData, oResponsableAmbientalData, oInformesData, oControlesData, oInformesAmbientalesData] = await Promise.all([oObra, oResponsableAmbiental, oInformes, oControlesDesvios, oInformesAmbientales]);
-                    
-                        // Armo los P3 / PI / Información necesaria de la Obra.
-                        this._oMainModel = ModelConfig.createStructuredModel(oView, this._oMainModel, oObraData, oResponsableAmbientalData,  oInformesData, oControlesData, oInformesAmbientalesData,  oUserData, oUserRolesData);
-                    
-                        // Permisos del Usuario para Ejecutar la App
-                        const oPermissions = PermissionUser.evaluateUserPermissions(oUserRolesData);
-                        this._oMainModel.setProperty("/Permissions", oPermissions);
-                    
-                        // Verificar permisos
-                        if (this.checkPermissions(oPermissions)) {
-                            Utils.showMessage("No tiene permisos para ejecutar esta aplicación.", "Advertencia", "WARNING");
-                        } else {
-                            console.log("El usuario tiene permisos para ejecutar esta aplicación.");
-                        }
-                    
-                        const sKey = this._oMainModel.getProperty("/Section/sP3IDDefault");
-                        this._buildIconTabByP3(null, sKey);
-                    } catch (e) {
-                        Utils.showMessage("Error al obtener datos de la obra", "Error", "WARNING");
+                        return;
                     }
                     
-                    
-                     // Validar que los datos de la obra están presentes
-                    if ( !oObraData ) {
+
+                    const oModel = this.getView().getModel("mainModel");
+                    const oObra = Services.getObraData(obraID);
+                    const oResponsableAmbiental = Services.getResponsableAmbiental();
+                    const oUsuarios = Services.getUsuariosEstructuraOrganizativa(); // Obtengo el usuario medioAmbiente
+                    const oInformes = PSDA_operations.getInformes(); // Obtengo Informes Planilla de seguimiento desempeño Ambiental
+                    const oControlesDesvios = CDA_operations.getControles(); // Obtengo Controles de desvíos ambientales
+                    const oInformesAmbientales = IA_operations.getInformes(); // Obtengo Información de documentos de Informes Ambientales
+                    const oDocumentacionAdicional = DA_operations.getDocumentos(); // Obtengo Información de documentos adicionales
+            
+                    const [oObraData, oResponsableAmbientalData, oUsuariosMedioAmbienteData, oInformesData, oControlesData, oInformesAmbientalesData, oDocumentacionAdicionalData] = await Promise.all([
+                        oObra, oResponsableAmbiental, oUsuarios, oInformes, oControlesDesvios, oInformesAmbientales, oDocumentacionAdicional
+                    ]);
+            
+                    // Validar que los datos de la obra están presentes
+                    if (!oObraData) {
                         throw new Error("Datos de obra incompletos o no encontrados.");
-                    } else {
-                  //  Utils.showMessage("Datos cargados exitosamente", "Éxito", "SUCCESS");
-                }
+                    }
 
+                      // Permisos del Usuario para Ejecutar la App
+                      const oPermissions = PermissionUser._evaluatePermissionsForSections(oInformesData, oControlesData,oInformesAmbientalesData,oDocumentacionAdicionalData, oUserRolesData);
+            
+                    // Armo los P3 / PI / Información necesaria de la Obra.
+                    this._oMainModel = ModelConfig.createStructuredModel(
+                        this.getView(), oModel, oObraData, oResponsableAmbientalData,
+                        oPermissions.oInformesData, oPermissions.oControlesData, oPermissions.oInformesAmbientalesData, oPermissions.oDocumentacionAdicionalData, oUserData, oUserRolesData
+                    );
                     
-                } catch (error) {
-                    Utils.showMessage("Error al cargar los datos", "Error", "ERROR");
-                } finally { 
-                     Utils.dialogBusy(false);
+                  
+                    this._oMainModel.setProperty("/Permissions", oPermissions);
+                    this._oMainModel.setProperty("/UsuariosMedioAmbientes", oUsuariosMedioAmbienteData.value );
+        
+                    const sKey = this._oMainModel.getProperty("/Section/sP3IDDefault");
+                    this._buildIconTabByP3(null, sKey);
+                } catch (e) {
+                    Utils.showMessage("Error al obtener datos de la obra", "Error", "WARNING");
+                } finally {
                 }
-            },
-
-            checkPermissions: function (oPermissions) {
-                // Verificar si todas las propiedades son false
-                return Object.values(oPermissions).every(permission => !permission);
             },
             
 
-            _buildIconTabByP3: function (oEvent, sKey) {
+            _buildIconTabByP3: async function (oEvent, sKey) {
+                const oModel = this.getModel("mainModel");
                 // Lógica para construir el IconTab por el P3
                 if (!oEvent && !sKey) {
                     console.error("No existe P3");
@@ -151,6 +146,7 @@ sap.ui.define([
     
                 if (sKey !== null) {
                     this._setIconTabsP3( null, sKey );
+                    await Approvers.loadAprrovers( oModel );  
                 } else {
                     this._clearTableMain();
                 }
@@ -159,7 +155,7 @@ sap.ui.define([
             _setIconTabsP3: function (oEvent , sP3id ) {
               const oView = this.getView();
               this._oMainModel = ModelConfig.buildHeaderInfo(oView, oEvent, this._oMainModel, sP3id);
-                
+              Utils.dialogBusy(false);
             },
 
             _clearTableMain: function () {
@@ -242,12 +238,23 @@ sap.ui.define([
                     case "documentIA_create":
                         // Sección Informes Ambientales (Creación -> Documento)
                         TableIAFunction.onFileUploaderChange(oEvent, this.getView(), oModel, "Create");
+                        break; 
+                    case "documentIA_edit":
+                        // Sección Informes Ambientales (Creación -> Documento)
+                        TableIAFunction.onFileUploaderChange(oEvent, this.getView(), oModel, "Edit");
+                        break; 
+                    case "documentDA_create":
+                        // Sección Informes Ambientales (Creación -> Documento)
+                        TableDAFunction.onFileUploaderChange(oEvent, this.getView(), oModel, "Create");
                         break;
-            
+                    case "documentDA_edit":
+                        // Sección Informes Ambientales (Creación -> Documento)
+                        TableDAFunction.onFileUploaderChange(oEvent, this.getView(), oModel, "Edit");
+                        break; documentDA_edit
                     default:
                         // Sección Desempeño Ambiental (Subida Documento)
                         TablePsdaFunction.onFileUploaderChange(oEvent, this.getView(), oModel);
-                        break;
+                        break; 
                 }
             },
             
@@ -280,29 +287,75 @@ sap.ui.define([
                 // Ocultar el MessageStrip al cerrar el diálogo
                 this.byId("messageStripIA").setVisible(false);
                 // Cerrar el diálogo sin guardar
-                this.byId("addDocumentationIADialog").close();
-                this.byId("addDocumentationIADialog").destroy();
+                this.byId("dialogUploadIA").close();
+                this.byId("dialogUploadIA").destroy();
             },
 
-            _formatDialogData: function ( typedialog ) {
-                const oModel = this.getView().getModel("mainModel");
-                if( typedialog === "CDA" ) {
-                    this.getView().byId("fileUploaderCDA").setValue("");
-                          oModel.setProperty("/DatosFormularioCDA/payload/FechaDeteccion", null);
-                          oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/File", {} );
-                          oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/FileName", null );
-                          oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documentAttachmentData", [] );
-                } else if (typedialog === "IA") { 
-                    this.getView().byId("fileUploaderIA").setValue("");
-                          oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/File", {} );
-                          oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/FileName", null );
-                } else if (typedialog === "EditPSDA") {
-                          oModel.setProperty("/DatosFormularioPSDA/EditSection/documento/DocumentacionAdicional", {} );
-                          oModel.setProperty("/DatosFormularioPSDA/EditSection/documento/File", {} );
-                          oModel.setProperty("/DatosFormularioPSDA/EditSection/documento/FileName", null );
-                }
-                
+            onCancelDialogDA: function () {
+                this._formatDialogData("DA");
+                // Ocultar el MessageStrip al cerrar el diálogo
+                this.byId("messageStripDA").setVisible(false);
+                // Cerrar el diálogo sin guardar
+                this.byId("dialogUploadDA").close();
+                this.byId("dialogUploadDA").destroy();
             },
+
+            _formatDialogData: function (typedialog) {
+                const oModel = this.getView().getModel("mainModel");
+                
+                switch(typedialog) {
+                    case "CDA":
+                        this.getView().byId("fileUploaderCDA").setValue("");
+                        oModel.setProperty("/DatosFormularioCDA/payload/FechaDeteccion", null);
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/File", {});
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documento/FileName", null);
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/documentAttachmentData", []);
+                        
+                        // Saco el valueState
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/dateOfDetectionValueState", null);
+                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/dateOfDetectionTextValueState", null);
+                        break;
+                    
+                    case "IA":
+                        this.getView().byId("fileUploaderIA").setValue("");
+                        oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/File", {});
+                        oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/FileName", null);
+                        break;
+                    
+                    case "EditPSDA":
+                        oModel.setProperty("/DatosFormularioPSDA/EditSection/documento/DocumentacionAdicional", {});
+                        oModel.setProperty("/DatosFormularioPSDA/EditSection/documento/File", {});
+                        oModel.setProperty("/DatosFormularioPSDA/EditSection/documento/FileName", null);
+                        break;
+                    
+                    case "DA":
+                        this.getView().byId("fileUploaderDA").setValue("");
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/descripcion", null);
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/comentarios", null);
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/documento/File", {});
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/documento/FileName", null);
+                        
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/descripcionValueState", "None");
+                        oModel.setProperty("/DatosFormularioDA/EditSection/payload/uploadDA/descripcionStateText", "");
+                        break;
+                    
+                    case "EditDA":
+                        // Formateo formulario Edición
+                        this.getView().byId("fileUploaderDAedit").setValue("");
+                        oModel.setProperty("/DatosFormularioDA/EditSection/descripcion", null);
+                        oModel.setProperty("/DatosFormularioDA/EditSection/comentarios", null);
+                        oModel.setProperty("/DatosFormularioDA/EditSection/documento/File", {});
+                        oModel.setProperty("/DatosFormularioDA/EditSection/documento/FileName", null);
+                        
+                        oModel.setProperty("/DatosFormularioDA/EditSection/validation/descripcionValueState", "None");
+                        oModel.setProperty("/DatosFormularioDA/EditSection/validation/descripcionStateText", "");
+                        break;
+                    
+                    default:
+                        console.warn("Typedialog no reconocido: " + typedialog);
+                }
+            },
+            
 
             //Dialogo Orden de Notas en PSDA
             onOpenDialogOrderNotes: function (oEvent, sParam) {
@@ -374,12 +427,25 @@ sap.ui.define([
                 const actionMapping = {
                     "saveDialogCDA": () => {
                         oView.byId("dialogUploadCDA").close();
-                        TableCDAFunction._resetFileUploader(oView);
+                        TableCDAFunction._resetFileUploader(oView, "Create");
+                    },
+                    "editDialogCDA": () => {
+                        oView.byId("editDialogCDA").close();
+                        TableCDAFunction._resetFileUploader(oView, "Edit");
                     },
                     "saveDialogIA": () => {
                         oView.byId("dialogUploadIA").close();
-                        TableIAFunction._resetFileUploader(oView);
-                    }
+                        TableIAFunction._resetFileUploader(oView, "Create");
+                    },
+                    "editDialogIA": () => {
+                        oView.byId("editDialogIA").close();
+                        TableIAFunction._resetFileUploader(oView, "Edit");
+                    },
+                    "saveDialogDA": () => {
+                        oView.byId("dialogUploadDA").close();
+                        TableDAFunction._resetFileUploader(oView, "Create");
+                    },
+                    
                 };
             
                 if (actionMapping[sParam]) {
@@ -424,6 +490,7 @@ sap.ui.define([
                             onClose: async (sAction) => {
                               if (sAction !== "Aceptar")
                                 return;
+                             Utils.dialogBusy(true);
                               try {
                                 const oPayload = {
                                     estado_ID: "BO",
@@ -437,17 +504,13 @@ sap.ui.define([
                                 
                                 const oNewPsdaDocument = await PSDA_operations.onCreatePsdaDocument(oPayload, this.getView());
                                 
-                                // Guardamos el ID de la entidad 'Padre'
-                                oModel.setProperty("/IDMainEntity", oNewPsdaDocument.ID );
-                                oModel.setProperty("/DatosFormularioPSDA/TablePSDA/Data", oNewPsdaDocument );
-                                
                                 this.onCancelPress("EditDialog"); // Cierro el dialogo y vuelvo a cargar información de la App
-                                this._loadData( sObraID );
                               } catch (error) {
                                 const errorMessage = this.getResourceBundle().getText("errorCreateADS");
                                 MessageToast.show(errorMessage);
                               } finally {
                                 Utils.dialogBusy(false);
+                                this._loadData( sObraID );
                               }
                             }
                           });
@@ -506,11 +569,42 @@ sap.ui.define([
                 Utils.dialogBusy(false);
             },
 
-            onViewDetails: function ( oEvent ) {
+            onDeletePsdaDocument: function (oEvent) {
                 const oView = this.getView();
                 const oModel = this.getModel("mainModel");
                 const oController = this;
-                TablePsdaFunction.onViewDetails( oView , oController, oEvent, oModel);
+            
+                const sObraID = oModel.getProperty("/ObraID");
+            
+                // Llamar a la función que muestra el cuadro de confirmación y maneja la eliminación
+                TablePsdaFunction._handleDeletePsdaDocument(oEvent, oView, oModel, oController)
+                    .then(() => this._loadData(sObraID))
+                    .catch(error => console.error("Error al eliminar el documento:", error));
+            },
+
+            onViewDetails: function ( oEvent, sAction ) {
+                if ( sAction === "documentPSDA_details" ) {
+                    const oView = this.getView();
+                    const oModel = this.getModel("mainModel");
+                    const oController = this;
+                    TablePsdaFunction.onViewDetails( oView , oController, oEvent, oModel);
+                } else if ( sAction === "documentCDA_details" ) {
+                    const oView = this.getView();
+                    const oModel = this.getModel("mainModel");
+                    const oController = this;
+                    TableCDAFunction.onViewDetails( oView , oController, oEvent, oModel);
+                } else if ( sAction === "documentIA_details") {
+                    const oView = this.getView();
+                    const oModel = this.getModel("mainModel");
+                    const oController = this;
+                    TableIAFunction.onViewDetails( oView , oController, oEvent, oModel);
+                } else if ( sAction === "documentDA_details") {
+                    const oView = this.getView();
+                    const oModel = this.getModel("mainModel");
+                    const oController = this;
+                    TableDAFunction.onViewDetails( oView , oController, oEvent, oModel);
+                }
+               
             },
              // Formateador de mes
             onFormatMonth: function(monthNumber) {
@@ -536,25 +630,719 @@ sap.ui.define([
                 TableCDAFunction.onEdit( oView , oController, oEvent, oModel);
             },
 
-            onSendPSDA: async function ( oEvent ) {
-                Utils.dialogBusy(true);
+            onEditIA: function ( oEvent ) { 
+                const oView = this.getView();
+                const oModel = this.getModel("mainModel");
+                const oController = this;
+                TableIAFunction.onEdit( oView , oController, oEvent, oModel);
+            },
+
+            onEditDA: function ( oEvent ) { 
+                const oView = this.getView();
+                const oModel = this.getModel("mainModel");
+                const oController = this;
+                TableDAFunction.onEdit( oView , oController, oEvent, oModel);
+            },
+
+            // -----> ||  OPERACIONES PSDA  || <-----
+            onSendPSDA: async function (oEvent) {
+                const oModel = this.getModel("mainModel");
+                const oObraData = oModel.getData();
+                const sObraID = oModel.getProperty("/ObraID");
+                // Supongamos que este es tu array original
+                const responsables = this.getModel("mainModel").getProperty("/Responsables").inspectores;
+
+                // Extraemos las propiedades "inspector" en un nuevo array
+                const aInspectores = responsables.map(objeto => objeto.inspector);
+
+
+                let oButton = oEvent.getSource();
+                let oItem = oButton.getParent();
+                let oContext = oItem.getBindingContext("mainModel");
+            
+                // Obtener los datos de la fila seleccionada
+                let oSelectedRow = oContext.getObject();
+                let sEntity = "InformesDesempenioAmbiental";
+            
+                // Confirmación antes de enviar
+                let confirmMessage = this.getResourceBundle().getText("sendPSDAConfirm");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") {
+                            Utils.dialogBusy(false);
+                            return;
+                        }
+            
+                        Utils.dialogBusy(true);
+            
+                        try {
+                            const oNumeroPlanilla = await PSDA_operations.onSendPSDA(sEntity, oSelectedRow.ID);
+                            console.log(oNumeroPlanilla);
+                            
+                            const oDataDocument = await PSDA_operations.getLastDocument(oSelectedRow.ID); // Asegurarse de usar await si es una función asincrónica
+                                  oDataDocument.nombreObra = oObraData["ObraData"].nombre;
+                             // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                             const sSectionTab = "Planilla Seguimiento Desempenio Ambiental"
+                             await PSDA_operations._sendWorkflowNotification(sSectionTab, oDataDocument, aInspectores, "SendToApprove");
+                        } catch (error) {
+                            console.error("Error al enviar el documento:", error);
+                            Utils.showMessage("Error al enviar el documento PSDA", "Error", "ERROR");
+                        } finally {
+                            Utils.dialogBusy(false); // Asegurarse de desactivar el Busy en el bloque finally
+                            await this._loadData(sObraID); // Esperar hasta que los datos estén cargados antes de continuar
+                        }
+                    }                        
+                });
+            },
+
+            onApprovePSDA: async function (oEvent) {
+                const oModel = this.getModel("mainModel");
+                const sObraID = oModel.getProperty("/ObraID");
+                const oObraData = oModel.getProperty("/ObraData");
                 let oButton = oEvent.getSource();
                 let oItem = oButton.getParent();
                 let oContext = oItem.getBindingContext("mainModel");
 
+                 // Lista de Usuarios Medio Ambiente Al aprobar
+                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes");
+            
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
-                // Usar desestructuración para acceder directamente al informe
-                const { informe_desempenio: [{ informe }] } = oSelectedRow;
-
-                let informeSeleccionado = informe[0];
+                    oSelectedRow.nombreObra = oObraData.nombre;
                 let sEntity = "InformesDesempenioAmbiental";
-
-                const aOperation = await PSDA_operations.onSendPSDA( sEntity, informeSeleccionado.ID );
-                console.log(aOperation)
+            
+                // Confirmación antes de enviar
+                let confirmMessage = this.getResourceBundle().getText("sendAprovePsda");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") {
+                            Utils.dialogBusy(false);
+                            return;
+                        }
+            
+                        Utils.dialogBusy(true);
+            
+                        try {
+                            await PSDA_operations.onAprovePSDA(sEntity, oSelectedRow.ID);
                 
+                            const sSectionTab = "Planilla de Seguimiento Desempeño Ambiental";
+                            // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                            await PSDA_operations._sendWorkflowNotification( sSectionTab, oSelectedRow, aResponsablesMediAmbiente, "SendToApprove" );
+                        } catch (error) {
+                            console.error("Error al aprobar el documento:", error);
+                            Utils.showMessage("Error al aprobar el documento PSDA", "Error", "ERROR");
+                        } finally {
+                            Utils.dialogBusy(false); // Asegurarse de desactivar el Busy en el bloque finally
+                            await this._loadData( sObraID ); 
+                        }
+                    }
+                });
+            },
 
-                },  
+            onRejectPSDA: async function (oEvent) {
+                const oModel = this.getModel("mainModel");
+                const sObraID = oModel.getProperty("/ObraID");
+                const oObraData = oModel.getProperty("/ObraData");
+                let oButton = oEvent.getSource();
+                let oItem = oButton.getParent();
+                let oContext = oItem.getBindingContext("mainModel");
+                const aContratistas = this.getModel("mainModel").getProperty("/ObraData/contratista").map( obj => { return obj.contratista});
+            
+                // Obtener los datos de la fila seleccionada
+                let oSelectedRow = oContext.getObject();
+                    oSelectedRow.nombreObra = oObraData.nombre;
+                let sEntity = "InformesDesempenioAmbiental";
+            
+                // Confirmación antes de enviar
+                let confirmMessage = this.getResourceBundle().getText("rejectAprovePsda");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") {
+                            Utils.dialogBusy(false);
+                            return;
+                        }
+            
+                        Utils.dialogBusy(true);
+            
+                        try {
+                            await PSDA_operations.onRejectPSDA(sEntity, oSelectedRow.ID);
+
+                            const sSectionTab = "Planilla Seguimiento Desempeño Ambiental";
+                            // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                            await CDA_operations._sendWorkflowNotification( sSectionTab, oSelectedRow, aContratistas, "SendToReject" );
+                        } catch (error) {
+                            console.error("Error al rechazar el documento:", error);
+                            Utils.showMessage("Error al rechazar el documento PSDA", "Error", "ERROR");
+                        } finally {
+                            Utils.dialogBusy(false); // Asegurarse de desactivar el Busy en el bloque finally
+                            await this._loadData( sObraID ); // Esperar hasta que los datos estén cargados antes de continuar
+                        }
+                    }
+                });
+            },
+
+           // -----> || FIN OPERACIONES PSDA  || <-----   
+
+            // -----> ||  OPERACIONES IA  || <-----
+            onSendIA: async function (oEvent) {
+                const oModel = this.getModel("mainModel");
+                const sObraID = oModel.getProperty("/ObraID");
+                let oButton = oEvent.getSource();
+                let oItem = oButton.getParent();
+                let oContext = oItem.getBindingContext("mainModel");
+
+                // Supongamos que este es tu array original
+                const responsables = this.getModel("mainModel").getProperty("/Responsables").inspectores;
+
+                // Extraemos las propiedades "inspector" en un nuevo array
+                const aInspectores = responsables.map(objeto => objeto.inspector);
+            
+                // Obtener los datos de la fila seleccionada
+                let oSelectedRow = oContext.getObject();
+                let sEntity = "InformesAmbientales";
+            
+                // Confirmación antes de enviar
+                let confirmMessage = this.getResourceBundle().getText("sendIAConfirm");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") {
+                            Utils.dialogBusy(false);
+                            return;
+                        }
+            
+                        Utils.dialogBusy(true);
+            
+                        try {
+                            const oNumPlanilla = await IA_operations.onSendIA(sEntity, oSelectedRow.ID);
+
+                            const oDataDocument = await CDA_operations.getLastDocument( oSelectedRow.ID ); // Asegurarse de usar await si es una función asincrónica
+                            oDataDocument.nombreObra = oObraData["ObraData"].nombre;
+                            // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                            const sSectionTab = "Informes Ambientales"
+
+                            // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                            await IA_operations._sendWorkflowNotification( sSectionTab, oDataDocument, aInspectores, "SendToApprove" );
+                            
+                            
+                        } catch (error) {
+                            console.error("Error al enviar el documento:", error);
+                            Utils.showMessage("Error al enviar el documento Informe Ambiental", "Error", "ERROR");
+                        } finally {
+                            Utils.dialogBusy(false); // Asegurarse de desactivar el Busy en el bloque finally
+                            await this._loadData(sObraID); // Esperar hasta que los datos estén cargados antes de continuar
+                        }
+                    }
+                });
+            },
+
+            onApproveIA: async function (oEvent) {
+                const oModel = this.getModel("mainModel");
+                const sObraID = oModel.getProperty("/ObraID");
+                const oObraData = oModel.getProperty("/ObraData");
+                let oButton = oEvent.getSource();
+                let oItem = oButton.getParent();
+                let oContext = oItem.getBindingContext("mainModel");
+
+                 // Lista de Usuarios Medio Ambiente Al aprobar
+                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes");
+            
+                // Obtener los datos de la fila seleccionada
+                let oSelectedRow = oContext.getObject();
+                    oSelectedRow.nombreObra = oObraData.nombre;
+                let sEntity = "InformesAmbientales";
+            
+                // Confirmación antes de enviar
+                let confirmMessage = this.getResourceBundle().getText("sendAproveIA");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") {
+                            Utils.dialogBusy(false);
+                            return;
+                        }
+            
+                        Utils.dialogBusy(true);
+            
+                        try {
+                        
+                            await IA_operations.onAproveIA(sEntity, oSelectedRow.ID);
+
+                            const sSectionTab = "Informes Ambientales";
+                            // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                            await CDA_operations._sendWorkflowNotification( sSectionTab, oSelectedRow, aResponsablesMediAmbiente, "SendToApprove" );
+                           
+            
+                        } catch (error) {
+                            console.error("Error al aprobar el documento:", error);
+                            Utils.showMessage("Error al aprobar el documento Informe Ambiental", "Error", "ERROR");
+                        } finally {
+                            Utils.dialogBusy(false); // Asegurarse de desactivar el Busy en el bloque finally
+                            await this._loadData( sObraID ); // Esperar hasta que los datos estén cargados antes de continuar
+                        }
+                    }
+                });
+            },
+
+            onRejectIA: async function (oEvent) {
+                let oButton = oEvent.getSource();
+                let oContext = oButton.getBindingContext("mainModel");
+                
+                // Almacenar el contexto en una propiedad del controlador
+                 this._contextPath = oContext.getPath();
+
+                if (!this._oPopover) {
+                    Fragment.load({
+                        name: "uimodule.view.informeAmbiental.RejectDocument",
+                        controller: this
+                    }).then(function (oPopover) {
+                        this._oPopover = oPopover;
+                        this.getView().addDependent(this._oPopover);
+            
+            
+                        this._oPopover.openBy(oButton);
+                    }.bind(this));
+                } else {
+            
+                    this._oPopover.openBy(oButton);
+                }
+            }, 
+            
+            onSaveJustificationRejectIA: function (oEvent) {
+                const sContextPath = this._contextPath; // Obtener la ruta del contexto almacenado en la propiedad del controlador
+                const oModel = this.getModel("mainModel");
+                const sObraID = oModel.getProperty("/ObraID");
+                const oObraData = oModel.getProperty("/ObraData");
+                const aContratistas = this.getModel("mainModel").getProperty("/ObraData/contratista").map( obj => { return obj.contratista});
+            
+                // Verificar que obtenemos la ruta del contexto correctamente
+                if (!sContextPath) {
+                    console.error("No se pudo obtener la ruta del contexto de la fila seleccionada.");
+                    return;
+                }
+            
+                let oSelectedRow = oModel.getProperty(sContextPath);
+                    oSelectedRow.nombreObra = oObraData.nombre;
+                let sEntity = "InformesAmbientales";
+                let sObservaciones = sap.ui.getCore().byId("popoverInputRejectIA").getValue();
+
+                // Verificar que el TextArea no esté vacío
+                if (!sObservaciones || sObservaciones.trim() === "") {
+                    Utils.showMessage("La Observación no puede estar vacía.", "Advertencia", "WARNING");
+                    return;
+                }
+            
+                // Guardamos la justificación en el modelo
+                oModel.setProperty(sContextPath + "/observaciones", sObservaciones);
+            
+                let confirmMessage = this.getResourceBundle().getText("rejectAproveIa");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") {
+                            Utils.dialogBusy(false);
+                            return;
+                        }
+            
+                        Utils.dialogBusy(true);
+            
+                        try {
+                            await IA_operations.onUpdateIaDocument(oSelectedRow.ID, { observaciones: oSelectedRow.observaciones }, this.getView());
+                            await IA_operations.onRejectIA(sEntity, oSelectedRow.ID);
+
+                            const sSectionTab = "Informes Ambientales"
+                            // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                            await IA_operations._sendWorkflowNotification(sSectionTab, oSelectedRow, aContratistas, "SendToReject");
+                           
+                        } catch (error) {
+                            console.error("Error al rechazar el documento:", error);
+                            Utils.showMessage("Error al rechazar el documento Control Desvío Ambiental", "Error", "ERROR");
+                        } finally {
+                            Utils.dialogBusy(false); // Asegurarse de desactivar el Busy en el bloque finally
+                            await this._loadData(sObraID); // Esperar hasta que los datos estén cargados antes de continuar
+                        }
+                    }
+                });
+            },
+            
+            // -----> || FIN OPERACIONES IA  || <-----
+
+
+
+             // -----> ||  OPERACIONES CDA  || <-----
+            onSendCDA: async function (oEvent) {
+                const oModel = this.getModel("mainModel");
+                const sObraID = oModel.getProperty("/ObraID");
+                let oButton = oEvent.getSource();
+                let oItem = oButton.getParent();
+                let oContext = oItem.getBindingContext("mainModel");
+
+                // Supongamos que este es tu array original
+                const responsables = this.getModel("mainModel").getProperty("/Responsables").inspectores;
+
+                // Extraemos las propiedades "inspector" en un nuevo array
+                const aInspectores = responsables.map(objeto => objeto.inspector);
+            
+                // Obtener los datos de la fila seleccionada
+                let oSelectedRow = oContext.getObject();
+                let sEntity = "ControlesDesviosAmbientales";
+            
+                // Confirmación antes de enviar
+                let confirmMessage = this.getResourceBundle().getText("sendCDAConfirm");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") {
+                            Utils.dialogBusy(false);
+                            return;
+                        }
+            
+                        Utils.dialogBusy(true);
+            
+                        try {
+                            const oNumPlanilla = await CDA_operations.onSendCDA(sEntity, oSelectedRow.ID);
+
+                            const oDataDocument = await CDA_operations.getLastDocument( oSelectedRow.ID ); // Asegurarse de usar await si es una función asincrónica
+                                  oDataDocument.nombreObra = oObraData["ObraData"].nombre;
+                            // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                            const sSectionTab = "Control Desvios Ambientales"
+                             // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                             await CDA_operations._sendWorkflowNotification(sSectionTab, oDataDocument, aInspectores, "SendToApprove");
+                           
+            
+                        } catch (error) {
+                            console.error("Error al enviar el documento:", error);
+                            Utils.showMessage("Error al enviar el documento Control Desvío Ambiental", "Error", "ERROR");
+                        } finally {
+                            Utils.dialogBusy(false); // Asegurarse de desactivar el Busy en el bloque finally
+                            await this._loadData(sObraID); // Esperar hasta que los datos estén cargados antes de continuar
+                        }
+                    }
+                });
+            },
+
+            onRejectCDA: async function (oEvent) {
+                let oButton = oEvent.getSource();
+                let oContext = oButton.getBindingContext("mainModel");
+                
+                // Almacenar el contexto en una propiedad del controlador
+                 this._contextPath = oContext.getPath();
+
+                if (!this._oPopover) {
+                    Fragment.load({
+                        name: "uimodule.view.controlDesviosAmbientales.RejectDocument",
+                        controller: this
+                    }).then(function (oPopover) {
+                        this._oPopover = oPopover;
+                        this.getView().addDependent(this._oPopover);
+            
+            
+                        this._oPopover.openBy(oButton);
+                    }.bind(this));
+                } else {
+            
+                    this._oPopover.openBy(oButton);
+                }
+            },
+            
+            onSaveJustificationRejectCDA: function (oEvent) {
+                const sContextPath = this._contextPath; // Obtener la ruta del contexto almacenado en la propiedad del controlador
+                const oModel = this.getModel("mainModel");
+                const sObraID = oModel.getProperty("/ObraID");
+                const oObraData = oModel.getProperty("/ObraData");
+                const aContratistas = this.getModel("mainModel").getProperty("/ObraData/contratista").map( obj => { return obj.contratista});
+            
+                // Verificar que obtenemos la ruta del contexto correctamente
+                if (!sContextPath) {
+                    console.error("No se pudo obtener la ruta del contexto de la fila seleccionada.");
+                    return;
+                }
+            
+                let oSelectedRow = oModel.getProperty(sContextPath);
+                    oSelectedRow.nombreObra = oObraData.nombre;
+                let sEntity = "ControlesDesviosAmbientales";
+                let sObservaciones = sap.ui.getCore().byId("popoverInputRejectCDA").getValue();
+
+                // Verificar que el TextArea no esté vacío
+                if (!sObservaciones || sObservaciones.trim() === "") {
+                    Utils.showMessage("La Observación no puede estar vacía.", "Advertencia", "WARNING");
+                    return;
+                }
+            
+                // Guardamos la justificación en el modelo
+                oModel.setProperty(sContextPath + "/observaciones", sObservaciones);
+            
+                let confirmMessage = this.getResourceBundle().getText("rejectAproveCda");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") {
+                            Utils.dialogBusy(false);
+                            return;
+                        }
+            
+                        Utils.dialogBusy(true);
+            
+                        try {
+                            await CDA_operations.onUpdateCdaDocument(oSelectedRow.ID, { observaciones: oSelectedRow.observaciones }, this.getView());
+                            await CDA_operations.onRejectCDA(sEntity, oSelectedRow.ID);
+
+                            const sSectionTab = "Control Desvios Ambientales"
+                            // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                            await CDA_operations._sendWorkflowNotification(sSectionTab, oSelectedRow, aContratistas, "SendToReject");
+                           
+                        } catch (error) {
+                            console.error("Error al rechazar el documento:", error);
+                            Utils.showMessage("Error al rechazar el documento Control Desvío Ambiental", "Error", "ERROR");
+                        } finally {
+                            Utils.dialogBusy(false); // Asegurarse de desactivar el Busy en el bloque finally
+                            await this._loadData(sObraID); // Esperar hasta que los datos estén cargados antes de continuar
+                        }
+                    }
+                });
+            },
+
+            onApproveCDA: async function (oEvent) {
+                const oModel = this.getModel("mainModel");
+                const sObraID = oModel.getProperty("/ObraID");
+                const oObraData = oModel.getProperty("/ObraData");
+                let oButton = oEvent.getSource();
+                let oItem = oButton.getParent();
+                let oContext = oItem.getBindingContext("mainModel");
+
+                 // Lista de Usuarios Medio Ambiente Al aprobar
+                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes");
+            
+                // Obtener los datos de la fila seleccionada
+                let oSelectedRow = oContext.getObject();
+                    oSelectedRow.nombreObra = oObraData.nombre;
+                let sEntity = "ControlesDesviosAmbientales";
+            
+                // Confirmación antes de enviar
+                let confirmMessage = this.getResourceBundle().getText("sendAproveCDA");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") {
+                            Utils.dialogBusy(false);
+                            return;
+                        }
+            
+                        Utils.dialogBusy(true);
+            
+                        try {
+                            await CDA_operations.onAproveCDA(sEntity, oSelectedRow.ID);
+
+                            const sSectionTab = "Controles Desvíos Ambientales";
+                            // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                            await CDA_operations._sendWorkflowNotification( sSectionTab, oSelectedRow, aResponsablesMediAmbiente, "SendToApprove" );
+            
+                        } catch (error) {
+                            console.error("Error al aprobar el documento:", error);
+                            Utils.showMessage("Error al aprobar el documento Informe Ambiental", "Error", "ERROR");
+                        } finally {
+                            Utils.dialogBusy(false); // Asegurarse de desactivar el Busy en el bloque finally
+                            await this._loadData( sObraID ); // Esperar hasta que los datos estén cargados antes de continuar
+                        }
+                    }
+                });
+            },
+
+          
+
+             // -----> ||  OPERACIONES DA  || <-----
+            onSendDA: async function (oEvent) {
+                const oModel = this.getModel("mainModel");
+                const sObraID = oModel.getProperty("/ObraID");
+                let oButton = oEvent.getSource();
+                let oItem = oButton.getParent();
+                let oContext = oItem.getBindingContext("mainModel");
+                
+                // Supongamos que este es tu array original
+                const responsables = this.getModel("mainModel").getProperty("/Responsables").inspectores;
+
+                // Extraemos las propiedades "inspector" en un nuevo array
+                const aInspectores = responsables.map(objeto => objeto.inspector);
+
+                // Obtener los datos de la fila seleccionada
+                let oSelectedRow = oContext.getObject();
+                let sEntity = "DocumentacionAdicionalDesempenio";
+            
+                // Confirmación antes de enviar
+                let confirmMessage = this.getResourceBundle().getText("sendDAConfirm");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") {
+                            Utils.dialogBusy(false);
+                            return;
+                        }
+            
+                        Utils.dialogBusy(true);
+            
+                        try {
+                            const oNumPlanilla = await DA_operations.onSendDA(sEntity, oSelectedRow.ID);
+                           
+                            const oDataDocument = await CDA_operations.getLastDocument( oSelectedRow.ID ); // Asegurarse de usar await si es una función asincrónica
+                                  oDataDocument.nombreObra = oObraData["ObraData"].nombre;
+                            // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                            const sSectionTab = "Documentos Adicionales";
+                             // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                             await DA_operations._sendWorkflowNotification(sSectionTab, oDataDocument, aInspectores, "SendToApprove");
+            
+                        } catch (error) {
+                            console.error("Error al enviar el documento:", error);
+                            Utils.showMessage("Error al enviar el documento Control Desvío Ambiental", "Error", "ERROR");
+                        } finally {
+                            Utils.dialogBusy(false); // Asegurarse de desactivar el Busy en el bloque finally
+                            await this._loadData( sObraID ); // Esperar hasta que los datos estén cargados antes de continuar
+                        }
+                    }
+                });
+            },
+
+            onApproveDA: async function (oEvent) {
+                const oModel = this.getModel("mainModel");
+                const sObraID = oModel.getProperty("/ObraID");
+                const oObraData = oModel.getProperty("/ObraData");
+                let oButton = oEvent.getSource();
+                let oItem = oButton.getParent();
+                let oContext = oItem.getBindingContext("mainModel");
+
+                 // Lista de Usuarios Medio Ambiente Al aprobar
+                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes");
+            
+                // Obtener los datos de la fila seleccionada
+                let oSelectedRow = oContext.getObject();
+                    oSelectedRow.nombreObra = oObraData.nombre;
+                let sEntity = "DocumentacionAdicionalDesempenio";
+            
+                // Confirmación antes de enviar
+                let confirmMessage = this.getResourceBundle().getText("sendAproveDA");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") {
+                            Utils.dialogBusy(false);
+                            return;
+                        }
+            
+                        Utils.dialogBusy(true);
+            
+                        try {
+                            await DA_operations.onAproveDA(sEntity, oSelectedRow.ID);
+
+                            const sSectionTab = "Documentos Adicionales"
+                            // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                            await DA_operations._sendWorkflowNotification(sSectionTab, oSelectedRow, aResponsablesMediAmbiente, "SendToApprove");
+            
+                        } catch (error) {
+                            console.error("Error al aprobar el documento:", error);
+                            Utils.showMessage("Error al aprobar el documento Informe Ambiental", "Error", "ERROR");
+                        } finally {
+                            Utils.dialogBusy(false); // Asegurarse de desactivar el Busy en el bloque finally
+                            await this._loadData( sObraID ); 
+                        }
+                    }
+                });
+            },
+
+            onRejectDA: async function (oEvent) {
+                let oButton = oEvent.getSource();
+                let oContext = oButton.getBindingContext("mainModel");
+                
+                // Almacenar el contexto en una propiedad del controlador
+                 this._contextPath = oContext.getPath();
+
+                if (!this._oPopover) {
+                    Fragment.load({
+                        name: "uimodule.view.documentoAdicional.RejectDocument",
+                        controller: this
+                    }).then(function (oPopover) {
+                        this._oPopover = oPopover;
+                        this.getView().addDependent(this._oPopover);
+            
+            
+                        this._oPopover.openBy(oButton);
+                    }.bind(this));
+                } else {
+            
+                    this._oPopover.openBy(oButton);
+                }
+            },
+            
+            onSaveJustificationRejectDA: function (oEvent) {
+                const sContextPath = this._contextPath; // Obtener la ruta del contexto almacenado en la propiedad del controlador
+                const oModel = this.getModel("mainModel");
+                const sObraID = oModel.getProperty("/ObraID");
+                const oObraData = oModel.getProperty("/ObraData");
+                const aContratistas = this.getModel("mainModel").getProperty("/ObraData/contratista").map( obj => { return obj.contratista});
+            
+                // Verificar que obtenemos la ruta del contexto correctamente
+                if (!sContextPath) {
+                    console.error("No se pudo obtener la ruta del contexto de la fila seleccionada.");
+                    return;
+                }
+            
+                let oSelectedRow = oModel.getProperty(sContextPath);
+                    oSelectedRow.nombreObra = oObraData.nombre;
+                let sEntity = "DocumentacionAdicionalDesempenio";
+                let sObservaciones = sap.ui.getCore().byId("popoverInputRejectDA").getValue();
+
+                // Verificar que el TextArea no esté vacío
+                if (!sObservaciones || sObservaciones.trim() === "") {
+                    Utils.showMessage("La Observación no puede estar vacía.", "Advertencia", "WARNING");
+                    return;
+                }
+            
+                // Guardamos la justificación en el modelo
+                oModel.setProperty(sContextPath + "/observaciones", sObservaciones);
+            
+                let confirmMessage = this.getResourceBundle().getText("rejectAproveDa");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") {
+                            Utils.dialogBusy(false);
+                            return;
+                        }
+            
+                        Utils.dialogBusy(true);
+            
+                        try {
+                            await DA_operations.onUpdateDaDocument(oSelectedRow.ID, { observaciones: oSelectedRow.observaciones }, this.getView());
+                            await DA_operations.onRejectDA(sEntity, oSelectedRow.ID);
+
+                            const sSectionTab = "Documentos Adicionales"
+                            // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
+                            await DA_operations._sendWorkflowNotification(sSectionTab, oSelectedRow, aContratistas, "SendToReject");
+                           
+                        } catch (error) {
+                            console.error("Error al rechazar el documento:", error);
+                            Utils.showMessage("Error al rechazar el documento Control Desvío Ambiental", "Error", "ERROR");
+                        } finally {
+                            Utils.dialogBusy(false); // Asegurarse de desactivar el Busy en el bloque finally
+                            await this._loadData(sObraID); // Esperar hasta que los datos estén cargados antes de continuar
+                        }
+                    }
+                });
+            },
+            // -----> || FIN OPERACIONES DA  || <-----
 
             onCloseDialogPsdaDetail: function () {
                 this.getView().byId("detailsPSDADialog").close();
@@ -565,6 +1353,32 @@ sap.ui.define([
                 this.getView().byId("editPSDADialog").close();
                 this.byId("editPSDADialog").destroy();
             },
+
+            onCloseDialogDetailCDA: function () {
+                this.getView().byId("detailCDADialog").close();
+            },
+
+            onCloseDialogCdaEdit: function () {
+                this.getView().byId("editDialogCDA").close();
+            },
+
+            onCloseDialogDetailIA: function () {
+                this.getView().byId("detailIADialog").close();
+            },
+
+            onCloseDialogIaEdit: function () {
+                this.getView().byId("editDialogIA").close();
+            },
+
+            onCloseDialogDetailDA: function () {
+                this.getView().byId("detailDADialog").close();
+            },
+
+            onCloseDialogDaEdit: function () {
+                this._formatDialogData("EditDA");
+                this.getView().byId("editDialogDA").close();
+            },
+
 
             _validateFields: function ( sParam ) {
                 let isValidate = true;
@@ -639,7 +1453,7 @@ sap.ui.define([
 
                 } else if ( sParam === "documentCDA_save" ) {
                       //Comienzo Validaciones para CREACIÓN CDA
-                      const sDateOfDetection = oModel.getProperty("/DatosFormularioCDA/EditSection/FechaDeteccion");
+                      const sDateOfDetection = oModel.getProperty("/DatosFormularioCDA/EditSection/selectedRow/formattedFechaDeteccion");
                       const aDocumentsCDA = oModel.getProperty("/DatosFormularioCDA/EditSection/documento/DocumentacionAdicional");  
   
                       //Validacion Fecha Detecion
@@ -671,16 +1485,81 @@ sap.ui.define([
                     //Validacion documento IA
                     if (!oDocumentIA || Object.keys(oDocumentIA).length === 0) {
                         // El objeto está vacío
-                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentIaValueState", "Error");
-                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentIaEditValueStateText", "Debe agregar al menos un documento.");
+                        oModel.setProperty("/DatosFormularioIA/payload/uploadCDA/validation/documentIaValueState", "Error");
+                        oModel.setProperty("/DatosFormularioIA/payload/uploadCDA/validation/documentIaEditValueStateText", "Debe agregar al menos un documento.");
                         MessageBox.error("Falta adjuntar el documento de Informe Ambiental, favor verificar.")
                         isValidate = false;
                     } else {
                         // El objeto no está vacío
-                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentIaValueState", "None");
-                        oModel.setProperty("/DatosFormularioCDA/payload/uploadCDA/validation/documentIaEditValueStateText", "");
+                        oModel.setProperty("/DatosFormularioIA/payload/uploadCDA/validation/documentIaValueState", "None");
+                        oModel.setProperty("/DatosFormularioIA/payload/uploadCDA/validation/documentIaEditValueStateText", "");
                     }
 
+                } else if ( sParam === "documentIA_save" ) {
+                    const oDocumentIA = oModel.getProperty("/DatosFormularioIA/EditSection/documento/DocumentacionAdicional");
+                    
+                     //Validacion documento IA
+                     if (!oDocumentIA || Object.keys(oDocumentIA).length === 0) {
+                        // El objeto está vacío
+                        oModel.setProperty("/DatosFormularioIA/EditSection/validation/documentIaValueState", "Error");
+                        oModel.setProperty("/DatosFormularioIA/EditSection/validation/documentIaEditValueStateText", "Debe agregar al menos un documento.");
+                        MessageBox.error("Falta adjuntar el documento de Informe Ambiental, favor verificar.")
+                        isValidate = false;
+                    } else {
+                        // El objeto no está vacío
+                        oModel.setProperty("/DatosFormularioIA/EditSection/validation/documentIaValueState", "None");
+                        oModel.setProperty("/DatosFormularioIA/EditSection/validation/documentIaEditValueStateText", "");
+                    }
+
+                  
+                } else if ( sParam === "documentDA_create") {
+                    const sDescription = oModel.getProperty("/DatosFormularioDA/payload/uploadDA/descripcion");
+                    const oDocumentAdditional = oModel.getProperty("/DatosFormularioDA/payload/uploadDA/documento/DocumentacionAdicional");
+        
+                    if (!sDescription || sDescription.trim() === "") {
+                        isValidate = false;
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/descripcionValueState", "Error");
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/descripcionStateText", "La descripción no puede estar vacía.");
+                        MessageBox.error("Falta completar la descripción, favor verificar.")
+                    } else {
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/descripcionValueState", "None");
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/descripcionStateText", "");
+                    }
+                
+                    if (!oDocumentAdditional || Object.keys(oDocumentAdditional).length === 0) {
+                        isValidate = false;
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/documento/documentoValueState", "Error");
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/documento/documentoValueStateText", "El nombre del documento no puede estar vacío.");
+                        MessageBox.error("Falta adjuntar el documento , favor verificar.")
+                    } else {
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/documento/documentoValueState", "None");
+                        oModel.setProperty("/DatosFormularioDA/payload/uploadDA/documento/documentoValueStateText", "");
+                    }
+        
+                } else if ( sParam === "documentDA_edit") {
+                    const sDescription = oModel.getProperty("/DatosFormularioDA/EditSection/descripcion");
+                    const oDocumentAdditional = oModel.getProperty("/DatosFormularioDA/EditSection/documento/DocumentacionAdicional");
+        
+                    if (!sDescription || sDescription.trim() === "") {
+                        isValidate = false;
+                        oModel.setProperty("/DatosFormularioDA/EditSection/validation/descripcionValueState", "Error");
+                        oModel.setProperty("/DatosFormularioDA/EditSection/validation/descripcionStateText", "La descripción no puede estar vacía.");
+                        MessageBox.error("Falta completar la descripción, favor verificar.")
+                    } else {
+                        oModel.setProperty("/DatosFormularioDA/EditSection/validation/descripcionValueState", "None");
+                        oModel.setProperty("/DatosFormularioDA/EditSection/validation/descripcionStateText", "");
+                    }
+                
+                /*    if (!oDocumentAdditional || Object.keys(oDocumentAdditional).length === 0) {
+                        isValidate = false;
+                        oModel.setProperty("/DatosFormularioDA/EditSection/validate/documentDAValueState", "Error");
+                        oModel.setProperty("/DatosFormularioDA/EditSection/validate/documentDAEditValueStateText", "El nombre del documento no puede estar vacío.");
+                        MessageBox.error("Falta adjuntar el documento , favor verificar.")
+                    } else {
+                        oModel.setProperty("/DatosFormularioDA/EditSection/validate/documentDAValueState", "None");
+                        oModel.setProperty("/DatosFormularioDA/EditSection/validate/documentDAEditValueStateText", "");
+                    }*/
+        
                 } else {
                     //Comienzo Validaciones para CREACIÓN PSDA
                     const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/payload/mesAinformar");
@@ -688,8 +1567,6 @@ sap.ui.define([
                     const aOrderNotesTableData = oModel.getProperty("/OrderNotesTableData");
                     const aDocumentsPSDA = oModel.getProperty("/DatosFormularioPSDA/payload/documento/DocumentacionAdicional/Documentacion");
 
-
-                    let isValidate = true;
 
                     if (sMesInformar === null || sMesInformar === undefined || sMesInformar.trim() === "") {
                         oModel.setProperty("/Validation/valueStateMesInformar", "Error");
@@ -739,7 +1616,7 @@ sap.ui.define([
 
                const oModel = this.getView().getModel("mainModel");
                const sObraID = oModel.getProperty("/ObraID");
-               const IDdesempenioAmbiental = oModel.getProperty("/DatosFormularioPSDA/EditSection/selectedRow/ID");
+               const IDdesempenioAmbiental = oModel.getProperty("/ResponsableAmbiental/ID");
                const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive") || "Gustavo Quintana";
                const sDateOfDetection = oModel.getProperty("/DatosFormularioCDA/payload/uploadCDA/FechaDeteccion");
                const aUploadDocumentCDA = oModel.getProperty("/DatosFormularioCDA/payload/uploadCDA/documento/DocumentacionAdicional");
@@ -791,6 +1668,10 @@ sap.ui.define([
 
                } else {
                 //  ----- > EDITAR Y GUARDAR EL -> 'CDA' -----
+                const IDcontrolDesvio = oModel.getProperty("/DatosFormularioCDA/EditSection/selectedRow/ID"); 
+                const sFechaDeteccion = oModel.getProperty("/DatosFormularioCDA/EditSection/selectedRow/formattedFechaDeteccion");
+                const sFechaFormated = Utils.formatDate(sFechaDeteccion);
+                const aDocumentacionCDA = oModel.getProperty("/DatosFormularioCDA/EditSection/documento/DocumentacionAdicional/Documentacion");
                 const invalidField = this._validateFields("documentCDA_save");
 
                 if (invalidField) { // Validación de campos obligatorios PSDA
@@ -804,17 +1685,17 @@ sap.ui.define([
                           try {
                             const oPayload = {   
                                  desempenio_ID: IDdesempenioAmbiental,     
-                                 fecha_deteccion:  sDateOfDetection,                          
+                                 fecha_deteccion:  sFechaFormated,                          
                                  estado_ID: "BO",
-                                 nombre_archivo: aUploadDocumentCDA[0]?.PSDA_firmada_nombre,
-                                 ruta: aUploadDocumentCDA[0]?.PSDA_firmada_ruta,
+                                 nombre_archivo: aDocumentacionCDA[0]?.PSDA_firmada_nombre,
+                                 ruta: aDocumentacionCDA[0]?.PSDA_firmada_ruta,
                                  observaciones: null                              
                             }
                             
-                            const oNewCdaDocument = await CDA_operations.onCreateCDADocument(oPayload, this.getView());
+                            const oNewCdaDocument = await CDA_operations.onUpdateCdaDocument(IDcontrolDesvio, oPayload, this.getView());
                             
                             // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
-                            this.onCancelPress("saveDialogCDA"); // Cierro el dialogo y vuelvo a cargar información de la App
+                            this.onCancelPress("editDialogCDA"); // Cierro el dialogo y vuelvo a cargar información de la App
                             this._loadData( sObraID );
                           } catch (error) {
                             const errorMessage = this.getResourceBundle().getText("errorCreateADS");
@@ -830,6 +1711,7 @@ sap.ui.define([
                
                Utils.dialogBusy(false);
             },
+            
 
             onSaveIA: function ( oEvent, sAction ) {
                    // Busy ON
@@ -837,7 +1719,7 @@ sap.ui.define([
 
                const oModel = this.getView().getModel("mainModel");
                const sObraID = oModel.getProperty("/ObraID");
-               const IDdesempenioAmbiental = oModel.getProperty("/DatosFormularioPSDA/EditSection/selectedRow/ID");
+               const IDdesempenioAmbiental = oModel.getProperty("/ResponsableAmbiental/ID"); //  ---> ID Desempenio Ambiental
                const sEnvironmentResponse = oModel.getProperty("/Payload/environmentalResponsive") || "Gustavo Quintana";
                const aUploadDocumentIA = oModel.getProperty("/DatosFormularioIA/payload/uploadIA/documento/DocumentacionAdicional");
                    
@@ -884,21 +1766,153 @@ sap.ui.define([
                          });
 
                    } 
+               } else {
+                    //  ----- > EDITAR Y GUARDAR EL -> 'CDA' -----
+                    const sInformeAmbientalID = oModel.getProperty("/DatosFormularioIA/EditSection/selectedRow/ID");
+                    const aDocumentacionIA = oModel.getProperty("/DatosFormularioIA/EditSection/documento/DocumentacionAdicional/Documentacion");
+                    const invalidField = this._validateFields("documentIA_save");
+    
+                    if (invalidField) { // Validación de campos obligatorios PSDA
+                        let confirmMessage = this.getResourceBundle().getText("editDocumentIa");
+                        MessageBox.confirm(confirmMessage, {
+                            actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                            emphasizedAction: "Aceptar",
+                            onClose: async (sAction) => {
+                              if (sAction !== "Aceptar")
+                                return;
+                              try {
+                                const oPayload = {   
+                                     desempenio_ID: IDdesempenioAmbiental,                             
+                                     estado_ID: "BO",
+                                     nombre_archivo: aDocumentacionIA[0]?.PSDA_firmada_nombre,
+                                     ruta: aDocumentacionIA[0]?.PSDA_firmada_ruta,
+                                     observaciones: null                              
+                                }
+                                
+                                const oNewCdaDocument = await IA_operations.onUpdateIaDocument(sInformeAmbientalID, oPayload, this.getView());
+                                
+                                // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
+                                this.onCancelPress("editDialogIA"); // Cierro el dialogo y vuelvo a cargar información de la App
+                                this._loadData( sObraID );
+                              } catch (error) {
+                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                                MessageToast.show(errorMessage);
+                              } finally {
+                                Utils.dialogBusy(false);
+                              }
+                            }
+                          });
+    
+                     } 
                }
             },
 
-            onSaveDocumentDA: function( oEvent ) {
-                const oModel = this.getView().getModel("mainModel");
-                const isValidForm = TableDAFunction.validateForm( oModel );
+            onSaveDA: function( oEvent, sAction ) {
+                     // Busy ON
+               Utils.dialogBusy(true);
 
-                if( !isValidForm ){
-                    return;
-                }
+               const oModel = this.getView().getModel("mainModel");
+               const sObraID = oModel.getProperty("/ObraID");
+               const IDdesempenioAmbiental = oModel.getProperty("/ResponsableAmbiental/ID"); //  ---> ID Desempenio Ambiental
+              
+               const fechaActual = new Date();
+               const mesActual = (fechaActual.getMonth() + 1).toString().padStart(2, '0');
+               // Lógica para guardar según la acción
+               if (sAction === "documentDA_create") { 
+                const sDescription = oModel.getProperty("/DatosFormularioDA/payload/uploadDA/descripcion");
+                const sComents = oModel.getProperty("/DatosFormularioDA/payload/uploadDA/comentarios"); 
+                const aUploadDocumentDA = oModel.getProperty("/DatosFormularioDA/payload/uploadDA/documento/DocumentacionAdicional");
+                   
+                if (aUploadDocumentDA && Array.isArray(aUploadDocumentDA) && aUploadDocumentDA.length > 0) {
+                 aUploadDocumentDA.forEach(doc => {
+                        delete doc.fechaAdjunto;
+                    });
+                }               
+                   const invalidField = this._validateFields("documentDA_create");
 
+                   if (invalidField) { // Validación de campos obligatorios PSDA
+                       let confirmMessage = this.getResourceBundle().getText("saveDocumentDA");
+                       MessageBox.confirm(confirmMessage, {
+                           actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                           emphasizedAction: "Aceptar",
+                           onClose: async (sAction) => {
+                             if (sAction !== "Aceptar")
+                               return;
+                             try {
+                               const oPayload = {   
+                                    desempenio_ID: IDdesempenioAmbiental,                            
+                                    estado_ID: "BO",
+                                    descripcion: sDescription || "",
+                                    comentarios: sComents || "", 
+                                    nombre_archivo: aUploadDocumentDA[0]?.PSDA_firmada_nombre,
+                                    ruta: aUploadDocumentDA[0]?.PSDA_firmada_ruta,
+                                    observaciones: null                              
+                               };
+                               
+                               const oNewDaDocument = await DA_operations.onCreateDaDocument(oPayload, this.getView());
+                               
+                               // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
+                               this.onCancelPress("saveDialogDA"); // Cierro el dialogo y vuelvo a cargar información de la App
+                               this._loadData( sObraID );
+                             } catch (error) {
+                               const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                               MessageToast.show(errorMessage);
+                             } finally {
+                               Utils.dialogBusy(false);
+                             }
+                           }
+                         });
 
-
+                   } 
+               } else {
+                    //  ----- > EDITAR Y GUARDAR EL -> 'DA' -----
+                    const sDocumentAdditionalID = oModel.getProperty("/DatosFormularioDA/EditSection/selectedRow/ID");
+                    const sDescription = oModel.getProperty("/DatosFormularioDA/EditSection/descripcion");
+                    const sComents = oModel.getProperty("/DatosFormularioDA/EditSection/comentarios"); 
+                    const aDocumentacionDA = oModel.getProperty("/DatosFormularioDA/EditSection/documento/DocumentacionAdicional/Documentacion");
+                    const invalidField = this._validateFields("documentDA_edit");
+    
+                    if (invalidField) { // Validación de campos obligatorios PSDA
+                        let confirmMessage = this.getResourceBundle().getText("editDocumentIa");
+                        MessageBox.confirm(confirmMessage, {
+                            actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                            emphasizedAction: "Aceptar",
+                            onClose: async (sAction) => {
+                              if (sAction !== "Aceptar"){
+                                Utils.dialogBusy(false);
+                                return;
+                              }
+                                
+                              try {
+                                const oPayload = {   
+                                     desempenio_ID: IDdesempenioAmbiental,                             
+                                     estado_ID: "BO",
+                                     descripcion: sDescription || "",
+                                     comentarios: sComents || "",
+                                     nombre_archivo: aDocumentacionDA[0]?.PSDA_firmada_nombre,
+                                     ruta: aDocumentacionDA[0]?.PSDA_firmada_ruta,
+                                     observaciones: null                              
+                                }
+                                
+                                const oNewDaDocument = await DA_operations.onUpdateDaDocument(sDocumentAdditionalID, oPayload, this.getView());
+                                
+                                // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
+                                this.onCancelPress("editDialogDA"); // Cierro el dialogo y vuelvo a cargar información de la App
+                                this._loadData( sObraID );
+                              } catch (error) {
+                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                                MessageToast.show(errorMessage);
+                              } finally {
+                                Utils.dialogBusy(false);
+                              }
+                            }
+                          });
+    
+                     } else {
+                        Utils.dialogBusy(false);
+                     }
+               }
             }
-            
 
         });
     });

@@ -5,13 +5,14 @@
             icon="sap-icon://add"
             text="{i18n>uploadManualData}"
             press=".onOpenDialog"
-            class="sapUiSmallMarginBottom">
+            class="sapUiSmallMarginBottom"
+            visible="{mainModel>/UserActionPermissions/canUploadPSDA}">
             <customData>
                 <core:CustomData key="param" value="PSDA"/>
             </customData>
         </Button>
 
-        <Table id="myTable" inset="false" items="{mainModel>/DatosFormularioPSDA/TablePSDA/Data}">
+        <Table id="myTable" inset="false" items="{mainModel>/DatosFormularioPSDA/TablePSDA/Data}" >
             <columns>
                 <Column>
                     <Text text="{i18n>templateNumber}"/>
@@ -35,8 +36,8 @@
             <items>
                 <ColumnListItem>
                     <cells>
-                        <Label text="{templateNumber}" />
-                        <Label text="{fechaUltimoMesInformado}" />
+                        <Text text="{mainModel>numero_planilla}" />
+                        <Text text="{fechaUltimoMesInformado}" />
                         <GenericTag text="{mainModel>control/descripcion}" design="StatusIconHidden" status="{mainModel>control/state}" />              
                         <ObjectStatus text="{mainModel>estado/descripcion}" inverted="true" state="{mainModel>estado/color}"/>
                         <Label text="{observation}" />
@@ -44,13 +45,41 @@
                             <core:Icon
                                 src="sap-icon://detail-view"
                                 color="#2471a3"
-                                press="onViewDetails"
+                                press="onViewDetails($event, 'documentPSDA_details')"
                                 class="sapUiSmallMarginEnd"
-                            />
-                            <core:Icon color="#212121" src="sap-icon://edit"  press="onEditPSDA" class="sapUiSmallMarginEnd" />
-                            <core:Icon src="sap-icon://delete" color="#FF5733" press="onAddManual" class="sapUiSmallMarginEnd" />       
-                            <core:Icon src="sap-icon://paper-plane" color="#27ae60" press="onSendPSDA" class="sapUiSmallMarginEnd" />
+                                visible="{mainModel>permisos/canView}" />
+                            <core:Icon 
+                                color="#212121" 
+                                src="sap-icon://edit"  
+                                press="onEditPSDA" 
+                                class="sapUiSmallMarginEnd"
+                                visible="{mainModel>permisos/canEdit}" />
+                            <core:Icon 
+                                src="sap-icon://delete" 
+                                color="#FF5733" 
+                                press="onDeletePsdaDocument" 
+                                class="sapUiSmallMarginEnd"
+                                visible="{mainModel>permisos/canDelete}" />
+                            <core:Icon 
+                                src="sap-icon://paper-plane" 
+                                color="#27ae60" 
+                                press="onSendPSDA" 
+                                class="sapUiSmallMarginEnd"
+                                visible="{mainModel>permisos/canSend}" />
+                            <Button
+                                icon="sap-icon://accept" 
+                                type="Accept" 
+                                press="onApprovePSDA" 
+                                class="sapUiSmallMarginEnd"
+                                visible="{mainModel>permisos/canApprove}" />
+                            <Button
+                                icon="sap-icon://decline" 
+                                type="Reject" 
+                                press="onRejectPSDA" 
+                                class="sapUiSmallMarginEnd"
+                                visible="{mainModel>permisos/canReject}" />
                         </HBox>
+                        
                         
                     </cells>
                 </ColumnListItem>

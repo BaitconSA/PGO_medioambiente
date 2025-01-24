@@ -4,21 +4,13 @@ sap.ui.define([
     "sap/ui/core/format/DateFormat",
     "sap/ui/core/Fragment",
     "sap/ui/core/HTML",
-    "uimodule/model/formatter"
-], function (MessageBox, MessageToast, DateFormat, Fragment, HTML, Formatter) {
+    "uimodule/model/formatter",
+    "uimodule/services/psda_operations"
+], function (MessageBox, MessageToast, DateFormat, Fragment, HTML, Formatter, PSDA_operations) {
     "use strict";
 
     return {
         onAddManualRow: function ( oView, oController, oModel ) {
-           /* let aPsdaData = oModel.getProperty("/managementOptionsIcon/PSDAData");
-            aPsdaData.push({
-                fechaUltimoMesInformado: "",
-                fechaMesAInformar: "",
-                control: "",
-                estado: ""
-            });
-            oModel.setProperty("/managementOptionsIcon/PSDAData", aPsdaData); */
-    
                 if (!oView.byId("dialogUploadPSDA")) {
                     Fragment.load({
                         id: oView.getId(),
@@ -92,8 +84,8 @@ sap.ui.define([
         },
 
         onFileUploaderChange: function(oEvent, oView, oModel, sParam ) {
-            var oFileUploader = oEvent.getSource();
-            var oFile = oFileUploader.oFileUpload.files[0];
+            let oFileUploader = oEvent.getSource();
+            let oFile = oFileUploader.oFileUpload.files[0];
             
             // Verificar si no hay un archivo seleccionado
             if (!oFile) {
@@ -101,8 +93,8 @@ sap.ui.define([
                 return;
             }
             
-            var sFilePath = URL.createObjectURL(oFile);
-            var sFileExtension = oFile.name.split('.').pop().toLowerCase();
+            let sFilePath = URL.createObjectURL(oFile);
+            let sFileExtension = oFile.name.split('.').pop().toLowerCase();
         
             // Datos URL documentación
             const sObraID = oModel.getProperty("/ObraData").ID;
@@ -200,7 +192,7 @@ sap.ui.define([
             oModel.setProperty("/OrderNotesTableData", [] );
             oModel.setProperty("/DatosFormularioPSDA/payload/documento/DocumentacionAdicional/Documentacion", {} );
             oModel.setProperty("/DatosFormularioPSDA/payload/documento/File", {} );
-            var oFileUploader = oView.byId("fileUploader"); 
+            let oFileUploader = oView.byId("fileUploader"); 
                 oFileUploader.clear(); 
                 oView.byId("previewContainer").removeAllItems(); 
 
@@ -259,12 +251,12 @@ sap.ui.define([
 
         //DETALLES DE PSDA
         onViewDetails: function ( oView, oController, oEvent, oModel ) {
-            var oButton = oEvent.getSource();
-            var oItem = oButton.getParent();
-            var oContext = oItem.getBindingContext("mainModel");
+            let oButton = oEvent.getSource();
+            let oItem = oButton.getParent();
+            let oContext = oItem.getBindingContext("mainModel");
 
             // Obtener los datos de la fila seleccionada
-            var oSelectedRow = oContext.getObject();
+            let oSelectedRow = oContext.getObject();
 
              const aDesempenioNotaPedido = oSelectedRow.desempenio_nota_pedido;
              const aNotasPedido = [];
@@ -304,12 +296,12 @@ sap.ui.define([
         },
 
         onEdit: function ( oView, oController, oEvent, oModel ) {
-            var oButton = oEvent.getSource();
-            var oItem = oButton.getParent();
-            var oContext = oItem.getBindingContext("mainModel");
+            let oButton = oEvent.getSource();
+            let oItem = oButton.getParent();
+            let oContext = oItem.getBindingContext("mainModel");
 
             // Obtener los datos de la fila seleccionada
-            var oSelectedRow = oContext.getObject();
+            let oSelectedRow = oContext.getObject();
 
            
              
@@ -355,6 +347,35 @@ sap.ui.define([
             } else {
                 oView.byId("editPSDADialog").open();
             }
-        }
+        },
+
+        _handleDeletePsdaDocument: async function (oEvent, oView, oModel, oController) {
+            let confirmMessage = oView.getModel("i18n").getResourceBundle().getText("deletePsdaDocument");
+        
+            return new Promise((resolve, reject) => {
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar")
+                            return reject();
+        
+                        try {
+                            let oButton = oEvent.getSource();
+                            let oItem = oButton.getParent();
+                            let oContext = oItem.getBindingContext("mainModel");
+        
+                            // Obtener los datos de la fila seleccionada
+                            let oSelectedRow = oContext.getObject();
+        
+                            await PSDA_operations.deleteRow(oSelectedRow.ID, oController);
+                            resolve();
+                        } catch (error) {
+                            reject(error);
+                        }
+                    }
+                });
+            });
+        },
     };
 });

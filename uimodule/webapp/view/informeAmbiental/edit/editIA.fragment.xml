@@ -1,0 +1,52 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout"
+    xmlns:u="sap.ui.unified"
+    xmlns:form="sap.ui.layout.form">
+    <Dialog id="editDialogIA" title="{i18n>dialogEditIATitle}" class="sapUiResponsiveContentPadding">
+        <content>
+            <!-- Mes a Informar -->
+            <VBox class="sapUiSmallMargin">
+                <MessageStrip
+                    id="messageStripIAedit"
+                    visible="false"
+                    showCloseButton="true"
+                    showIcon="true"/>
+                
+                <Label text="Adjuntar Documento" labelFor="fileUploaderIAedit" />
+                <u:FileUploader
+                    id="fileUploaderIAedit"
+                    tooltip="Upload your file to the local server"
+                    change="onFileUploaderChange($event, 'documentIA_edit')"
+                    valueState="{mainModel>/DatosFormularioIA/EditSection/validation/documentIaValueState}"
+                    valueStateText="{mainModel>/DatosFormularioIA/EditSection/validation/documentIaEditValueStateText}"
+                />
+            </VBox>
+            <List id="DocumentEditSectionIA" items="{ path: 'mainModel>/DatosFormularioIA/EditSection/documentAttachmentData' }">
+                <headerToolbar>
+                    <Toolbar>
+                        <Title text="{i18n>currentDocumentAttachment}" />
+                    </Toolbar>
+                </headerToolbar>
+                <CustomListItem>
+                    <HBox class="sapUiSmallMargin">
+                        <VBox>
+                            <Label design="Bold" text="Nombre Documento: " />
+                            <Text text="{mainModel>documentoNombre}" />
+                            
+                            <Label class="sapUiSmallMarginTop" design="Bold" text="Fecha Creación: " />
+                            <Text text="{ path: 'mainModel>documentoFecha', formatter: '.formatter.formatDateFront'}" />
+                            
+                        </VBox>
+                    </HBox>
+                </CustomListItem>
+            </List>
+        </content>
+        <buttons>
+            <Button id="ButtonSaveEditionIa" text="{i18n>save}" press="onSaveIA($event, 'documentIA_save')" />
+            <Button id="ButtonSaveSendEditionIa" text="{i18n>editSend}" press="onSaveIA($event, 'documentIA_saveSend')" />
+            <Button text="{i18n>close}" press="onCloseDialogIaEdit"/>
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>

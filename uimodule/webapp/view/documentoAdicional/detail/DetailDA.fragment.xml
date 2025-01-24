@@ -1,0 +1,40 @@
+<core:FragmentDefinition 
+    xmlns="sap.m" 
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout" 
+    xmlns:u="sap.ui.unified"
+    xmlns:form="sap.ui.layout.form">
+    <Dialog id="detailDADialog" title="{i18n>dialogEditCDATitle}" class="sapUiResponsiveContentPadding">
+        <content>
+            <VBox class="sapUiSmallMargin">         
+                <Label design="Bold" text="{i18n>description}" />
+                <Text text="{mainModel>/DatosFormularioDA/DetailSection/selectedRow/descripcion}" />
+                
+                <Label design="Bold" text="{i18n>comments}" />
+                <Text text="{mainModel>/DatosFormularioDA/DetailSection/selectedRow/comentarios}" />
+            
+                <List id="DocumentDetailSectionDA" items="{ path: 'mainModel>/DatosFormularioCDA/DetailSection/documentAttachmentData' }">
+                    <headerToolbar>
+                        <Toolbar>
+                            <Title text="{i18n>currentDocumentAttachment}" />
+                        </Toolbar>
+                    </headerToolbar>
+                    <CustomListItem>
+                        <HBox class="sapUiSmallMargin">
+                            <VBox>
+                                <Label design="Bold" text="Nombre Documento: " />
+                                <Text text="{mainModel>documentoNombre}" />
+                                
+                                <Label class="sapUiSmallMarginTop" design="Bold" text="Fecha Creación: " />
+                                <Text text="{ path: 'mainModel>documentoFecha', formatter: '.formatter.formatDateFront'}" />
+                            </VBox>
+                        </HBox>
+                    </CustomListItem>
+                </List>
+            </VBox>
+        </content>
+        <buttons>
+            <Button text="{i18n>close}" press="onCloseDialogDetailDA"/>
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>

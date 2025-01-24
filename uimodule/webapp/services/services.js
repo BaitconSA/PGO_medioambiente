@@ -83,8 +83,9 @@ sap.ui.define([
 			});
 		},
 
-		setUrl: function (urlCatalog) {
-			this._urlCatalog = urlCatalog;		
+		setUrl: function (urlCatalog, _urlWF) {
+			this._urlCatalog = urlCatalog;	
+			this._urlWF = _urlWF;	
         },
 
 		getUser: async function () {
@@ -98,6 +99,10 @@ sap.ui.define([
             return this.callGetService("getUserRoles()");
 	    },
 
+		getUsuariosEstructuraOrganizativa: function () {
+			return this.callGetService(`Personal?$filter=area_ID eq 'MA'`);
+		},
+		
         // eslint-disable-next-line valid-jsdoc
         /*** FUNCIONES IMPORTANTES ***/
 		getObraData: function (ID) {

@@ -1,0 +1,66 @@
+<core:FragmentDefinition 
+    xmlns="sap.m" 
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout" 
+    xmlns:u="sap.ui.unified"
+    xmlns:form="sap.ui.layout.form">
+    <Dialog id="editDialogDA" title="{i18n>dialogEditCDATitle} " class="sapUiResponsiveContentPadding">
+        <content>
+            <!-- Mes a Informar -->
+            <form:SimpleForm columnsM="2" columnsL="2" labelSpanM="4">
+                    <core:Title text=""/>
+                    <!-- Numero Planilla -->
+                    <Label text="{i18n>description}" design="Bold" />
+                   <Input 
+                    value="{mainModel>/DatosFormularioDA/EditSection/descripcion}"
+                    valueState="{mainModel>/DatosFormularioDA/EditSection/validation/descripcionValueState}"
+                    valueStateText="{mainModel>/DatosFormularioDA/EditSection/validation/descripcionValueStateText}" />
+           
+                       <!-- Fecha de Entrega -->
+                   <Label text="{i18n>comment}" design="Bold" />
+                    <Input value="{mainModel>/DatosFormularioDA/EditSection/comentarios}" />
+
+        
+                    <!-- Estado de Planilla -->
+                    <Label text="{i18n>payrollStatus}" design="Bold" />
+                    <ObjectStatus text="{mainModel>/DatosFormularioDA/EditSection/selectedRow/estado/descripcion}" inverted="true" state="{mainModel>/DatosFormularioDA/EditSection/selectedRow/estado/color}" />
+                    
+                
+                </form:SimpleForm>
+                <u:FileUploader
+                id="fileUploaderDAedit"
+                placeholder="Seleccione documento"
+                tooltip="Upload your file to the local server"
+                uploadComplete="handleUploadComplete" 
+                change="onFileUploaderChange($event, 'documentDA_edit')"
+                valueState="{mainModel>/DatosFormularioDA/EditSection/validation/documentDAValueState}"
+                valueStateText="{mainModel>/DatosFormularioDA/EditSection/validation/documentDAEditValueStateText}"/>
+
+            <List  items="{ path: 'mainModel>/DatosFormularioDA/EditSection/documentAttachmentData' }">
+                <headerToolbar>
+                    <Toolbar>
+                        <Title text="{i18n>currentDocumentAttachment}" />
+                    </Toolbar>
+                </headerToolbar>
+                <CustomListItem>
+                    <HBox class="sapUiSmallMargin">
+                        <VBox>
+                            <Label design="Bold" text="Nombre Documento: " />
+                            <Text text="{mainModel>documentoNombre}" />
+                            
+                            <Label class="sapUiSmallMarginTop" design="Bold" text="Fecha Creación: " />
+                            <Text text="{ path: 'mainModel>documentoFecha', formatter: '.formatter.formatDateFront'}" />
+                            
+                        </VBox>
+                    </HBox>
+                </CustomListItem>
+            </List>
+           
+        </content>
+        <buttons>
+            <Button id="ButtonSaveEditionDa" text="{i18n>save}" press="onSaveDA($event, 'documentDA_edit')" />
+            <Button id="ButtonSaveSendEditionDa" text="{i18n>editSend}" press="onSaveDA($event, 'documentDA_edit')" />
+            <Button text="{i18n>close}" press="onCloseDialogDaEdit"/>
+         </buttons>
+    </Dialog>
+</core:FragmentDefinition>

@@ -20,13 +20,14 @@
                     <Input
                         class="sapUiSmallMarginEnd"
                         id="inputField"
-                        value="{mainModel>/ResponsableAmbiental/Data/0/responsable_ambiental}"
+                        value="{mainModel>/ResponsableAmbiental/responsable_ambiental}"
                         valueState="{mainModel>/Validation/environmentalResponsiveState}"
                         valueStateText="{mainModel>/Validation/environmentalResponsiveStateText}"
                         required="true"
+                        enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}"
                         width="100%"/>
-                        <Button icon="sap-icon://save" press="onSaveEnvironmentalResponsive" />
-                        <Button icon="sap-icon://edit" press="onEditEnvironmentalResponsive" />
+                        <Button icon="sap-icon://save" press="onSaveEnvironmentalResponsive" enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}" />
+                        <Button icon="sap-icon://edit" press="onEditEnvironmentalResponsive"  enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}"/>
                 </HBox>
 
             </form:content>

@@ -4,14 +4,14 @@
     xmlns:u="sap.ui.unified">
 
     <Dialog
-        id="addDocumentationDADialog"
+        id="dialogUploadDA"
         title="{i18n>additionalDocumentation}"
         stretch="{device>/system/phone}">
 
         <content>
             <VBox class="sapUiSmallMargin">
                 <MessageStrip
-                    id="messageStripda"
+                    id="messageStripDA"
                     visible="false"
                     showCloseButton="true"
                     showIcon="true"/>
@@ -33,24 +33,47 @@
                     placeholder="Seleccione documento"
                     tooltip="Upload your file to the local server"
                     uploadComplete="handleUploadComplete" 
-                    change="onSelectFileDA"
+                    change="onFileUploaderChange($event, 'documentDA_create')"
                     valueState="{mainModel>/DatosFormularioDA/payload/uploadDA/documento/documentoValueState}"
                     valueStateText="{mainModel>/DatosFormularioDA/payload/uploadDA/documento/documentoValueStateText}"/>
 
                 <!-- Área de texto para los comentarios -->
                     <Label text="{i18n>comments}" />
                     <TextArea
-                        id="comentariosTextArea"
+                        value= "{mainModel>/DatosFormularioDA/payload/uploadDA/comentarios}"
+                        id="AdditionalDocumentValue"
                         placeholder="Ingrese sus comentarios"
                         maxLength="100"
                         rows="4" />
             </VBox>
         </content>
+        <List id="DocumentEditSectionDA" items="{ path: 'mainModel>/DatosFormularioDA/payload/uploadDA/documentAttachmentData' }">
+            <headerToolbar>
+                <Toolbar>
+                    <Title text="{i18n>currentDocumentAttachment}" />
+                </Toolbar>
+            </headerToolbar>
+            <CustomListItem>
+                <HBox class="sapUiSmallMargin">
+                    <VBox>
+                        <Label design="Bold" text="Nombre Documento: " />
+                        <Text text="{mainModel>documentoNombre}" />
+                        
+                        <Label class="sapUiSmallMarginTop" design="Bold" text="Formato: " />
+                        <Text text="{mainModel>documentoFormato}" />
+                        
+                        <Label class="sapUiSmallMarginTop" design="Bold" text="Fecha Creación: " />
+                        <Text text="{ path: 'mainModel>documentoFecha', formatter: '.formatter.formatDateFront'}" />
+                        
+                    </VBox>
+                </HBox>
+            </CustomListItem>
+        </List>
         
         <footer>
             <Toolbar>
                 <ToolbarSpacer />
-                <Button text="Guardar" press="onSaveDocumentDA" />
+                <Button text="Guardar" press="onSaveDA($event, 'documentDA_create')" />
                 <Button text="Cancelar" press="onCancelDialogDA" />
             </Toolbar>
         </footer>

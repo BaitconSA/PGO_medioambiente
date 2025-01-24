@@ -103,8 +103,28 @@ sap.ui.define([
 			});
 		},
 
-		setUrl: function (urlCatalog) {
-			this._urlCatalog = urlCatalog;		
+		postWorkflow: async function (body) {
+			const resp = await fetch(`${this._urlWF}/v1/xsrf-token`, {
+			  method: "GET",
+			  headers: {
+				"X-CSRF-Token": "Fetch",
+			  },
+			});
+			const token = resp.headers.get("x-csrf-token");
+			const response = await fetch(`${this._urlWF}/v1/workflow-instances`, {
+			  method: "POST",
+			  headers: {
+				"X-CSRF-Token": token,
+				"Content-Type": "application/json",
+			  },
+			  body: JSON.stringify(body),
+			});
+			return response;
+		  },
+
+		  setUrl: function (urlCatalog, _urlWF) {
+			this._urlCatalog = urlCatalog;	
+			this._urlWF = _urlWF;	
         },
 
         getInformes: function () {
@@ -139,40 +159,18 @@ sap.ui.define([
             }
         },
 
-
-		onSendPSDA: async function( sEntity, ID ) {
+		onUpdateIaDocument: async function (ID, oPayload, oView) {			
 			try { 
-				const onChangeStatus = await this.callActionInbounService( sEntity + `(${ID})/enviar`);
-				let message = "";
-
-				if (onChangeStatus.error) {
-                    message = "Error al enviar documento PSDA";
-                    Utils.showMessage( message , "Error", "ERROR");
-                    Utils.dialogBusy(false);
-                    return;
-                  }
-				  message = "Documento PSDA enviado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
-				  Utils.showMessage( message , "Envío de aprobación", "SUCCESS");
-				  Utils.dialogBusy(false);
-			} catch ( error ) {
-				console.error("Error al enviar el documento:", error);
-                throw error;  // Puedes manejar este error de otras maneras si lo prefieres
-			}
-		},
-
-		onUpdatePsdaDocument: async function (ID, oPayload, oView) {			
-			try { 
-				const oUpdatePSDA = await this.callUpdateService(`InformesDesempenioAmbiental/${ID}`, oPayload);
+				const oUpdatePSDA = await this.callUpdateService(`InformesAmbientales/${ID}`, oPayload);
 				let message = "";
 
 				if (oUpdatePSDA.error) {
-                    message = "Error al actualizar el documento PSDA";
+                    message = "Error al actualizar el documento Informes Ambientales";
                     Utils.showMessage( message , "Error", "ERROR");
                     Utils.dialogBusy(false);
                     return;
                   }
-				  message = "Documento PSDA actualizado con éxito.";
+				  message = "Documento Informe Ambiental actualizado con éxito.";
 				  // Invocar el MessagePopover usando el MessageHandler
 				  Utils.showMessage( message , "Actualización Exitosa", "SUCCESS");
 				  Utils.dialogBusy(false);
@@ -181,6 +179,132 @@ sap.ui.define([
 				console.error("Error al actualizar el documento:", error);
                 throw error;  // Puedes manejar este error de otras maneras si lo prefieres
 			}
+		},
+
+		getLastDocument: async function (ID) {
+		
+			//const url = `Obras/${ID}?$expand=${expandParams}`;
+			const url = `InformesAmbientales?$filter=ID eq ${ID}`;
+		
+			return this.callGetService(url);
+		},
+
+		onSendIA: async function( sEntity, ID ) {
+			try { 
+				const onChangeStatus = await this.callActionInbounService( sEntity + `(${ID})/enviar`);
+				let message = "";
+
+				if (onChangeStatus.error) {
+                    message = "Error al enviar documento Informe Ambiental";
+                    Utils.showMessage( message , "Error", "ERROR");
+                    Utils.dialogBusy(false);
+                    return;
+                  }
+				  message = "Documento Informe Ambiental enviado con éxito.";
+				  // Invocar el MessagePopover usando el MessageHandler
+				  Utils.showMessage( message , "Envío de Documentación", "SUCCESS");
+				  Utils.dialogBusy(false);
+
+				  // Envío de Notificación
+
+			} catch ( error ) {
+				console.error("Error al enviar el documento:", error);
+                throw error;  // Puedes manejar este error de otras maneras si lo prefieres
+			}
+		},
+
+		onAproveIA: async function( sEntity, ID ) {
+			try { 
+				const onChangeStatus = await this.callActionInbounService( sEntity + `(${ID})/aprobar`);
+				let message = "";
+
+				if (onChangeStatus.error) {
+                    message = "Error al aprobar el documento Informe Ambiental";
+                    Utils.showMessage( message , "Error", "ERROR");
+                    Utils.dialogBusy(false);
+                    return;
+                  }
+				  message = "Documentación Informe Ambiental evaluado con éxito.";
+				  // Invocar el MessagePopover usando el MessageHandler
+				  Utils.showMessage( message , "Aprobación", "SUCCESS");
+				  Utils.dialogBusy(false);
+			} catch ( error ) {
+				console.error("Error al aprobar el documento:", error);
+                throw error;  // Puedes manejar este error de otras maneras si lo prefieres
+			}
+		},
+
+		onRejectIA: async function( sEntity, ID ) {
+			try { 
+				const onChangeStatus = await this.callActionInbounService( sEntity + `(${ID})/rechazar`);
+				let message = "";
+
+				if (onChangeStatus.error) {
+                    message = "Error al rechazar el documento informe ambiental";
+                    Utils.showMessage( message , "Error", "ERROR");
+                    Utils.dialogBusy(false);
+                    return;
+                  }
+				  message = "Documento informe ambiental rechazado con éxito.";
+				  // Invocar el MessagePopover usando el MessageHandler
+				  Utils.showMessage( message , "Devolución", "SUCCESS");
+				  Utils.dialogBusy(false);
+			} catch ( error ) {
+				console.error("Error al rechazar el documento:", error);
+                throw error;  // Puedes manejar este error de otras maneras si lo prefieres
+			}
+		},
+
+		_sendWorkflowNotification: async function( sSectionTab, oDataDocument, aRecipients, sAction )  {
+
+			if ( sAction === "SendToApprove") {
+				try {
+					const oWfPayload = {
+						"definitionId": "pgo.wfnotificacion",
+						"context": {
+							"subject": `${oDataDocument.nombreObra} - Informes Ambientales`,
+							"description": `Tiene datos o documentación para evaluar.
+								Puede acceder al documento desde Gestionar Obras -> Acciones -> Documentación -> Medioambiente y Calidad -> Sección ${sSectionTab} -> Planilla N° ${oDataDocument.numero_planilla}`,
+							"recipients": aRecipients
+						}
+					};
+	
+					const oResponseWf = await this.postWorkflow(oWfPayload);
+					if (oResponseWf !== 201) {
+						let message = "Error al enviar la notificación";
+						Utils.showMessage(message, "Error", "ERROR");
+					} else {
+						Utils.showMessage("Notificación de workflow enviada exitosamente", "Éxito", "SUCCESS");
+					}
+				} catch (error) {
+					console.error("Error al enviar la notificación de workflow:", error);
+					Utils.showMessage("Error al enviar la notificación de workflow", "Error", "ERROR");
+				}
+			} else {
+				try {
+					const oWfPayload = {
+						"definitionId": "pgo.wfnotificacion",
+						"context": {
+							"subject": `${oDataDocument.nombreObra} - Informes Ambientales`,
+							"description": `La planilla N° ${oDataDocument.numero_planilla} ha sido rechazada.
+								Puede acceder al documento desde Gestionar Obras -> Acciones -> Documentación -> Medioambiente y Calidad -> Sección ${sSectionTab} -> Planilla N° ${oDataDocument.numero_planilla}`,
+							"recipients": aRecipients
+						}
+					};
+	
+					const oResponseWf = await this.postWorkflow(oWfPayload);
+					if (oResponseWf !== 201) {
+						let message = "Error al enviar la notificación";
+						Utils.showMessage(message, "Error", "ERROR");
+					} else {
+						Utils.showMessage("Notificación de workflow enviada exitosamente", "Éxito", "SUCCESS");
+					}
+				} catch (error) {
+					console.error("Error al enviar la notificación de workflow:", error);
+					Utils.showMessage("Error al enviar la notificación de workflow", "Error", "ERROR");
+				}
+			}
+
 		}
         
 

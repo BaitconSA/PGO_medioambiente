@@ -59,6 +59,13 @@ sap.ui.define([
             oMessagePopover.openBy(oControl);
         },
 
+        formatDate(sFecha) {
+            // Suponiendo que sFecha está en formato DD/MM/YY
+            var aFecha = sFecha.split("/");
+            // Convertir al formato YYYY-MM-DD
+            return `20${aFecha[2]}-${aFecha[1].padStart(2, '0')}-${aFecha[0].padStart(2, '0')}`;
+        }
+
     
     };
 });
