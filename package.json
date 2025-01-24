@@ -1,37 +1,41 @@
 {
-    "name": "medioambiente",
-    "version": "1.0.0",
-    "scripts": {
-      "start": "ui5 serve --config=uimodule/ui5.yaml --open index.html",
-      "build:ui": "run-s build:uimodule",
-      "test": "run-s lint karma",
-      "karma-ci": "karma start karma-ci.conf.js",
-      "clearCoverage": "shx rm -rf coverage",
-      "karma": "run-s clearCoverage karma-ci",
-      "lint": "eslint ./**/webapp/**/*.js && prettier --plugin-search-dir=. --check ./**/webapp/**/*.{js,xml} --no-error-on-unmatched-pattern",
-      "lint-fix": "eslint ./**/webapp/**/*.js --fix && prettier --plugin-search-dir=. --write ./**/webapp/**/*.{js,xml} --no-error-on-unmatched-pattern",
-      "build:mta": "mbt build",
-      "deploy:cf": "cross-var cf deploy mta_archives/medioambiente$npm_package_version.mtar",
-      "deploy": "run-s build:mta deploy:cf",
-      "build:uimodule": "ui5 build --config=uimodule/ui5.yaml --clean-dest --dest uimodule/dist --include-task=generateManifestBundle",
-      "build:workspaces": "ui5 build --config=uimodule/ui5.yaml --clean-dest --dest uimodule/dist --include-task=generateManifestBundle"
-    },
-    "devDependencies": {
-      "@prettier/plugin-xml": "^3.4.1",
-      "@ui5/cli": "^3.11.4",
-      "cross-var": "^1.1.0",
-      "eslint": "latest",
-      "karma": "^6.4.2",
-      "karma-chrome-launcher": "^3.2.0",
-      "karma-coverage": "^2.2.0",
-      "karma-ui5": "latest",
-      "mbt": "latest",
-      "npm-run-all": "^4.1.5",
-      "prettier": "latest",
-      "shx": "^0.3.4",
-      "ui5-middleware-cfdestination": "latest",
-      "ui5-middleware-livereload": "latest",
-      "ui5-task-zipper": "latest"
-    }
+  "name": "medioambiente",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "ui5 serve --config=uimodule/ui5.yaml --open index.html",
+    "build:ui": "run-s build:uimodule",
+    "test": "run-s lint karma",
+    "karma-ci": "karma start karma-ci.conf.js",
+    "clearCoverage": "shx rm -rf coverage",
+    "karma": "run-s clearCoverage karma-ci",
+    "lint": "eslint ./**/webapp/**/*.js && prettier --plugin-search-dir=. --check ./**/webapp/**/*.{js,xml} --no-error-on-unmatched-pattern",
+    "lint-fix": "eslint ./**/webapp/**/*.js --fix && prettier --plugin-search-dir=. --write ./**/webapp/**/*.{js,xml} --no-error-on-unmatched-pattern",
+    "build:mta": "mbt build",
+    "deploy:cf": "cross-var cf deploy mta_archives/medioambiente$npm_package_version.mtar",
+    "deploy": "run-s build:mta deploy:cf",
+    "build:uimodule": "ui5 build --config=uimodule/ui5.yaml --clean-dest --dest uimodule/dist --include-task=generateComponentPreload",
+    "build:workspaces": "ui5 build --config=uimodule/ui5.yaml --clean-dest --dest uimodule/dist --include-task=generateComponentPreload"
+  },
+  "dependencies": {
+    "mbt": "^1"
+  },
+  "workspaces": [
+    "uimodule"
+  ],
+  "devDependencies": {
+    "@prettier/plugin-xml": "^3.4.1",
+    "@ui5/cli": "^3.11.4",
+    "cross-var": "^1.1.0",
+    "eslint": "latest",
+    "karma": "^6.4.2",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-coverage": "^2.2.0",
+    "karma-ui5": "latest",
+    "npm-run-all": "^4.1.5",
+    "prettier": "latest",
+    "shx": "^0.3.4",
+    "ui5-middleware-cfdestination": "latest",
+    "ui5-middleware-livereload": "latest",
+    "ui5-task-zipper": "latest"
   }
-  
+}
