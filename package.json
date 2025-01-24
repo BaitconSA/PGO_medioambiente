@@ -1,5 +1,5 @@
 {
-    "name": "medioambiente",
+    "name": "uimodule",
     "version": "0.0.1",
     "scripts": {
         "start": "ui5 serve --config=uimodule/ui5.yaml  --open index.html",
@@ -11,7 +11,7 @@
         "lint": "eslint ./**/webapp/**/*.js && prettier --plugin-search-dir=. --check ./**/webapp/**/*.{js,xml} --no-error-on-unmatched-pattern",
         "lint-fix": "eslint ./**/webapp/**/*.js --fix && prettier --plugin-search-dir=. --write ./**/webapp/**/*.{js,xml} --no-error-on-unmatched-pattern",
         "build:mta": "mbt build",
-        "deploy:cf": "cross-var cf deploy mta_archives/medioambiente$npm_package_version.mtar",
+        "deploy:cf": "cross-var cf deploy mta_archives/uimodule$npm_package_version.mtar",
         "deploy": "run-s build:mta deploy:cf",
         "build:uimodule": "ui5 build --config=uimodule/ui5.yaml --clean-dest --dest uimodule/dist --include-task=generateManifestBundle",
         "build:workspaces": "ui5 build --config=uimodule/ui5.yaml --clean-dest --dest uimodule/dist --include-task=generateManifestBundle"
