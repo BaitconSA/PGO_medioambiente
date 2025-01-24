@@ -38,3 +38,7 @@ builder:
        configuration:
          includeDependencies: false
          archiveName: uimodule
+    - name: generateManifestBundle
+      afterTask: replaceCopyright
+      configuration:
+         appName: 'uimodule'

@@ -18,9 +18,6 @@
     "dependencies": {
         "mbt": "^1"
     },
-    "workspaces": [
-        "uimodule"
-    ],
     "devDependencies": {
         "cross-var": "^1.1.0",
         "eslint": "^8.57.1",
