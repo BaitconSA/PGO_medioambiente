@@ -1,0 +1,13 @@
+{
+  "name": "parametrosredeterminaciones",
+  "version": "0.0.1",
+  "engines": {
+    "node": "^18.20.2"
+  },
+  "scripts": {
+    "start": "node node_modules/@sap/approuter/approuter.js"
+  },
+  "dependencies": {
+    "@sap/approuter": "^11.0.0"
+  }
+}

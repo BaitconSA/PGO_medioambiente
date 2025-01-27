@@ -1,78 +1,120 @@
 _schema-version: "3.2"
-ID: com.aysa.pgo.PGOMedioambiente
-version: 0.0.1
+ID: medioambiente
+version: 1.0.0
 build-parameters:
   before-all:
     - builder: custom
       commands:
         - npm install
-        - npm run build:workspaces
+
 modules:
-  - name: com.aysa.pgo.PGOMedioambiente-destination-content
-    type: com.sap.application.content
-    requires:
-      - name: com.aysa.pgo.PGOMedioambiente-auth
-      - name: com.aysa.pgo.PGOMedioambiente-html-repo-host
-      - name: com.aysa.pgo.PGOMedioambiente-destination-service
-        parameters:
-          content-target: true
+  - name: medioambiente
+    type: nodejs
+    path: approuter
     parameters:
-      content:
-        instance:
-          existing_destinations_policy: update
-          destinations:
-            - Name: com.aysa.pgo.PGOMedioambiente-html-repo-host
-              ServiceInstanceName: com.aysa.pgo.PGOMedioambiente-html-repo-host
-              ServiceKeyName: com.aysa.pgo.PGOMedioambiente-html-repo-host-key
-              sap.cloud.service: basic.service
-            - Name: com.aysa.pgo.PGOMedioambiente-auth
-              ServiceInstanceName: com.aysa.pgo.PGOMedioambiente-auth
-              ServiceKeyName: com.aysa.pgo.PGOMedioambiente-auth-key
-              sap.cloud.service: basic.service
-              Authentication: OAuth2UserTokenExchange
-    build-parameters:
-      no-source: true
-  - name: com.aysa.pgo.PGOMedioambiente-ui-deployer
-    type: com.sap.application.content
-    path: .
+      disk-quota: 512M
+      memory: 512M
     requires:
-      - name: com.aysa.pgo.PGOMedioambiente-html-repo-host
+      - name: medioambiente_destination
+      - name: medioambiente_html5_repo_runtime
+      - name: medioambiente_uaa
+
+  - name: webapp_deployer
+    type: com.sap.application.content
+    path: deployer
+    requires:
+      - name: medioambiente_html5_repo_host
         parameters:
           content-target: true
     build-parameters:
       build-result: resources
       requires:
-        - artifacts:
-            - dist/uimodule-content.zip
-          name: uimodule
+        - name: uimodule
+          artifacts:
+            - dist/uimodule.zip
           target-path: resources/
+
   - name: uimodule
     type: html5
     path: uimodule
     build-parameters:
+      builder: custom
+      commands:
+        - npm run build:uimodule --prefix ..
       supported-platforms: []
+
+  - name: medioambiente_destination_content
+    type: com.sap.application.content
+    build-parameters:
+      no-source: true
+    requires:
+      - name: medioambiente_uaa
+        parameters:
+          service-key:
+            name: medioambiente_uaa_key
+      - name: medioambiente_html5_repo_host
+        parameters:
+          service-key:
+            name: medioambiente_html5_repo_host_key
+      - name: medioambiente_destination
+        parameters:
+          content-target: true
+      - name: medioambiente_workflow
+        parameters:
+          service-key:
+            name: medioambiente_wf-key
+    parameters:
+      content:
+        instance:
+          existing_destinations_policy: update
+          destinations:
+            - Name: medioambiente_destination_html5
+              ServiceInstanceName: medioambiente_html5_repo_host
+              ServiceKeyName: medioambiente_html5_repo_host_key
+              sap.cloud.service: com.aysa.pgo
+            - Name: medioambiente_destination_uaa
+              Authentication: OAuth2UserTokenExchange
+              ServiceInstanceName: medioambiente_uaa
+              ServiceKeyName: medioambiente_uaa_key
+              sap.cloud.service: com.aysa.pgo
+            - Name: bpmworkflowruntime
+              Authentication: OAuth2JWTBearer
+              ServiceInstanceName: medioambiente_workflow
+              ServiceKeyName: wf_medioambiente-key
+
 resources:
-  - name: com.aysa.pgo.PGOMedioambiente-destination-service
+  - name: medioambiente_destination
     type: org.cloudfoundry.managed-service
     parameters:
-      service: destination
-      service-name: com.aysa.pgo.PGOMedioambiente-destination-service
       service-plan: lite
+      service: destination
       config:
         HTML5Runtime_enabled: true
-        version: 0.0.1
-  - name: com.aysa.pgo.PGOMedioambiente-html-repo-host
+        version: 1.0.0
+
+  - name: medioambiente_html5_repo_host
     type: org.cloudfoundry.managed-service
     parameters:
-      service: html5-apps-repo
       service-plan: app-host
-      service-keys:
-        - name: com.aysa.pgo.PGOMedioambiente-html-repo-host-key
-  - name: com.aysa.pgo.PGOMedioambiente-auth
+      service: html5-apps-repo
+      config:
+        sizeLimit: 2
+
+  - name: medioambiente_html5_repo_runtime
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service-plan: app-runtime
+      service: html5-apps-repo
+
+  - name: medioambiente_uaa
     type: org.cloudfoundry.managed-service
     parameters:
       path: ./xs-security.json
-      service: xsuaa
       service-plan: application
-      service-keys:
-        - name: com.aysa.pgo.PGOMedioambiente-auth-key
+      service: xsuaa
+
+  - name: medioambiente_workflow
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: workflow
+      service-plan: standard
