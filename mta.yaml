@@ -1,5 +1,5 @@
 _schema-version: "3.2"
-ID: medioambiente
+ID: PGOmedioambiente
 version: 0.0.1
 build-parameters:
   before-all:
@@ -8,36 +8,36 @@ build-parameters:
         - npm install
         - npm run build:workspaces
 modules:
-  - name: medioambiente-destination-content
+  - name: PGOmedioambiente-destination-content
     type: com.sap.application.content
     requires:
-      - name: medioambiente_uaa
+      - name: PGOmedioambiente_uaa
         parameters:
           service-key:
-            name: medioambiente_uaa-key
-      - name: medioambiente_html_repo_host
+            name: PGOmedioambiente_uaa-key
+      - name: PGOmedioambiente_html_repo_host
         parameters:
           service-key:
-            name: medioambiente_html_repo_host-key
-      - name: medioambiente-destination-service
+            name: PGOmedioambiente_html_repo_host-key
+      - name: PGOmedioambiente-destination-service
         parameters:
           content-target: true  
-      - name: pgo_medioambiente_workflow
+      - name: pgo_PGOmedioambiente_workflow
         parameters:
             service-key:
-              name: pgo_medioambiente_wf-key    
+              name: pgo_PGOmedioambiente_wf-key    
     parameters:
       content:
         instance:
           destinations:
-            - Name: my_service_medioambiente_html_repo_host
-              ServiceInstanceName: medioambiente_html_repo_host
-              ServiceKeyName: medioambiente_html_repo_host-key
+            - Name: my_service_PGOmedioambiente_html_repo_host
+              ServiceInstanceName: PGOmedioambiente_html_repo_host
+              ServiceKeyName: PGOmedioambiente_html_repo_host-key
               sap.cloud.service: com.aysa.pgo
             - Authentication: OAuth2UserTokenExchange
-              Name: my_service_uaa_medioambiente
-              ServiceInstanceName: medioambiente_uaa
-              ServiceKeyName: uaa_medioambiente-key
+              Name: my_service_uaa_PGOmedioambiente
+              ServiceInstanceName: PGOmedioambiente_uaa
+              ServiceKeyName: uaa_PGOmedioambiente-key
               sap.cloud.service: com.aysa.pgo
             - Name: bpmworkflowruntime
               Authentication: OAuth2JWTBearer
@@ -46,11 +46,11 @@ modules:
           existing_destinations_policy: update
     build-parameters:
       no-source: true
-  - name: medioambiente_ui_deployer
+  - name: PGOmedioambiente_ui_deployer
     type: com.sap.application.content
     path: .
     requires:
-      - name: medioambiente_html_repo_host
+      - name: PGOmedioambiente_html_repo_host
         parameters:
           content-target: true
     build-parameters:
@@ -69,27 +69,27 @@ modules:
         - npm run build:uimodule --prefix ..
       supported-platforms: []
 resources:
-  - name: medioambiente-destination-service
+  - name: PGOmedioambiente-destination-service
     type: org.cloudfoundry.managed-service
     parameters:
       service: destination
-      service-name: medioambiente-destination-service
+      service-name: PGOmedioambiente-destination-service
       service-plan: lite
       config:
         HTML5Runtime_enabled: true
         version: 1.0.0
-  - name: medioambiente_html_repo_host
+  - name: PGOmedioambiente_html_repo_host
     type: org.cloudfoundry.managed-service
     parameters:
       service: html5-apps-repo
       service-plan: app-host
-  - name: medioambiente_uaa
+  - name: PGOmedioambiente_uaa
     type: org.cloudfoundry.managed-service
     parameters:
       path: ./xs-security.json
       service: xsuaa
       service-plan: application
-  - name: pgo_medioambiente_workflow
+  - name: pgo_PGOmedioambiente_workflow
     type: org.cloudfoundry.managed-service
     parameters:
       service: workflow
