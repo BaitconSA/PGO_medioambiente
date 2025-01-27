@@ -18,6 +18,7 @@ modules:
       - name: medioambiente_destination
       - name: medioambiente_html5_repo_runtime
       - name: medioambiente_uaa
+
   - name: webapp_deployer
     type: com.sap.application.content
     path: deployer
@@ -32,6 +33,7 @@ modules:
           artifacts:
             - dist/uimodule.zip
           target-path: resources/
+
   - name: uimodule
     type: html5
     path: uimodule
@@ -40,6 +42,7 @@ modules:
       commands:
         - npm run build:uimodule --prefix ..
       supported-platforms: []
+
   - name: medioambiente_destination_content
     type: com.sap.application.content
     build-parameters:
@@ -58,8 +61,8 @@ modules:
           content-target: true
       - name: medioambiente_workflow
         parameters:
-            service-key:
-              name: medioambiente_wf-key
+          service-key:
+            name: medioambiente_wf-key
     parameters:
       content:
         instance:
@@ -78,6 +81,7 @@ modules:
               Authentication: OAuth2JWTBearer
               ServiceInstanceName: medioambiente_workflow
               ServiceKeyName: wf_medioambiente-key
+
 resources:
   - name: medioambiente_destination
     type: org.cloudfoundry.managed-service
@@ -103,11 +107,11 @@ resources:
       service: html5-apps-repo
 
   - name: medioambiente_uaa
-      type: org.cloudfoundry.managed-service
-      parameters:
-        path: ./xs-security.json
-        service-plan: application
-        service: xsuaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      path: ./xs-security.json
+      service-plan: application
+      service: xsuaa
 
   - name: medioambiente_workflow
     type: org.cloudfoundry.managed-service
