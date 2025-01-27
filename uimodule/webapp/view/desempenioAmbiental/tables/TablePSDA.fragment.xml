@@ -48,13 +48,6 @@
                                 press="onViewDetails($event, 'documentPSDA_details')"
                                 class="sapUiSmallMarginEnd"
                                 visible="{mainModel>permisos/canView}" />
-                            <core:Icon
-                            src="sap-icon://download"
-                            color="#fd7e14"
-                            press="onDownloadDocument($event, 'documentPSDA_download')"
-                            class="sapUiSmallMarginEnd"
-                            visible="{mainModel>permisos/canDownload}" />
-
                             <core:Icon 
                                 color="#212121" 
                                 src="sap-icon://edit"  

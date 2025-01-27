@@ -2002,7 +2002,47 @@ sap.ui.define([
                         Utils.dialogBusy(false);
                      }
                }
-            }
+            },
+
+            createPdf: async function () {
+                const oModel = this.getView().getModel("mainModel");
+                let oDatosHeader = oModel.getProperty("/HeaderInfo");
+                let oResponsable = oModel.getProperty("/ResponsableAmbiental/responsable_ambiental")
+                let oTablePSDA = oModel.getProperty("/DatosFormularioPSDA/TablePSDA/Data");
+                let oTableCDA = oModel.getProperty("/DatosFormularioCDA/TableCDA/Data");
+                let oTableIA = oModel.getProperty("/DatosFormularioIA/TableIA/Data");
+                let oTableDA = oModel.getProperty("/DatosFormularioDA/TableDA/Data");
+
+                
+                const oPayload = {
+                  "doc_id": "medioambiente",
+                  //"fecha": this.formatter.formatDateTable(new Date()),
+                  "formato": "base64",
+                  "header": oDatosHeader,
+                  "responsable": oResponsable,
+                  "psda_payload": oTablePSDA,
+                  "cda_payload": oTableCDA,
+                  "ia_payload": oTableIA,
+                  "da_payload": oTableDA,
+                };
+
+                const oBinary = await Services.createPdf(oPayload);
+                const timeStamp = (new Date()).toLocaleString('es-AR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/[^0-9]/g, '');
+                let sFileName = "Medioambiente" + timeStamp;
+                const sMimeType = "pdf";
+                let aBuffer = this.base64ToArrayBuffer(oBinary.data);
+                File.save(aBuffer, sFileName, sMimeType);
+              },
+          
+              base64ToArrayBuffer: function (sBinLine) {
+                let binary_string = window.atob(sBinLine);
+                let len = binary_string.length;
+                let bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                  bytes[i] = binary_string.charCodeAt(i);
+                }
+                return bytes.buffer;
+              }
 
         });
     });

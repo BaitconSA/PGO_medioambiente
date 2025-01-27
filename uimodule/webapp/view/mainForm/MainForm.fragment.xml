@@ -28,6 +28,7 @@
                         width="100%"/>
                         <Button icon="sap-icon://save" press="onSaveEnvironmentalResponsive" enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}" />
                         <Button icon="sap-icon://edit" press="onEditEnvironmentalResponsive"  enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}"/>
+                        <Button icon="sap-icon://download" press="createPdf" />
                 </HBox>
 
             </form:content>
