@@ -13,8 +13,8 @@
     "build:mta": "mbt build",
     "deploy:cf": "cross-var cf deploy mta_archives/medioambiente$npm_package_version.mtar",
     "deploy": "run-s build:mta deploy:cf",
-    "build:uimodule": "ui5 build --config=uimodule/ui5.yaml --clean-dest --dest uimodule/dist --include-task=generateComponentPreload",
-    "build:workspaces": "ui5 build --config=uimodule/ui5.yaml --clean-dest --dest uimodule/dist --include-task=generateComponentPreload"
+    "build:uimodule": "ui5 build --config=uimodule/ui5.yaml --clean-dest --dest uimodule/dist --include-task=generateManifestBundle"
+
   },
   "dependencies": {
     "mbt": "^1"
@@ -37,5 +37,9 @@
     "ui5-middleware-cfdestination": "latest",
     "ui5-middleware-livereload": "latest",
     "ui5-task-zipper": "latest"
+  },
+  "engines": {
+    "node": "latest",
+    "npm": "^9.6.7"
   }
 }

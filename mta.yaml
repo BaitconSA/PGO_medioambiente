@@ -1,64 +1,37 @@
 _schema-version: "3.2"
 ID: medioambiente
-version: 0.0.1
+version: 1.0.0
 build-parameters:
   before-all:
     - builder: custom
       commands:
-        - npm install --force
+        - npm install
+
 modules:
-  - name: medioambiente-destination-content
-    type: com.sap.application.content
-    requires:
-      - name: medioambiente_uaa
-        parameters:
-          service-key:
-            name: medioambiente_uaa-key
-      - name: medioambiente_html_repo_host
-        parameters:
-          service-key:
-            name: medioambiente_html_repo_host-key
-      - name: medioambiente-destination-service
-        parameters:
-          content-target: true  
-      - name: pgo_medioambiente_workflow
-        parameters:
-            service-key:
-              name: pgo_medioambiente_wf-key    
+  - name: medioambiente
+    type: nodejs
+    path: approuter
     parameters:
-      content:
-        instance:
-          destinations:
-            - Name: my_service_medioambiente_html_repo_host
-              ServiceInstanceName: medioambiente_html_repo_host
-              ServiceKeyName: medioambiente_html_repo_host-key
-              sap.cloud.service: com.aysa.pgo
-            - Authentication: OAuth2UserTokenExchange
-              Name: my_service_uaa_medioambiente
-              ServiceInstanceName: medioambiente_uaa
-              ServiceKeyName: uaa_medioambiente-key
-              sap.cloud.service: com.aysa.pgo
-            - Name: bpmworkflowruntime
-              Authentication: OAuth2JWTBearer
-              ServiceInstanceName: pgo_medioambiente_workflow
-              ServiceKeyName: wf_pgo_medioambiente-key
-          existing_destinations_policy: update
-    build-parameters:
-      no-source: true
-  - name: medioambiente_ui_deployer
-    type: com.sap.application.content
-    path: .
+      disk-quota: 512M
+      memory: 512M
     requires:
-      - name: medioambiente_html_repo_host
+      - name: medioambiente_destination
+      - name: medioambiente_html5_repo_runtime
+      - name: medioambiente_uaa
+  - name: webapp_deployer
+    type: com.sap.application.content
+    path: deployer
+    requires:
+      - name: medioambiente_html5_repo_host
         parameters:
           content-target: true
     build-parameters:
-     build-result: resources
-     requires:
-       - name: uimodule
-         artifacts:
-           - dist/uimodule.zip
-         target-path: resources/
+      build-result: resources
+      requires:
+        - name: uimodule
+          artifacts:
+            - dist/uimodule.zip
+          target-path: resources/
   - name: uimodule
     type: html5
     path: uimodule
@@ -67,8 +40,46 @@ modules:
       commands:
         - npm run build:uimodule --prefix ..
       supported-platforms: []
+  - name: medioambiente_destination_content
+    type: com.sap.application.content
+    build-parameters:
+      no-source: true
+    requires:
+      - name: medioambiente_uaa
+        parameters:
+          service-key:
+            name: medioambiente_uaa_key
+      - name: medioambiente_html5_repo_host
+        parameters:
+          service-key:
+            name: medioambiente_html5_repo_host_key
+      - name: medioambiente_destination
+        parameters:
+          content-target: true
+      - name: medioambiente_workflow
+        parameters:
+            service-key:
+              name: medioambiente_wf-key
+    parameters:
+      content:
+        instance:
+          existing_destinations_policy: update
+          destinations:
+            - Name: medioambiente_destination_html5
+              ServiceInstanceName: medioambiente_html5_repo_host
+              ServiceKeyName: medioambiente_html5_repo_host_key
+              sap.cloud.service: com.aysa.pgo
+            - Name: medioambiente_destination_uaa
+              Authentication: OAuth2UserTokenExchange
+              ServiceInstanceName: medioambiente_uaa
+              ServiceKeyName: medioambiente_uaa_key
+              sap.cloud.service: com.aysa.pgo
+            - Name: bpmworkflowruntime
+              Authentication: OAuth2JWTBearer
+              ServiceInstanceName: medioambiente_workflow
+              ServiceKeyName: wf_medioambiente-key
 resources:
-  - name: parametrosredeterminaciones_destination
+  - name: medioambiente_destination
     type: org.cloudfoundry.managed-service
     parameters:
       service-plan: lite
@@ -76,6 +87,7 @@ resources:
       config:
         HTML5Runtime_enabled: true
         version: 1.0.0
+
   - name: medioambiente_html5_repo_host
     type: org.cloudfoundry.managed-service
     parameters:
@@ -83,17 +95,20 @@ resources:
       service: html5-apps-repo
       config:
         sizeLimit: 2
+
   - name: medioambiente_html5_repo_runtime
     type: org.cloudfoundry.managed-service
     parameters:
       service-plan: app-runtime
       service: html5-apps-repo
+
   - name: medioambiente_uaa
     type: org.cloudfoundry.managed-service
     parameters:
       path: ./xs-security.json
       service-plan: application
       service: xsuaa  
+
   - name: medioambiente_workflow
     type: org.cloudfoundry.managed-service
     parameters:

@@ -9,4 +9,4 @@ deployer/resources/
 Makefile*
 mta-*
 approuter/*/webapp/
-.vscode/
+.PGO_medioambiente_mta_build_tmp/medioambiente/
