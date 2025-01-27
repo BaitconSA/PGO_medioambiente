@@ -102,12 +102,12 @@ resources:
       service-plan: app-runtime
       service: html5-apps-repo
 
-  - name: medioambiente_uaa
+- name: medioambiente_uaa
     type: org.cloudfoundry.managed-service
     parameters:
       path: ./xs-security.json
       service-plan: application
-      service: xsuaa  
+      service: xsuaa
 
   - name: medioambiente_workflow
     type: org.cloudfoundry.managed-service
