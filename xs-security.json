@@ -1,5 +1,5 @@
 {
-    "xsappname": "PGOmedioambiente",
+    "xsappname": "medioambiente",
     "tenant-mode": "dedicated",
     "description": "Security profile of called application",
     "scopes": [

@@ -1,6 +1,6 @@
 specVersion: "3.1"
 metadata:
-  name: PGOmedioambiente_uimodule
+  name: medioambiente_uimodule
 type: application
 resources:
   configuration:
