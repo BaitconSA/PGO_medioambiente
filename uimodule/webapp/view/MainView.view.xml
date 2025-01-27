@@ -39,5 +39,18 @@
 
             </VBox>
         </content>
+        <footer>
+            <OverflowToolbar>
+                <ToolbarSpacer />
+                <Button 
+                    text="{i18n>descargar}"
+                    tooltip="{i18n>descargar}"
+                    type="Emphasized" 
+                    icon="sap-icon://pdf-attachment" 
+                    press="createPdf" 
+                    class="sapUiMediumMarginEnd"
+                />
+            </OverflowToolbar>
+        </footer>
     </Page>
 </mvc:View>
