@@ -89,7 +89,7 @@ resources:
       path: ./xs-security.json
       service: xsuaa
       service-plan: application
-  - name: pgo_sancion_workflow
+  - name: pgo_medioambiente_workflow
     type: org.cloudfoundry.managed-service
     parameters:
       service: workflow
