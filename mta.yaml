@@ -5,8 +5,7 @@ build-parameters:
   before-all:
     - builder: custom
       commands:
-        - npm install
-        - npm run build:workspaces
+        - npm install --force
 modules:
   - name: medioambiente-destination-content
     type: com.sap.application.content
@@ -41,8 +40,8 @@ modules:
               sap.cloud.service: com.aysa.pgo
             - Name: bpmworkflowruntime
               Authentication: OAuth2JWTBearer
-              ServiceInstanceName: pgo_sancion_workflow
-              ServiceKeyName: wf_pgo_sancion-key
+              ServiceInstanceName: pgo_medioambiente_workflow
+              ServiceKeyName: wf_pgo_medioambiente-key
           existing_destinations_policy: update
     build-parameters:
       no-source: true
@@ -69,27 +68,33 @@ modules:
         - npm run build:uimodule --prefix ..
       supported-platforms: []
 resources:
-  - name: medioambiente-destination-service
+  - name: parametrosredeterminaciones_destination
     type: org.cloudfoundry.managed-service
     parameters:
-      service: destination
-      service-name: medioambiente-destination-service
       service-plan: lite
+      service: destination
       config:
         HTML5Runtime_enabled: true
         version: 1.0.0
-  - name: medioambiente_html_repo_host
+  - name: medioambiente_html5_repo_host
     type: org.cloudfoundry.managed-service
     parameters:
-      service: html5-apps-repo
       service-plan: app-host
+      service: html5-apps-repo
+      config:
+        sizeLimit: 2
+  - name: medioambiente_html5_repo_runtime
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service-plan: app-runtime
+      service: html5-apps-repo
   - name: medioambiente_uaa
     type: org.cloudfoundry.managed-service
     parameters:
       path: ./xs-security.json
-      service: xsuaa
       service-plan: application
-  - name: pgo_medioambiente_workflow
+      service: xsuaa  
+  - name: medioambiente_workflow
     type: org.cloudfoundry.managed-service
     parameters:
       service: workflow
