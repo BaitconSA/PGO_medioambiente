@@ -2007,6 +2007,7 @@ sap.ui.define([
             createPdf: async function () {
                 const oModel = this.getView().getModel("mainModel");
                 let oDatosHeader = oModel.getProperty("/HeaderInfo");
+                let oResponsable = oModel.getProperty("/ResponsableAmbiental/responsable_ambiental")
                 let oTablePSDA = oModel.getProperty("/DatosFormularioPSDA/TablePSDA/Data");
                 let oTableCDA = oModel.getProperty("/DatosFormularioCDA/TableCDA/Data");
                 let oTableIA = oModel.getProperty("/DatosFormularioIA/TableIA/Data");
@@ -2018,6 +2019,7 @@ sap.ui.define([
                   //"fecha": this.formatter.formatDateTable(new Date()),
                   "formato": "base64",
                   "header": oDatosHeader,
+                  "responsable": oResponsable,
                   "psda_payload": oTablePSDA,
                   "cda_payload": oTableCDA,
                   "ia_payload": oTableIA,
