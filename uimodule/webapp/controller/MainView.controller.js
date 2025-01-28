@@ -18,11 +18,12 @@ sap.ui.define([
     "uimodule/model/formatter",
     "sap/ui/core/Fragment",
     "sap/ui/core/util/File",
+    "sap/ui/model/Filter",
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, CDA_operations, IA_operations, DA_operations, Approvers, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter, Fragment, File) {
+    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, CDA_operations, IA_operations, DA_operations, Approvers, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter, Fragment, File, Filter) {
         "use strict";
 
         return Controller.extend("uimodule.controller.MainView", {
@@ -2043,7 +2044,106 @@ sap.ui.define([
                   bytes[i] = binary_string.charCodeAt(i);
                 }
                 return bytes.buffer;
-              }
+              },
+
+            //Buscadores
+            onSearchPSDA: function (oEvent) {
+                const sSearch = oEvent.getParameter("newValue");
+                const oTable = this.byId("myTable");
+                const oBinding = oTable.getBinding("items");
+            
+                const aFilter = [
+                    new Filter({
+                        filters: [
+                           this.createStringFilter('numero_planilla', sSearch),
+                           this.createStringFilter('fechaUltimoMesInformado', sSearch),
+                           this.createStringFilter('control/descripcion', sSearch),
+                           this.createStringFilter('estado/descripcion', sSearch),
+                           this.createStringFilter('observation', sSearch),
+                        ],
+                        and: false
+                    })
+                ];
+            
+                oBinding.filter(aFilter);
+            },
+
+            onSearchCDA: function (oEvent) {
+                const sSearch = oEvent.getParameter("newValue");
+                const oTable = this.byId("environmentalDeviationControlTable");
+                const oBinding = oTable.getBinding("items");
+            
+                const aFilter = [
+                    new Filter({
+                        filters: [
+                           this.createStringFilter('fechaEntrega', sSearch),
+                           this.createStringFilter('fecha_deteccion', sSearch),
+                           this.createStringFilter('estado/descripcion', sSearch),
+                           this.createStringFilter('observaciones', sSearch),
+                        ],
+                        and: false
+                    })
+                ];
+            
+                oBinding.filter(aFilter);
+            },
+
+            onSarchIA: function (oEvent) {
+                const sSearch = oEvent.getParameter("newValue");
+                const oTable = this.byId("environmentalreportTable");
+                const oBinding = oTable.getBinding("items");
+            
+                const aFilter = [
+                    new Filter({
+                        filters: [
+                           this.createStringFilter('fechaEntrega', sSearch),
+                           this.createStringFilter('estado/descripcion', sSearch),
+                           this.createStringFilter('observaciones', sSearch),
+                        ],
+                        and: false
+                    })
+                ];
+            
+                oBinding.filter(aFilter);
+            },
+
+            onSearchDA: function (oEvent) {
+                const sSearch = oEvent.getParameter("newValue");
+                const oTable = this.byId("additionalDocumentationTable");
+                const oBinding = oTable.getBinding("items");
+            
+                const aFilter = [
+                    new Filter({
+                        filters: [
+                           this.createStringFilter('descripcion', sSearch),
+                           this.createStringFilter('comentarios', sSearch),
+                           this.createStringFilter('fecha_Entrega', sSearch),
+                           this.createStringFilter('estado/descripcion', sSearch),
+                           this.createStringFilter('observaciones', sSearch),
+                        ],
+                        and: false
+                    })
+                ];
+            
+                oBinding.filter(aFilter);
+            },
+
+            createStringFilter: function (path, value) {
+                return new Filter({
+                    path: path,
+                    test: function(itemValue) {
+                        if (itemValue === null || itemValue === undefined) {
+                            itemValue = "";
+                        }
+                        // Formatea fechaUltimoMesInformado si es el path correspondiente
+                        if (path === 'fecha_deteccion' && itemValue) {
+                            const [anio, mes, dia] = itemValue.split("-");
+                            itemValue = `${dia}/${mes}/${anio}`;
+                        }
+                        return itemValue.toString().toLowerCase().includes(value.toLowerCase());
+                    }
+                });
+            },   
 
         });
     });

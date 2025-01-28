@@ -6,7 +6,7 @@
                 <Toolbar>
                     <Title text="{i18n>environmentalreport}" />
                     <ToolbarSpacer />
-                    <SearchField id="searchFieldIA" width="20%" search=".onSearch"/>
+                    <SearchField id="searchFieldIA" width="20%" liveChange=".onSarchIA"/>
                     <Button icon="sap-icon://sort" press=".onSort" />
                     <Button
                         icon="sap-icon://add"

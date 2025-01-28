@@ -26,7 +26,7 @@
                         required="true"
                         enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}"
                         width="100%"/>
-                        <Button icon="sap-icon://save" press="onSaveEnvironmentalResponsive" enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}" />
+                        <Button icon="sap-icon://add" press="onOpenCreateEnvironmental" enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}" />
                         <Button icon="sap-icon://edit" press="onEditEnvironmentalResponsive"  enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}"/>
                 </HBox>
 

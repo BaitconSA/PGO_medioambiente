@@ -6,7 +6,7 @@
                 <Toolbar>
                     <Title text="{i18n>controlDeDesviosAmbientales}" />
                     <ToolbarSpacer />
-                    <SearchField id="searchField" width="20%" search=".onSearch"/>
+                    <SearchField id="searchField" class="sapUiMediumMarginEnd" width="20%" liveChange=".onSearchCDA"/>
                     <Button icon="sap-icon://sort" press=".onSort" />
                     <Button
                         icon="sap-icon://add"
@@ -45,7 +45,7 @@
                     <ColumnListItem>
                         <cells>
                             <Text text="{mainModel>fechaEntrega}" />
-                            <Text text="{mainModel>fecha_deteccion}" />
+                            <Text text="{path: 'mainModel>fecha_deteccion', formatter: '.formatter.formatDateTable'}" />
                              <ObjectStatus text="{mainModel>estado/descripcion}" inverted="true" state="{mainModel>estado/color}"/>
                             <Text text="{mainModel>observaciones}" />
                                 <HBox>
