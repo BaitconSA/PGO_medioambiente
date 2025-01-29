@@ -363,12 +363,37 @@ sap.ui.define([
                 // Invocar el MessagePopover usando el MessageHandler
                 Utils.showMessage( message , "Creación de Documento", "SUCCESS");
 
-                return oNewPsdaDocument;
+                return oNewResponsable;
             } catch (error) {
                 console.error("Error al crear el documento:", error);
                 throw error;  // Puedes manejar este error de otras maneras si lo prefieres
             }
         },
+
+		onUpdateEnvironmentalResponsive: async function (sID, oPayload) {
+			try {
+				// Llamada al servicio PATCH para actualizar el responsable ambiental
+				const oUpdatedResponsable = await this.callUpdateService(`DesempeniosAmbientales/${sID}`, oPayload);
+				let message = null;
+		
+				if (oUpdatedResponsable.error) {
+					message = "Error al actualizar el responsable ambiental";
+					Utils.showMessage(message, "Error", "ERROR");
+					Utils.dialogBusy(false);
+					return;
+				}
+				
+				message = "Responsable ambiental actualizado con éxito.";
+				// Invocar el MessagePopover usando el MessageHandler
+				Utils.showMessage(message, "Actualización de Documento", "SUCCESS");
+		
+				return oUpdatedResponsable;
+			} catch (error) {
+				console.error("Error al actualizar el documento:", error);
+				throw error;  // Puedes manejar este error de otras maneras si lo prefieres
+			}
+		},
+		
 
 	};
 });

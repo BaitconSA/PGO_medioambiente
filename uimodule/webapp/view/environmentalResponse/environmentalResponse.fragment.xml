@@ -8,7 +8,7 @@
         <VBox>
             <Input id="popoverInput" />
             <HBox justifyContent="End" styleClass="sapUiSmallMarginTop">
-                <Button text="Guardar" type="Accept" press="onSavePress" />
+                <Button text="Guardar" type="Accept" press="onChangeEnvironmentalResponsive" />
             </HBox>
         </VBox>
     </Popover>

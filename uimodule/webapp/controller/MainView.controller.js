@@ -18,11 +18,12 @@ sap.ui.define([
     "uimodule/model/formatter",
     "sap/ui/core/Fragment",
     "sap/ui/core/util/File",
+    "sap/ui/model/Filter",
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, CDA_operations, IA_operations, DA_operations, Approvers, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter, Fragment, File) {
+    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, CDA_operations, IA_operations, DA_operations, Approvers, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter, Fragment, File, Filter) {
         "use strict";
 
         return Controller.extend("uimodule.controller.MainView", {
@@ -41,7 +42,7 @@ sap.ui.define([
                 this._loadData( sObraID );   
             },
 
-            _loadData: async function (obraID) {            
+            _loadData: async function (obraID) {        
                     // Obtener datos de la obra
                     Utils.dialogBusy(true);
                 try {
@@ -91,6 +92,14 @@ sap.ui.define([
                     const [oObraData, oResponsableAmbientalData, oUsuariosMedioAmbienteData, oInformesData, oControlesData, oInformesAmbientalesData, oDocumentacionAdicionalData] = await Promise.all([
                         oObra, oResponsableAmbiental, oUsuarios, oInformes, oControlesDesvios, oInformesAmbientales, oDocumentacionAdicional
                     ]);
+
+                    if (oResponsableAmbientalData && oResponsableAmbientalData.value && oResponsableAmbientalData.value.length !== 0) {
+                        this._oMainModel.setProperty("/buttonCreate", false);
+                        this._oMainModel.setProperty("/buttonEdit", true);
+                    } else {
+                        this._oMainModel.setProperty("/buttonCreate", true);
+                        this._oMainModel.setProperty("/buttonEdit", false);
+                    }
             
                     // Validar que los datos de la obra están presentes
                     if (!oObraData) {
@@ -166,41 +175,102 @@ sap.ui.define([
             },
 
             onSaveEnvironmentalResponsive: function ( oEvent ) {
-                const oModel = this.getView().getModel("mainModel");
-                const sEnvironmentalResponsive = oModel.getProperty("/Payload/environmentalResponsive");
-// Validación de campos obligatorios PSDA
-                    let confirmMessage = this.getResourceBundle().getText("saveEnvironmentalResponseConfirm");
-                    MessageBox.confirm(confirmMessage, {
-                        actions: [MessageBox.Action.CANCEL, "Aceptar"],
-                        emphasizedAction: "Aceptar",
-                        onClose: async (sAction) => {
-                          if (sAction !== "Aceptar")
-                            return;
-                          try {
+                // Obtener el valor del Input dentro del Popover
+                const sEnvironmentalResponsive = sap.ui.getCore().byId("newNameEnvironmental").getValue();
+
+            
+                // Validación de campos obligatorios
+                let confirmMessage = this.getResourceBundle().getText("createEnvironmentalReponse");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") return;
+                        try {
                             const oPayload = {
                                 responsable_ambiental: sEnvironmentalResponsive
-                            }
+                            };
                             
                             const oNewEnvironmentalResponsive = await Services.onCreateEnvironmentalResponsive(oPayload, this.getView());
-
                             console.log(oNewEnvironmentalResponsive);
-                            this.onClosePopover(); // Cierro el popover y vuelvo a cargar información de la App
-                            this._loadData( sObraID );
-                          } catch (error) {
+                            
+                            this.onClosePopoverCreate(); // Cierra el popover
+                            this._onObjectMatched(); // Recarga los datos
+                        } catch (error) {
                             const errorMessage = this.getResourceBundle().getText("errorCreateADS");
                             MessageToast.show(errorMessage);
-                          } finally {
+                        } finally {
                             Utils.dialogBusy(false);
-                          }
                         }
-                      });
+                    }
+                });
+            },            
 
+            onChangeEnvironmentalResponsive: function (oEvent) {
+                const oModel = this.getModel("mainModel");
+                // Obtener el nuevo valor del Input dentro del Popover
+                const sUpdatedEnvironmentalResponsive = sap.ui.getCore().byId("popoverInput").getValue();
+                
+                // Validación de campos obligatorios
+                let confirmMessage = this.getResourceBundle().getText("editEnvironmentalReponse");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") return;
+                        
+                        try {
+                            Utils.dialogBusy(true);
+                            
+                            // Obtener el ID del responsable ambiental actual
+                            const oResponsableAmbientalData = oModel.getProperty("/ResponsableAmbiental");
+                            if (!oResponsableAmbientalData) {
+                                throw new Error("No hay un responsable ambiental registrado para editar.");
+                            }
+                            
+                            const sID = oResponsableAmbientalData.ID;
+                            
+                            // Crear payload para actualización
+                            const oPayload = {
+                                responsable_ambiental: sUpdatedEnvironmentalResponsive
+                            };
+                            
+                            // Llamar al servicio PATCH para actualizar el dato existente
+                            await Services.onUpdateEnvironmentalResponsive(sID, oPayload, this.getView());
+                            
+                            // Cierra el popover
+                            this.onClosePopoverChange();
+                            
+                            // Recarga los datos
+                            this._onObjectMatched();
+                            
+                        } catch (error) {
+                            const errorMessage = this.getResourceBundle().getText("errorEditADS");
+                            MessageToast.show(errorMessage);
+                        } finally {
+                            Utils.dialogBusy(false);
+                        }
+                    }
+                });
             },
 
-            onClosePopover: function () {
-                this.getView().byId("editPopover").close();
-
+            onClosePopoverCreate: function () {
+                var oPopover = this.getView().byId("createPopover");
+                if (oPopover) {
+                    oPopover.close();
+                } else {
+                    console.log("Popover no encontrado");
+                }
             },
+
+            onClosePopoverChange: function () {
+                var oPopover = this.getView().byId("editPopover");
+                if (oPopover) {
+                    oPopover.close();
+                } else {
+                    console.log("Popover no encontrado");
+                }
+            },            
 
             onOpenDialog: function (oEvent) {
                 const sParam = oEvent.getSource().data("param");
@@ -401,27 +471,39 @@ sap.ui.define([
                TablePsdaFunction.onInputLiveChange( oEvent, oModel, oEvent.getSource().getId() );
             },
 
-
-
+            onOpenCreateEnvironmental: function (oEvent) {
+            
+                if (!this._oCreatePopover) {
+                    Fragment.load({
+                        name: "uimodule.view.environmentalResponse.environmentalCreate",
+                        controller: this
+                    }).then(function (oPopover) {
+                        this._oCreatePopover = oPopover;
+                        this.getView().addDependent(this._oCreatePopover);
+                        this._oCreatePopover.openBy(oEvent.getSource());
+                    }.bind(this));
+                } else {
+                    this._oCreatePopover.openBy(oEvent.getSource());
+                }
+            },
+            
             onEditEnvironmentalResponsive: function (oEvent) {
                 var oInput = this.byId("inputField");
                 var sValue = oInput.getValue();
-    
-                if (!this._oPopover) {
+            
+                if (!this._oEditPopover) {
                     Fragment.load({
                         name: "uimodule.view.environmentalResponse.environmentalResponse",
                         controller: this
                     }).then(function (oPopover) {
-                        this._oPopover = oPopover;
-                        this.getView().addDependent(this._oPopover);
-                        this._oPopover.openBy(oEvent.getSource());
-                        this.byId("popoverInput").setValue(sValue);
+                        this._oEditPopover = oPopover;
+                        this.getView().addDependent(this._oEditPopover);
+                        this._oEditPopover.openBy(oEvent.getSource());
                     }.bind(this));
                 } else {
-                    this._oPopover.openBy(oEvent.getSource());
-                    this.byId("popoverInput").setValue(sValue);
+                    this._oEditPopover.openBy(oEvent.getSource());
                 }
-            },
+            },            
 
             onCancelPress: function (sParam) {
                 const oView = this.getView();
@@ -2043,7 +2125,106 @@ sap.ui.define([
                   bytes[i] = binary_string.charCodeAt(i);
                 }
                 return bytes.buffer;
-              }
+              },
+
+            //Buscadores
+            onSearchPSDA: function (oEvent) {
+                const sSearch = oEvent.getParameter("newValue");
+                const oTable = this.byId("myTable");
+                const oBinding = oTable.getBinding("items");
+            
+                const aFilter = [
+                    new Filter({
+                        filters: [
+                           this.createStringFilter('numero_planilla', sSearch),
+                           this.createStringFilter('fechaUltimoMesInformado', sSearch),
+                           this.createStringFilter('control/descripcion', sSearch),
+                           this.createStringFilter('estado/descripcion', sSearch),
+                           this.createStringFilter('observation', sSearch),
+                        ],
+                        and: false
+                    })
+                ];
+            
+                oBinding.filter(aFilter);
+            },
+
+            onSearchCDA: function (oEvent) {
+                const sSearch = oEvent.getParameter("newValue");
+                const oTable = this.byId("environmentalDeviationControlTable");
+                const oBinding = oTable.getBinding("items");
+            
+                const aFilter = [
+                    new Filter({
+                        filters: [
+                           this.createStringFilter('fechaEntrega', sSearch),
+                           this.createStringFilter('fecha_deteccion', sSearch),
+                           this.createStringFilter('estado/descripcion', sSearch),
+                           this.createStringFilter('observaciones', sSearch),
+                        ],
+                        and: false
+                    })
+                ];
+            
+                oBinding.filter(aFilter);
+            },
+
+            onSarchIA: function (oEvent) {
+                const sSearch = oEvent.getParameter("newValue");
+                const oTable = this.byId("environmentalreportTable");
+                const oBinding = oTable.getBinding("items");
+            
+                const aFilter = [
+                    new Filter({
+                        filters: [
+                           this.createStringFilter('fechaEntrega', sSearch),
+                           this.createStringFilter('estado/descripcion', sSearch),
+                           this.createStringFilter('observaciones', sSearch),
+                        ],
+                        and: false
+                    })
+                ];
+            
+                oBinding.filter(aFilter);
+            },
+
+            onSearchDA: function (oEvent) {
+                const sSearch = oEvent.getParameter("newValue");
+                const oTable = this.byId("additionalDocumentationTable");
+                const oBinding = oTable.getBinding("items");
+            
+                const aFilter = [
+                    new Filter({
+                        filters: [
+                           this.createStringFilter('descripcion', sSearch),
+                           this.createStringFilter('comentarios', sSearch),
+                           this.createStringFilter('fecha_Entrega', sSearch),
+                           this.createStringFilter('estado/descripcion', sSearch),
+                           this.createStringFilter('observaciones', sSearch),
+                        ],
+                        and: false
+                    })
+                ];
+            
+                oBinding.filter(aFilter);
+            },
+
+            createStringFilter: function (path, value) {
+                return new Filter({
+                    path: path,
+                    test: function(itemValue) {
+                        if (itemValue === null || itemValue === undefined) {
+                            itemValue = "";
+                        }
+                        // Formatea fechaUltimoMesInformado si es el path correspondiente
+                        if (path === 'fecha_deteccion' && itemValue) {
+                            const [anio, mes, dia] = itemValue.split("-");
+                            itemValue = `${dia}/${mes}/${anio}`;
+                        }
+                        return itemValue.toString().toLowerCase().includes(value.toLowerCase());
+                    }
+                });
+            },   
 
         });
     });
