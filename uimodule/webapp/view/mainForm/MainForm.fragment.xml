@@ -25,9 +25,10 @@
                         valueStateText="{mainModel>/Validation/environmentalResponsiveStateText}"
                         required="true"
                         enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}"
-                        width="100%"/>
-                        <Button icon="sap-icon://add" press="onOpenCreateEnvironmental" enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}" />
-                        <Button icon="sap-icon://edit" press="onEditEnvironmentalResponsive"  enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}"/>
+                        width="100%"
+                        editable="false"/>
+                        <Button icon="sap-icon://add" press="onOpenCreateEnvironmental" enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}" visible="{mainModel>/buttonCreate}" />
+                        <Button icon="sap-icon://edit" press="onEditEnvironmentalResponsive"  enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}" visible="{mainModel>/buttonEdit}" />
                 </HBox>
 
             </form:content>

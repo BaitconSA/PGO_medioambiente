@@ -8,7 +8,7 @@
         <VBox>
             <Input id="newNameEnvironmental" />
             <HBox justifyContent="End"  styleClass="sapUiSmallMarginTop">
-                <Button text="Crear" type="Accept" press="onCreateEnvironmental" />
+                <Button text="Crear" type="Accept" press="onSaveEnvironmentalResponsive" />
             </HBox>
         </VBox>
     </Popover>
