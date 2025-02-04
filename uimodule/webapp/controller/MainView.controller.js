@@ -52,8 +52,8 @@ sap.ui.define([
             
                     if (isLocalhost) {
                         // Lógica para LOCAL TESTING
-                       oUserRolesData = { value: ["PGO_Inspector"] };
-                        //oUserRolesData = { value: ["PGO_Contratista"] };
+                      // oUserRolesData = { value: ["PGO_Inspector"] };
+                        oUserRolesData = { value: ["PGO_Contratista"] };
                         oUserData = { "Nombre": "gustavo.quintana@datco.net" };
                     } else {
                         try {
@@ -415,6 +415,7 @@ sap.ui.define([
                         this.getView().byId("fileUploaderIA").setValue("");
                         oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/File", {});
                         oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/FileName", null);
+                        oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documentAttachmentData", []);
                         break;
                     
                     case "EditPSDA":
@@ -596,9 +597,10 @@ sap.ui.define([
                             actions: [MessageBox.Action.CANCEL, "Aceptar"],
                             emphasizedAction: "Aceptar",
                             onClose: async (sAction) => {
-                              if (sAction !== "Aceptar")
+                              if (sAction !== "Aceptar"){
+                                Utils.dialogBusy(false);
                                 return;
-                             Utils.dialogBusy(true);
+                              }
                               try {
                                 const oPayload = {
                                     estado_ID: sAction === "Save" ? "BO" : "PI",
@@ -1801,11 +1803,13 @@ sap.ui.define([
                    if (invalidField) { // Validación de campos obligatorios PSDA
                        let confirmMessage = this.getResourceBundle().getText("saveDocumentCda");
                        MessageBox.confirm(confirmMessage, {
-                           actions: [MessageBox.Action.CANCEL, "Aceptar"],
-                           emphasizedAction: "Aceptar",
-                           onClose: async (sAction) => {
-                             if (sAction !== "Aceptar")
-                               return;
+                        actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                        emphasizedAction: "Aceptar",
+                        onClose: async (sAction) => {
+                          if (sAction !== "Aceptar"){
+                            Utils.dialogBusy(false);
+                            return;
+                          }
                              try {
                                const oPayload = {   
                                     desempenio_ID: IDdesempenioAmbiental,     
@@ -1915,11 +1919,13 @@ sap.ui.define([
                    if (invalidField) { // Validación de campos obligatorios PSDA
                        let confirmMessage = this.getResourceBundle().getText("saveDocumentIA");
                        MessageBox.confirm(confirmMessage, {
-                           actions: [MessageBox.Action.CANCEL, "Aceptar"],
-                           emphasizedAction: "Aceptar",
-                           onClose: async (sAction) => {
-                             if (sAction !== "Aceptar")
-                               return;
+                        actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                        emphasizedAction: "Aceptar",
+                        onClose: async (sAction) => {
+                          if (sAction !== "Aceptar"){
+                            Utils.dialogBusy(false);
+                            return;
+                          }
                              try {
                                const oPayload = {   
                                     desempenio_ID: IDdesempenioAmbiental,                            
@@ -1946,8 +1952,8 @@ sap.ui.define([
                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
                                MessageToast.show(errorMessage);
                              } finally {
-                               Utils.dialogBusy(false);
-                               this._loadData( sObraID );
+                                Utils.dialogBusy(false);
+                                this._loadData( sObraID );
                              }
                            }
                          });
@@ -1976,7 +1982,7 @@ sap.ui.define([
                                      observaciones: null                              
                                 }
                                 
-                                const oNewCdaDocument = await IA_operations.onUpdateIaDocument(sInformeAmbientalID, oPayload, this.getView());
+                                const oNewIaDocument = await IA_operations.onUpdateIaDocument(sInformeAmbientalID, oPayload, this.getView());
                                 
                                 // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
                                 this.onCancelPress("editDialogIA"); // Cierro el dialogo y vuelvo a cargar información de la App

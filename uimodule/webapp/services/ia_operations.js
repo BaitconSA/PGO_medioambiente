@@ -238,7 +238,7 @@ sap.ui.define([
                 // Invocar el MessagePopover usando el MessageHandler
                 Utils.showMessage( message , "Creación de Documento", "SUCCESS");
 
-                return oNewCdaDocument;
+                return oNewIaDocument;
             } catch (error) {
                 console.error("Error al crear el documento:", error);
                 throw error;  // Puedes manejar este error de otras maneras si lo prefieres
