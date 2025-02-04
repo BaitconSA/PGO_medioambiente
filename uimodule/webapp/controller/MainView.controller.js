@@ -52,8 +52,8 @@ sap.ui.define([
             
                     if (isLocalhost) {
                         // Lógica para LOCAL TESTING
-                      // oUserRolesData = { value: ["PGO_Inspector"] };
-                        oUserRolesData = { value: ["PGO_Contratista"] };
+                       oUserRolesData = { value: ["PGO_Inspector"] };
+                        //oUserRolesData = { value: ["PGO_Contratista"] };
                         oUserData = { "Nombre": "gustavo.quintana@datco.net" };
                     } else {
                         try {
@@ -814,7 +814,7 @@ sap.ui.define([
                 const responsables = this.getModel("mainModel").getProperty("/Responsables").inspectores;
 
                 // Extraemos las propiedades "inspector" en un nuevo array
-                const aInspectores = responsables.map(objeto => objeto.inspector);
+                const aInspectores = responsables.map(objeto => objeto.inspector).map( inspector => inspector.correo);;
 
 
                 let oButton = oEvent.getSource();
@@ -867,7 +867,7 @@ sap.ui.define([
                 let oContext = oItem.getBindingContext("mainModel");
 
                  // Lista de Usuarios Medio Ambiente Al aprobar
-                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes");
+                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes").map( responsable =>  responsable.usuario);
             
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -963,7 +963,7 @@ sap.ui.define([
                 const responsables = this.getModel("mainModel").getProperty("/Responsables").inspectores;
 
                 // Extraemos las propiedades "inspector" en un nuevo array
-                const aInspectores = responsables.map(objeto => objeto.inspector);
+                const aInspectores = responsables.map(objeto => objeto.inspector).map( inspector => inspector.correo);
             
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -1014,7 +1014,7 @@ sap.ui.define([
                 let oContext = oItem.getBindingContext("mainModel");
 
                  // Lista de Usuarios Medio Ambiente Al aprobar
-                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes");
+                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes").map( responsable =>  responsable.usuario);
             
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -1153,7 +1153,7 @@ sap.ui.define([
                 const responsables = this.getModel("mainModel").getProperty("/Responsables").inspectores;
 
                 // Extraemos las propiedades "inspector" en un nuevo array
-                const aInspectores = responsables.map(objeto => objeto.inspector);
+                const aInspectores = responsables.map(objeto => objeto.inspector).map( inspector => inspector.correo);
             
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -1285,7 +1285,7 @@ sap.ui.define([
                 let oContext = oItem.getBindingContext("mainModel");
 
                  // Lista de Usuarios Medio Ambiente Al aprobar
-                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes");
+                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes").map( responsable =>  responsable.usuario);
             
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -1338,7 +1338,7 @@ sap.ui.define([
                 const responsables = this.getModel("mainModel").getProperty("/Responsables").inspectores;
 
                 // Extraemos las propiedades "inspector" en un nuevo array
-                const aInspectores = responsables.map(objeto => objeto.inspector);
+                const aInspectores = responsables.map(objeto => objeto.inspector).map( inspector => inspector.correo);
 
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -1387,7 +1387,7 @@ sap.ui.define([
                 let oContext = oItem.getBindingContext("mainModel");
 
                  // Lista de Usuarios Medio Ambiente Al aprobar
-                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes");
+                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes").map( responsable =>  responsable.usuario);
             
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
