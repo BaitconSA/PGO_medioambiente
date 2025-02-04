@@ -178,6 +178,12 @@ sap.ui.define([
                 // Obtener el valor del Input dentro del Popover
                 const sEnvironmentalResponsive = sap.ui.getCore().byId("newNameEnvironmental").getValue();
 
+                 // Validación de campos obligatorios
+                if (!sEnvironmentalResponsive) {
+                    Utils.showMessage("El campo de responsable ambiental no puede estar vacío.", "Error", "WARNING");
+                    return;
+                }
+
             
                 // Validación de campos obligatorios
                 let confirmMessage = this.getResourceBundle().getText("createEnvironmentalReponse");
@@ -210,6 +216,12 @@ sap.ui.define([
                 const oModel = this.getModel("mainModel");
                 // Obtener el nuevo valor del Input dentro del Popover
                 const sUpdatedEnvironmentalResponsive = sap.ui.getCore().byId("popoverInput").getValue();
+
+                 // Validación de campos obligatorios
+                 if (!sUpdatedEnvironmentalResponsive) {
+                    Utils.showMessage("El campo de responsable ambiental no puede estar vacío.", "Error", "WARNING");
+                    return;
+                }
                 
                 // Validación de campos obligatorios
                 let confirmMessage = this.getResourceBundle().getText("editEnvironmentalReponse");
