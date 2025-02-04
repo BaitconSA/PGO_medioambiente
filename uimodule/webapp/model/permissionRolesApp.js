@@ -681,6 +681,79 @@ sap.ui.define(
                         };
                         item.permisos = permisos;
                     });
+                } else {
+                    // Verificar permisos para PGO_Inspector
+                    oInformesData.value.forEach(item => {
+                        const permisos = {
+                            canEdit: false,
+                            canDelete: false,
+                            canApprove: false,
+                            canSend: false,
+                            canNextApprove: false,
+                            canReject: false,
+                            canView: false,
+                            canDownloadFile: false,
+                            canDeleteFile: false
+                        };
+
+                         if (item.estado_ID === "PI") {
+                            permisos.canEdit = false;
+                            permisos.canDelete = false;
+                            permisos.canView = true;
+                        } else if (item.estado_ID === "PA") {
+                            permisos.canEdit = false;
+                            permisos.canDelete = false;
+                            permisos.canNextApprove = false,
+                            permisos.canView = true;
+                        }
+
+                        item.permisos = permisos;
+                    });
+                    
+                    oControlesData.value.forEach(item => {
+                        const permisos = {
+                            canEdit: false,
+                            canDelete: false,
+                            canApprove: false,
+                            canSend: false,
+                            canNextApprove: false,
+                            canReject: false,
+                            canView: false,
+                            canDownloadFile: false,
+                            canDeleteFile: false
+                        };
+                        item.permisos = permisos;
+                    });
+            
+                    oInformesAmbientalesData.value.forEach(item => {
+                        const permisos = {
+                            canEdit: false,
+                            canDelete: false,
+                            canApprove: false,
+                            canSend: false,
+                            canNextApprove: false,
+                            canReject: false,
+                            canView: false,
+                            canDownloadFile: false,
+                            canDeleteFile: false
+                        };
+                        item.permisos = permisos;
+                    });
+            
+                    oDocumentacionAdicionalData.value.forEach(item => {
+                        const permisos = {
+                            canEdit: false,
+                            canDelete: false,
+                            canApprove: false,
+                            canSend: false,
+                            canNextApprove: false,
+                            canReject: false,
+                            canView: false,
+                            canDownloadFile: false,
+                            canDeleteFile: false
+                        };
+                        item.permisos = permisos;
+                    });
                 }
             
                 // Agregar más lógica según las necesidades específicas de cada sección
