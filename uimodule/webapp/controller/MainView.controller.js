@@ -94,12 +94,23 @@ sap.ui.define([
                     ]);
 
                     if (oResponsableAmbientalData && oResponsableAmbientalData.value && oResponsableAmbientalData.value.length !== 0) {
-                        this._oMainModel.setProperty("/buttonCreate", false);
-                        this._oMainModel.setProperty("/buttonEdit", true);
+                        if (this._oMainModel) {
+                            this._oMainModel.setProperty("/buttonCreate", false);
+                            this._oMainModel.setProperty("/buttonEdit", true);
+                        } else {
+                            oModel.setProperty("/buttonCreate", false);
+                            oModel.setProperty("/buttonEdit", true);
+                        }
                     } else {
-                        this._oMainModel.setProperty("/buttonCreate", true);
-                        this._oMainModel.setProperty("/buttonEdit", false);
+                        if (this._oMainModel) {
+                            this._oMainModel.setProperty("/buttonCreate", true);
+                            this._oMainModel.setProperty("/buttonEdit", false);
+                        } else {
+                            oModel.setProperty("/buttonCreate", true);
+                            oModel.setProperty("/buttonEdit", false);
+                        }
                     }
+                    
             
                     // Validar que los datos de la obra están presentes
                     if (!oObraData) {
