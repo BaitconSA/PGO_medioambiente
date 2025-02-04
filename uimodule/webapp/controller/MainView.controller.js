@@ -953,6 +953,7 @@ sap.ui.define([
             // -----> ||  OPERACIONES IA  || <-----
             onSendIA: async function (oEvent) {
                 const oModel = this.getModel("mainModel");
+                const oObraData = oModel.getData();
                 const sObraID = oModel.getProperty("/ObraID");
                 let oButton = oEvent.getSource();
                 let oItem = oButton.getParent();
@@ -1142,6 +1143,7 @@ sap.ui.define([
              // -----> ||  OPERACIONES CDA  || <-----
             onSendCDA: async function (oEvent) {
                 const oModel = this.getModel("mainModel");
+                const oObraData = oModel.getData();
                 const sObraID = oModel.getProperty("/ObraID");
                 let oButton = oEvent.getSource();
                 let oItem = oButton.getParent();
@@ -1326,6 +1328,7 @@ sap.ui.define([
              // -----> ||  OPERACIONES DA  || <-----
             onSendDA: async function (oEvent) {
                 const oModel = this.getModel("mainModel");
+                const oObraData = oModel.getData();
                 const sObraID = oModel.getProperty("/ObraID");
                 let oButton = oEvent.getSource();
                 let oItem = oButton.getParent();
