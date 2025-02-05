@@ -2,20 +2,22 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core"
     xmlns:form="sap.ui.layout.form">
-    
+
     <VBox>
         <form:SimpleForm
             editable="true"
             layout="ResponsiveGridLayout"
             id="simpleForm">
             <form:content>
-                <Label text="{i18n>P3}"/>
-                <Text text="{mainModel>/HeaderInfo/p3}"/>
-                
-                <Label text="{i18n>workInformation}"/>
-                <Text text="{mainModel>/HeaderInfo/workName}"/>
+                <Label text="{i18n>nameP3}" />
+                <Text text="{mainModel>/HeaderInfo/p3Description}" />
+                <Label text="{i18n>P3}" />
+                <Text text="{mainModel>/HeaderInfo/p3}" />
 
-                <Label text="{i18n>environmentalResponsive}"/>
+                <Label text="{i18n>workInformation}" />
+                <Text text="{mainModel>/HeaderInfo/workName}" />
+
+                <Label text="{i18n>environmentalResponsive}" />
                 <HBox>
                     <Input
                         class="sapUiSmallMarginEnd"
@@ -25,14 +27,19 @@
                         valueStateText="{mainModel>/Validation/environmentalResponsiveStateText}"
                         required="true"
                         enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}"
-                        width="100%"/>
-                        <Button icon="sap-icon://save" press="onSaveEnvironmentalResponsive" enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}" />
-                        <Button icon="sap-icon://edit" press="onEditEnvironmentalResponsive"  enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}"/>
+                        width="100%"
+                        editable="false" />
+                    <Button icon="sap-icon://add" press="onOpenCreateEnvironmental"
+                        enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}"
+                        visible="{mainModel>/buttonCreate}" /> 
+                    <Button icon="sap-icon://edit" press="onEditEnvironmentalResponsive"
+                        enabled="{mainModel>/UserActionPermissions/canUploadEditEnvironmentResponsable}"
+                        visible="{mainModel>/buttonEdit}" />
                 </HBox>
 
             </form:content>
         </form:SimpleForm>
-      
+
     </VBox>
 
 </core:FragmentDefinition>

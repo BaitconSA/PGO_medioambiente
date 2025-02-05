@@ -1,16 +1,20 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
 
     <VBox class="sapUiSmallMarginTop">
-        <Button
-            icon="sap-icon://add"
-            text="{i18n>uploadManualData}"
-            press=".onOpenDialog"
-            class="sapUiSmallMarginBottom"
-            visible="{mainModel>/UserActionPermissions/canUploadPSDA}">
-            <customData>
-                <core:CustomData key="param" value="PSDA"/>
-            </customData>
-        </Button>
+        <Toolbar height="50px">
+            <Button
+                icon="sap-icon://add"
+                text="{i18n>uploadManualData}"
+                press=".onOpenDialog"
+                class="sapUiSmallMarginBottom"
+                visible="{mainModel>/UserActionPermissions/canUploadPSDA}">
+                <customData>
+                    <core:CustomData key="param" value="PSDA"/>
+                </customData>
+            </Button>
+            <ToolbarSpacer />
+            <SearchField id="searchFieldPSDA" width="20%" liveChange=".onSearchPSDA"/>
+        </Toolbar>
 
         <Table id="myTable" inset="false" items="{mainModel>/DatosFormularioPSDA/TablePSDA/Data}" >
             <columns>
@@ -48,13 +52,6 @@
                                 press="onViewDetails($event, 'documentPSDA_details')"
                                 class="sapUiSmallMarginEnd"
                                 visible="{mainModel>permisos/canView}" />
-                            <core:Icon
-                            src="sap-icon://download"
-                            color="#fd7e14"
-                            press="onDownloadDocument($event, 'documentPSDA_download')"
-                            class="sapUiSmallMarginEnd"
-                            visible="{mainModel>permisos/canDownload}" />
-
                             <core:Icon 
                                 color="#212121" 
                                 src="sap-icon://edit"  

@@ -6,7 +6,7 @@
                 <Toolbar>
                     <Title text="{i18n>additionalDocumentation}" />
                     <ToolbarSpacer />
-                    <SearchField id="searchFieldDA" width="20%" search=".onSearch"/>
+                    <SearchField id="searchFieldDA" width="20%" liveChange=".onSearchDA"/>
                     <Button icon="sap-icon://sort" press=".onSort" />
                     <Button
                         icon="sap-icon://add"

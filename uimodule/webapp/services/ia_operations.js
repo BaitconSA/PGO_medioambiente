@@ -235,10 +235,9 @@ sap.ui.define([
                     return;
                   }
                 message = "Documento de informe ambiental creado con éxito.";
-                // Invocar el MessagePopover usando el MessageHandler
                 Utils.showMessage( message , "Creación de Documento", "SUCCESS");
 
-                return oNewCdaDocument;
+                return oNewIaDocument;
             } catch (error) {
                 console.error("Error al crear el documento:", error);
                 throw error;  // Puedes manejar este error de otras maneras si lo prefieres
@@ -281,7 +280,7 @@ sap.ui.define([
                     return;
                   }
 				  message = "Documento Informe Ambiental actualizado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
+
 				  Utils.showMessage( message , "Actualización Exitosa", "SUCCESS");
 				  Utils.dialogBusy(false);
 			} catch ( error ) {
@@ -311,7 +310,7 @@ sap.ui.define([
                     return;
                   }
 				  message = "Documento Informe Ambiental enviado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
+
 				  Utils.showMessage( message , "Envío de Documentación", "SUCCESS");
 				  Utils.dialogBusy(false);
 
@@ -335,7 +334,7 @@ sap.ui.define([
                     return;
                   }
 				  message = "Documentación Informe Ambiental evaluado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
+
 				  Utils.showMessage( message , "Aprobación", "SUCCESS");
 				  Utils.dialogBusy(false);
 			} catch ( error ) {
@@ -356,7 +355,7 @@ sap.ui.define([
                     return;
                   }
 				  message = "Documento informe ambiental rechazado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
+
 				  Utils.showMessage( message , "Devolución", "SUCCESS");
 				  Utils.dialogBusy(false);
 			} catch ( error ) {
@@ -380,11 +379,11 @@ sap.ui.define([
 					};
 	
 					const oResponseWf = await this.postWorkflow(oWfPayload);
-					if (oResponseWf !== 201) {
+					if (oResponseWf.status !== 201) {
 						let message = "Error al enviar la notificación";
 						Utils.showMessage(message, "Error", "ERROR");
 					} else {
-						Utils.showMessage("Notificación de workflow enviada exitosamente", "Éxito", "SUCCESS");
+						Utils.showMessage("Notificación enviada exitosamente", "Éxito", "SUCCESS");
 					}
 				} catch (error) {
 					console.error("Error al enviar la notificación de workflow:", error);
@@ -403,11 +402,11 @@ sap.ui.define([
 					};
 	
 					const oResponseWf = await this.postWorkflow(oWfPayload);
-					if (oResponseWf !== 201) {
+					if (oResponseWf.status !== 201) {
 						let message = "Error al enviar la notificación";
 						Utils.showMessage(message, "Error", "ERROR");
 					} else {
-						Utils.showMessage("Notificación de workflow enviada exitosamente", "Éxito", "SUCCESS");
+						Utils.showMessage("Notificación enviada exitosamente", "Éxito", "SUCCESS");
 					}
 				} catch (error) {
 					console.error("Error al enviar la notificación de workflow:", error);

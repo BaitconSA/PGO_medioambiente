@@ -16,12 +16,14 @@ sap.ui.define([
     "sap/m/MessageBox",
     "sap/m/MessageToast",
     "uimodule/model/formatter",
-    "sap/ui/core/Fragment"
+    "sap/ui/core/Fragment",
+    "sap/ui/core/util/File",
+    "sap/ui/model/Filter",
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, CDA_operations, IA_operations, DA_operations, Approvers, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter, Fragment) {
+    function (Controller, Utils, ModelConfig, PermissionUser, Services, PSDA_operations, CDA_operations, IA_operations, DA_operations, Approvers, TablePsdaFunction, TableCDAFunction, TableIAFunction, TableDAFunction, MessageBox, MessageToast, Formatter, Fragment, File, Filter) {
         "use strict";
 
         return Controller.extend("uimodule.controller.MainView", {
@@ -40,7 +42,7 @@ sap.ui.define([
                 this._loadData( sObraID );   
             },
 
-            _loadData: async function (obraID) {            
+            _loadData: async function (obraID) {        
                     // Obtener datos de la obra
                     Utils.dialogBusy(true);
                 try {
@@ -90,6 +92,25 @@ sap.ui.define([
                     const [oObraData, oResponsableAmbientalData, oUsuariosMedioAmbienteData, oInformesData, oControlesData, oInformesAmbientalesData, oDocumentacionAdicionalData] = await Promise.all([
                         oObra, oResponsableAmbiental, oUsuarios, oInformes, oControlesDesvios, oInformesAmbientales, oDocumentacionAdicional
                     ]);
+
+                    if (oResponsableAmbientalData && oResponsableAmbientalData.value && oResponsableAmbientalData.value.length !== 0) {
+                        if (this._oMainModel) {
+                            this._oMainModel.setProperty("/buttonCreate", false);
+                            this._oMainModel.setProperty("/buttonEdit", true);
+                        } else {
+                            oModel.setProperty("/buttonCreate", false);
+                            oModel.setProperty("/buttonEdit", true);
+                        }
+                    } else {
+                        if (this._oMainModel) {
+                            this._oMainModel.setProperty("/buttonCreate", true);
+                            this._oMainModel.setProperty("/buttonEdit", false);
+                        } else {
+                            oModel.setProperty("/buttonCreate", true);
+                            oModel.setProperty("/buttonEdit", false);
+                        }
+                    }
+                    
             
                     // Validar que los datos de la obra están presentes
                     if (!oObraData) {
@@ -165,41 +186,114 @@ sap.ui.define([
             },
 
             onSaveEnvironmentalResponsive: function ( oEvent ) {
-                const oModel = this.getView().getModel("mainModel");
-                const sEnvironmentalResponsive = oModel.getProperty("/Payload/environmentalResponsive");
-// Validación de campos obligatorios PSDA
-                    let confirmMessage = this.getResourceBundle().getText("saveEnvironmentalResponseConfirm");
-                    MessageBox.confirm(confirmMessage, {
-                        actions: [MessageBox.Action.CANCEL, "Aceptar"],
-                        emphasizedAction: "Aceptar",
-                        onClose: async (sAction) => {
-                          if (sAction !== "Aceptar")
-                            return;
-                          try {
+                // Obtener el valor del Input dentro del Popover
+                const sEnvironmentalResponsive = sap.ui.getCore().byId("newNameEnvironmental").getValue();
+
+                 // Validación de campos obligatorios
+                if (!sEnvironmentalResponsive) {
+                    Utils.showMessage("El campo de responsable ambiental no puede estar vacío.", "Error", "WARNING");
+                    return;
+                }
+
+            
+                // Validación de campos obligatorios
+                let confirmMessage = this.getResourceBundle().getText("createEnvironmentalReponse");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") return;
+                        try {
                             const oPayload = {
                                 responsable_ambiental: sEnvironmentalResponsive
-                            }
+                            };
                             
                             const oNewEnvironmentalResponsive = await Services.onCreateEnvironmentalResponsive(oPayload, this.getView());
-
                             console.log(oNewEnvironmentalResponsive);
-                            this.onClosePopover(); // Cierro el popover y vuelvo a cargar información de la App
-                            this._loadData( sObraID );
-                          } catch (error) {
+                            
+                            this.onClosePopoverCreate(); // Cierra el popover
+                            this._onObjectMatched(); // Recarga los datos
+                        } catch (error) {
                             const errorMessage = this.getResourceBundle().getText("errorCreateADS");
                             MessageToast.show(errorMessage);
-                          } finally {
+                        } finally {
                             Utils.dialogBusy(false);
-                          }
                         }
-                      });
+                    }
+                });
+            },            
 
+            onChangeEnvironmentalResponsive: function (oEvent) {
+                const oModel = this.getModel("mainModel");
+                // Obtener el nuevo valor del Input dentro del Popover
+                const sUpdatedEnvironmentalResponsive = sap.ui.getCore().byId("popoverInput").getValue();
+
+                 // Validación de campos obligatorios
+                 if (!sUpdatedEnvironmentalResponsive) {
+                    Utils.showMessage("El campo de responsable ambiental no puede estar vacío.", "Error", "WARNING");
+                    return;
+                }
+                
+                // Validación de campos obligatorios
+                let confirmMessage = this.getResourceBundle().getText("editEnvironmentalReponse");
+                MessageBox.confirm(confirmMessage, {
+                    actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                    emphasizedAction: "Aceptar",
+                    onClose: async (sAction) => {
+                        if (sAction !== "Aceptar") return;
+                        
+                        try {
+                            Utils.dialogBusy(true);
+                            
+                            // Obtener el ID del responsable ambiental actual
+                            const oResponsableAmbientalData = oModel.getProperty("/ResponsableAmbiental");
+                            if (!oResponsableAmbientalData) {
+                                throw new Error("No hay un responsable ambiental registrado para editar.");
+                            }
+                            
+                            const sID = oResponsableAmbientalData.ID;
+                            
+                            // Crear payload para actualización
+                            const oPayload = {
+                                responsable_ambiental: sUpdatedEnvironmentalResponsive
+                            };
+                            
+                            // Llamar al servicio PATCH para actualizar el dato existente
+                            await Services.onUpdateEnvironmentalResponsive(sID, oPayload, this.getView());
+                            
+                            // Cierra el popover
+                            this.onClosePopoverChange();
+                            
+                            // Recarga los datos
+                            this._onObjectMatched();
+                            
+                        } catch (error) {
+                            const errorMessage = this.getResourceBundle().getText("errorEditADS");
+                            MessageToast.show(errorMessage);
+                        } finally {
+                            Utils.dialogBusy(false);
+                        }
+                    }
+                });
             },
 
-            onClosePopover: function () {
-                this.getView().byId("editPopover").close();
-
+            onClosePopoverCreate: function () {
+                var oPopover = this.getView().byId("createPopover");
+                if (oPopover) {
+                    oPopover.close();
+                } else {
+                    console.log("Popover no encontrado");
+                }
             },
+
+            onClosePopoverChange: function () {
+                var oPopover = this.getView().byId("editPopover");
+                if (oPopover) {
+                    oPopover.close();
+                } else {
+                    console.log("Popover no encontrado");
+                }
+            },            
 
             onOpenDialog: function (oEvent) {
                 const sParam = oEvent.getSource().data("param");
@@ -321,6 +415,7 @@ sap.ui.define([
                         this.getView().byId("fileUploaderIA").setValue("");
                         oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/File", {});
                         oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documento/FileName", null);
+                        oModel.setProperty("/DatosFormularioIA/payload/uploadIA/documentAttachmentData", []);
                         break;
                     
                     case "EditPSDA":
@@ -400,27 +495,39 @@ sap.ui.define([
                TablePsdaFunction.onInputLiveChange( oEvent, oModel, oEvent.getSource().getId() );
             },
 
-
-
+            onOpenCreateEnvironmental: function (oEvent) {
+            
+                if (!this._oCreatePopover) {
+                    Fragment.load({
+                        name: "uimodule.view.environmentalResponse.environmentalCreate",
+                        controller: this
+                    }).then(function (oPopover) {
+                        this._oCreatePopover = oPopover;
+                        this.getView().addDependent(this._oCreatePopover);
+                        this._oCreatePopover.openBy(oEvent.getSource());
+                    }.bind(this));
+                } else {
+                    this._oCreatePopover.openBy(oEvent.getSource());
+                }
+            },
+            
             onEditEnvironmentalResponsive: function (oEvent) {
                 var oInput = this.byId("inputField");
                 var sValue = oInput.getValue();
-    
-                if (!this._oPopover) {
+            
+                if (!this._oEditPopover) {
                     Fragment.load({
                         name: "uimodule.view.environmentalResponse.environmentalResponse",
                         controller: this
                     }).then(function (oPopover) {
-                        this._oPopover = oPopover;
-                        this.getView().addDependent(this._oPopover);
-                        this._oPopover.openBy(oEvent.getSource());
-                        this.byId("popoverInput").setValue(sValue);
+                        this._oEditPopover = oPopover;
+                        this.getView().addDependent(this._oEditPopover);
+                        this._oEditPopover.openBy(oEvent.getSource());
                     }.bind(this));
                 } else {
-                    this._oPopover.openBy(oEvent.getSource());
-                    this.byId("popoverInput").setValue(sValue);
+                    this._oEditPopover.openBy(oEvent.getSource());
                 }
-            },
+            },            
 
             onCancelPress: function (sParam) {
                 const oView = this.getView();
@@ -465,6 +572,7 @@ sap.ui.define([
                 const oModel = this.getView().getModel("mainModel");
                 const sObraID = oModel.getProperty("/ObraID");
                 const sP3Codigo = oModel.getProperty("/HeaderInfo/p3");
+                const sEstado = (sAction === "Save" || sAction === "SaveEdition" ) ? "BO" : "PI";
                 const sRegistroProveedor = oModel.getProperty("/HeaderInfo/supplierRegistration");
                 const fechaActual = new Date();
                 const mesActual = (fechaActual.getMonth() + 1).toString().padStart(2, '0');
@@ -490,12 +598,13 @@ sap.ui.define([
                             actions: [MessageBox.Action.CANCEL, "Aceptar"],
                             emphasizedAction: "Aceptar",
                             onClose: async (sAction) => {
-                              if (sAction !== "Aceptar")
+                              if (sAction !== "Aceptar"){
+                                Utils.dialogBusy(false);
                                 return;
-                             Utils.dialogBusy(true);
+                              }
                               try {
                                 const oPayload = {
-                                    estado_ID: sAction === "Save" ? "BO" : "PI",
+                                    estado_ID: sEstado,
                                     mes: parseInt(mesActual),
                                     mes_informar: sMesInformar,
                                     desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
@@ -517,7 +626,7 @@ sap.ui.define([
 
                                 this.onCancelPress("EditDialog"); // Cierro el dialogo y vuelvo a cargar información de la App
                               } catch (error) {
-                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                                const errorMessage = this.getResourceBundle().getText("errorCreatePSDA");
                                 MessageToast.show(errorMessage);
                               } finally {
                                 Utils.dialogBusy(false);
@@ -529,10 +638,11 @@ sap.ui.define([
                     } 
                  
                     // --- FIN Lógica para guardar ---
-                } else if (sAction === "SaveEdition") {
+                } else if (sAction === "SaveEdition" || sAction === "SaveSendEdition") {
                     // Lógica para Editar y Guardar
                     const IDdesempenioAmbiental = oModel.getProperty("/DatosFormularioPSDA/EditSection/selectedRow/ID");
                     const aOrderNotes = oModel.getProperty("/OrderNotesTableEditData/nota_pedido");
+                    const sEstado = (sAction === "SaveEdition") ? "BO" : "PI";
                     const aUploadNotasPedido = aOrderNotes.map(item => ({ nota_pedido_ID: item.ID }));
                     const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/EditSection/mesInformar");
                     const oDocument = oModel.getProperty("/DatosFormularioPSDA/EditSection/documentAttachmentData");
@@ -540,7 +650,7 @@ sap.ui.define([
                     const invalidField = this._validateFields("SaveEdition");
                     
                     if (invalidField) { // Validación de campos obligatorios PSDA
-                        let confirmMessage = this.getResourceBundle().getText("savePSDAConfirm");
+                        let confirmMessage = this.getResourceBundle().getText("saveUpdatePSDAConfirm");
                         MessageBox.confirm(confirmMessage, {
                             actions: [MessageBox.Action.CANCEL, "Aceptar"],
                             emphasizedAction: "Aceptar",
@@ -549,7 +659,7 @@ sap.ui.define([
                                 return;
                               try {
                                 const oPayload = {
-                                    estado_ID: "BO",
+                                    estado_ID: sEstado,
                                     mes: parseInt(mesActual),
                                     mes_informar: sMesInformar,
                                     desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
@@ -565,7 +675,7 @@ sap.ui.define([
                                 this._loadData( sObraID );
                               } catch (error) {
                                 Utils.dialogBusy(false);
-                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                                const errorMessage = this.getResourceBundle().getText("errorCreatePSDA");
                                 MessageToast.show(errorMessage);
                               } finally {
                                 Utils.dialogBusy(false);
@@ -708,7 +818,7 @@ sap.ui.define([
                 const responsables = this.getModel("mainModel").getProperty("/Responsables").inspectores;
 
                 // Extraemos las propiedades "inspector" en un nuevo array
-                const aInspectores = responsables.map(objeto => objeto.inspector);
+                const aInspectores = responsables.map(objeto => objeto.inspector).map( inspector => inspector.correo);;
 
 
                 let oButton = oEvent.getSource();
@@ -761,7 +871,7 @@ sap.ui.define([
                 let oContext = oItem.getBindingContext("mainModel");
 
                  // Lista de Usuarios Medio Ambiente Al aprobar
-                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes");
+                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes").map( responsable =>  responsable.usuario);
             
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -847,6 +957,7 @@ sap.ui.define([
             // -----> ||  OPERACIONES IA  || <-----
             onSendIA: async function (oEvent) {
                 const oModel = this.getModel("mainModel");
+                const oObraData = oModel.getData();
                 const sObraID = oModel.getProperty("/ObraID");
                 let oButton = oEvent.getSource();
                 let oItem = oButton.getParent();
@@ -856,7 +967,7 @@ sap.ui.define([
                 const responsables = this.getModel("mainModel").getProperty("/Responsables").inspectores;
 
                 // Extraemos las propiedades "inspector" en un nuevo array
-                const aInspectores = responsables.map(objeto => objeto.inspector);
+                const aInspectores = responsables.map(objeto => objeto.inspector).map( inspector => inspector.correo);
             
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -907,7 +1018,7 @@ sap.ui.define([
                 let oContext = oItem.getBindingContext("mainModel");
 
                  // Lista de Usuarios Medio Ambiente Al aprobar
-                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes");
+                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes").map( responsable =>  responsable.usuario);
             
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -1036,6 +1147,7 @@ sap.ui.define([
              // -----> ||  OPERACIONES CDA  || <-----
             onSendCDA: async function (oEvent) {
                 const oModel = this.getModel("mainModel");
+                const oObraData = oModel.getData();
                 const sObraID = oModel.getProperty("/ObraID");
                 let oButton = oEvent.getSource();
                 let oItem = oButton.getParent();
@@ -1045,7 +1157,7 @@ sap.ui.define([
                 const responsables = this.getModel("mainModel").getProperty("/Responsables").inspectores;
 
                 // Extraemos las propiedades "inspector" en un nuevo array
-                const aInspectores = responsables.map(objeto => objeto.inspector);
+                const aInspectores = responsables.map(objeto => objeto.inspector).map( inspector => inspector.correo);
             
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -1177,7 +1289,7 @@ sap.ui.define([
                 let oContext = oItem.getBindingContext("mainModel");
 
                  // Lista de Usuarios Medio Ambiente Al aprobar
-                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes");
+                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes").map( responsable =>  responsable.usuario);
             
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -1220,6 +1332,7 @@ sap.ui.define([
              // -----> ||  OPERACIONES DA  || <-----
             onSendDA: async function (oEvent) {
                 const oModel = this.getModel("mainModel");
+                const oObraData = oModel.getData();
                 const sObraID = oModel.getProperty("/ObraID");
                 let oButton = oEvent.getSource();
                 let oItem = oButton.getParent();
@@ -1229,7 +1342,7 @@ sap.ui.define([
                 const responsables = this.getModel("mainModel").getProperty("/Responsables").inspectores;
 
                 // Extraemos las propiedades "inspector" en un nuevo array
-                const aInspectores = responsables.map(objeto => objeto.inspector);
+                const aInspectores = responsables.map(objeto => objeto.inspector).map( inspector => inspector.correo);
 
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -1278,7 +1391,7 @@ sap.ui.define([
                 let oContext = oItem.getBindingContext("mainModel");
 
                  // Lista de Usuarios Medio Ambiente Al aprobar
-                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes");
+                 const aResponsablesMediAmbiente = this.getModel("mainModel").getProperty("/UsuariosMedioAmbientes").map( responsable =>  responsable.usuario);
             
                 // Obtener los datos de la fila seleccionada
                 let oSelectedRow = oContext.getObject();
@@ -1455,10 +1568,10 @@ sap.ui.define([
                         oModel.setProperty("/DatosFormularioPSDA/EditSection/validation/mesInformarTextValueState", "");
                     }
 
-                    if (!aOrderNotesTableData || aOrderNotesTableData.length === 0) {
+                  /*  if (!aOrderNotesTableData || aOrderNotesTableData.length === 0) {
                         MessageBox.error("Debe agregar al menos una nota de pedido antes de guardar.")
                         return;
-                    }
+                    } */
 
                     if (!aDocumentPSDA || Object.keys(aDocumentPSDA).length === 0) {
                         // El objeto está vacío
@@ -1635,10 +1748,10 @@ sap.ui.define([
                     }
 
 
-                    if (!aOrderNotesTableData || aOrderNotesTableData.length === 0) {
+                  /*  if (!aOrderNotesTableData || aOrderNotesTableData.length === 0) {
                         MessageBox.error("Debe agregar al menos una nota de pedido antes de guardar.")
                         return;
-                    }
+                    }*/
 
                     if (!aDocumentsPSDA || Object.keys(aDocumentsPSDA).length === 0) {
                         // El objeto está vacío
@@ -1692,11 +1805,13 @@ sap.ui.define([
                    if (invalidField) { // Validación de campos obligatorios PSDA
                        let confirmMessage = this.getResourceBundle().getText("saveDocumentCda");
                        MessageBox.confirm(confirmMessage, {
-                           actions: [MessageBox.Action.CANCEL, "Aceptar"],
-                           emphasizedAction: "Aceptar",
-                           onClose: async (sAction) => {
-                             if (sAction !== "Aceptar")
-                               return;
+                        actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                        emphasizedAction: "Aceptar",
+                        onClose: async (sAction) => {
+                          if (sAction !== "Aceptar"){
+                            Utils.dialogBusy(false);
+                            return;
+                          }
                              try {
                                const oPayload = {   
                                     desempenio_ID: IDdesempenioAmbiental,     
@@ -1722,7 +1837,7 @@ sap.ui.define([
                                this.onCancelPress("saveDialogCDA"); // Cierro el dialogo y vuelvo a cargar información de la App
                             
                              } catch (error) {
-                               const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                               const errorMessage = this.getResourceBundle().getText("errorCreateCDA");
                                MessageToast.show(errorMessage);
                              } finally {
                                Utils.dialogBusy(false);
@@ -1806,11 +1921,13 @@ sap.ui.define([
                    if (invalidField) { // Validación de campos obligatorios PSDA
                        let confirmMessage = this.getResourceBundle().getText("saveDocumentIA");
                        MessageBox.confirm(confirmMessage, {
-                           actions: [MessageBox.Action.CANCEL, "Aceptar"],
-                           emphasizedAction: "Aceptar",
-                           onClose: async (sAction) => {
-                             if (sAction !== "Aceptar")
-                               return;
+                        actions: [MessageBox.Action.CANCEL, "Aceptar"],
+                        emphasizedAction: "Aceptar",
+                        onClose: async (sAction) => {
+                          if (sAction !== "Aceptar"){
+                            Utils.dialogBusy(false);
+                            return;
+                          }
                              try {
                                const oPayload = {   
                                     desempenio_ID: IDdesempenioAmbiental,                            
@@ -1834,11 +1951,11 @@ sap.ui.define([
                                this.onCancelPress("saveDialogIA"); // Cierro el dialogo y vuelvo a cargar información de la App
                     
                              } catch (error) {
-                               const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                               const errorMessage = this.getResourceBundle().getText("errorCreateIA");
                                MessageToast.show(errorMessage);
                              } finally {
-                               Utils.dialogBusy(false);
-                               this._loadData( sObraID );
+                                Utils.dialogBusy(false);
+                                this._loadData( sObraID );
                              }
                            }
                          });
@@ -1867,13 +1984,13 @@ sap.ui.define([
                                      observaciones: null                              
                                 }
                                 
-                                const oNewCdaDocument = await IA_operations.onUpdateIaDocument(sInformeAmbientalID, oPayload, this.getView());
+                                const oNewIaDocument = await IA_operations.onUpdateIaDocument(sInformeAmbientalID, oPayload, this.getView());
                                 
                                 // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
                                 this.onCancelPress("editDialogIA"); // Cierro el dialogo y vuelvo a cargar información de la App
                                 this._loadData( sObraID );
                               } catch (error) {
-                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                                const errorMessage = this.getResourceBundle().getText("errorCreateIA");
                                 MessageToast.show(errorMessage);
                               } finally {
                                 Utils.dialogBusy(false);
@@ -1944,7 +2061,7 @@ sap.ui.define([
                                this.onCancelPress("dialogUploadDA"); // Cierro el dialogo y vuelvo a cargar información de la App
                               
                              } catch (error) {
-                               const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                               const errorMessage = this.getResourceBundle().getText("errorCreateDA");
                                MessageToast.show(errorMessage);
                              } finally {
                                Utils.dialogBusy(false);
@@ -1990,7 +2107,7 @@ sap.ui.define([
                                 this.onCancelPress("editDialogDA"); // Cierro el dialogo y vuelvo a cargar información de la App
                                 this._loadData( sObraID );
                               } catch (error) {
-                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                                const errorMessage = this.getResourceBundle().getText("errorCreateDA");
                                 MessageToast.show(errorMessage);
                               } finally {
                                 Utils.dialogBusy(false);
@@ -2002,7 +2119,146 @@ sap.ui.define([
                         Utils.dialogBusy(false);
                      }
                }
-            }
+            },
+
+            createPdf: async function () {
+                const oModel = this.getView().getModel("mainModel");
+                let oDatosHeader = oModel.getProperty("/HeaderInfo");
+                let oResponsable = oModel.getProperty("/ResponsableAmbiental/responsable_ambiental")
+                let oTablePSDA = oModel.getProperty("/DatosFormularioPSDA/TablePSDA/Data");
+                let oTableCDA = oModel.getProperty("/DatosFormularioCDA/TableCDA/Data");
+                let oTableIA = oModel.getProperty("/DatosFormularioIA/TableIA/Data");
+                let oTableDA = oModel.getProperty("/DatosFormularioDA/TableDA/Data");
+
+                
+                const oPayload = {
+                  "doc_id": "medioambiente",
+                  //"fecha": this.formatter.formatDateTable(new Date()),
+                  "formato": "base64",
+                  "header": oDatosHeader,
+                  "responsable": oResponsable,
+                  "psda_payload": oTablePSDA,
+                  "cda_payload": oTableCDA,
+                  "ia_payload": oTableIA,
+                  "da_payload": oTableDA,
+                };
+
+                const oBinary = await Services.createPdf(oPayload);
+                const timeStamp = (new Date()).toLocaleString('es-AR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/[^0-9]/g, '');
+                let sFileName = "Medioambiente" + timeStamp;
+                const sMimeType = "pdf";
+                let aBuffer = this.base64ToArrayBuffer(oBinary.data);
+                File.save(aBuffer, sFileName, sMimeType);
+              },
+          
+              base64ToArrayBuffer: function (sBinLine) {
+                let binary_string = window.atob(sBinLine);
+                let len = binary_string.length;
+                let bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                  bytes[i] = binary_string.charCodeAt(i);
+                }
+                return bytes.buffer;
+              },
+
+            //Buscadores
+            onSearchPSDA: function (oEvent) {
+                const sSearch = oEvent.getParameter("newValue");
+                const oTable = this.byId("myTable");
+                const oBinding = oTable.getBinding("items");
+            
+                const aFilter = [
+                    new Filter({
+                        filters: [
+                           this.createStringFilter('numero_planilla', sSearch),
+                           this.createStringFilter('fechaUltimoMesInformado', sSearch),
+                           this.createStringFilter('control/descripcion', sSearch),
+                           this.createStringFilter('estado/descripcion', sSearch),
+                           this.createStringFilter('observation', sSearch),
+                        ],
+                        and: false
+                    })
+                ];
+            
+                oBinding.filter(aFilter);
+            },
+
+            onSearchCDA: function (oEvent) {
+                const sSearch = oEvent.getParameter("newValue");
+                const oTable = this.byId("environmentalDeviationControlTable");
+                const oBinding = oTable.getBinding("items");
+            
+                const aFilter = [
+                    new Filter({
+                        filters: [
+                           this.createStringFilter('fechaEntrega', sSearch),
+                           this.createStringFilter('fecha_deteccion', sSearch),
+                           this.createStringFilter('estado/descripcion', sSearch),
+                           this.createStringFilter('observaciones', sSearch),
+                        ],
+                        and: false
+                    })
+                ];
+            
+                oBinding.filter(aFilter);
+            },
+
+            onSarchIA: function (oEvent) {
+                const sSearch = oEvent.getParameter("newValue");
+                const oTable = this.byId("environmentalreportTable");
+                const oBinding = oTable.getBinding("items");
+            
+                const aFilter = [
+                    new Filter({
+                        filters: [
+                           this.createStringFilter('fechaEntrega', sSearch),
+                           this.createStringFilter('estado/descripcion', sSearch),
+                           this.createStringFilter('observaciones', sSearch),
+                        ],
+                        and: false
+                    })
+                ];
+            
+                oBinding.filter(aFilter);
+            },
+
+            onSearchDA: function (oEvent) {
+                const sSearch = oEvent.getParameter("newValue");
+                const oTable = this.byId("additionalDocumentationTable");
+                const oBinding = oTable.getBinding("items");
+            
+                const aFilter = [
+                    new Filter({
+                        filters: [
+                           this.createStringFilter('descripcion', sSearch),
+                           this.createStringFilter('comentarios', sSearch),
+                           this.createStringFilter('fecha_Entrega', sSearch),
+                           this.createStringFilter('estado/descripcion', sSearch),
+                           this.createStringFilter('observaciones', sSearch),
+                        ],
+                        and: false
+                    })
+                ];
+            
+                oBinding.filter(aFilter);
+            },
+
+            createStringFilter: function (path, value) {
+                return new Filter({
+                    path: path,
+                    test: function(itemValue) {
+                        if (itemValue === null || itemValue === undefined) {
+                            itemValue = "";
+                        }
+                        // Formatea fechaUltimoMesInformado si es el path correspondiente
+                        if (path === 'fecha_deteccion' && itemValue) {
+                            const [anio, mes, dia] = itemValue.split("-");
+                            itemValue = `${dia}/${mes}/${anio}`;
+                        }
+                        return itemValue.toString().toLowerCase().includes(value.toLowerCase());
+                    }
+                });
+            },   
 
         });
     });

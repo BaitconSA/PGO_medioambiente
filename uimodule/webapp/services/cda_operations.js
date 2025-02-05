@@ -132,6 +132,8 @@ sap.ui.define([
 			  respFolderRegistros.json(),
 			]);
 		  },
+
+		  
 	  
 		  getFormDMS: function (folder) {
 			const oForm = new FormData();
@@ -378,11 +380,11 @@ sap.ui.define([
 					};
 	
 					const oResponseWf = await this.postWorkflow(oWfPayload);
-					if (oResponseWf !== 201) {
+					if (oResponseWf.status !== 201) {
 						let message = "Error al enviar la notificación";
 						Utils.showMessage(message, "Error", "ERROR");
 					} else {
-						Utils.showMessage("Notificación de workflow enviada exitosamente", "Éxito", "SUCCESS");
+						Utils.showMessage("Notificación enviada exitosamente", "Éxito", "SUCCESS");
 					}
 				} catch (error) {
 					console.error("Error al enviar la notificación de workflow:", error);
@@ -401,11 +403,11 @@ sap.ui.define([
 					};
 	
 					const oResponseWf = await this.postWorkflow(oWfPayload);
-					if (oResponseWf !== 201) {
+					if (oResponseWf.status !== 201) {
 						let message = "Error al enviar la notificación";
 						Utils.showMessage(message, "Error", "ERROR");
 					} else {
-						Utils.showMessage("Notificación de workflow enviada exitosamente", "Éxito", "SUCCESS");
+						Utils.showMessage("Notificación enviada exitosamente", "Éxito", "SUCCESS");
 					}
 				} catch (error) {
 					console.error("Error al enviar la notificación de workflow:", error);
