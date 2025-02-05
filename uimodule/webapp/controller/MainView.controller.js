@@ -625,7 +625,7 @@ sap.ui.define([
 
                                 this.onCancelPress("EditDialog"); // Cierro el dialogo y vuelvo a cargar información de la App
                               } catch (error) {
-                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                                const errorMessage = this.getResourceBundle().getText("errorCreatePSDA");
                                 MessageToast.show(errorMessage);
                               } finally {
                                 Utils.dialogBusy(false);
@@ -673,7 +673,7 @@ sap.ui.define([
                                 this._loadData( sObraID );
                               } catch (error) {
                                 Utils.dialogBusy(false);
-                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                                const errorMessage = this.getResourceBundle().getText("errorCreatePSDA");
                                 MessageToast.show(errorMessage);
                               } finally {
                                 Utils.dialogBusy(false);
@@ -1835,7 +1835,7 @@ sap.ui.define([
                                this.onCancelPress("saveDialogCDA"); // Cierro el dialogo y vuelvo a cargar información de la App
                             
                              } catch (error) {
-                               const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                               const errorMessage = this.getResourceBundle().getText("errorCreateCDA");
                                MessageToast.show(errorMessage);
                              } finally {
                                Utils.dialogBusy(false);
@@ -1949,7 +1949,7 @@ sap.ui.define([
                                this.onCancelPress("saveDialogIA"); // Cierro el dialogo y vuelvo a cargar información de la App
                     
                              } catch (error) {
-                               const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                               const errorMessage = this.getResourceBundle().getText("errorCreateIA");
                                MessageToast.show(errorMessage);
                              } finally {
                                 Utils.dialogBusy(false);
@@ -1988,7 +1988,7 @@ sap.ui.define([
                                 this.onCancelPress("editDialogIA"); // Cierro el dialogo y vuelvo a cargar información de la App
                                 this._loadData( sObraID );
                               } catch (error) {
-                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                                const errorMessage = this.getResourceBundle().getText("errorCreateIA");
                                 MessageToast.show(errorMessage);
                               } finally {
                                 Utils.dialogBusy(false);
@@ -2059,7 +2059,7 @@ sap.ui.define([
                                this.onCancelPress("dialogUploadDA"); // Cierro el dialogo y vuelvo a cargar información de la App
                               
                              } catch (error) {
-                               const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                               const errorMessage = this.getResourceBundle().getText("errorCreateDA");
                                MessageToast.show(errorMessage);
                              } finally {
                                Utils.dialogBusy(false);
@@ -2105,7 +2105,7 @@ sap.ui.define([
                                 this.onCancelPress("editDialogDA"); // Cierro el dialogo y vuelvo a cargar información de la App
                                 this._loadData( sObraID );
                               } catch (error) {
-                                const errorMessage = this.getResourceBundle().getText("errorCreateADS");
+                                const errorMessage = this.getResourceBundle().getText("errorCreateDA");
                                 MessageToast.show(errorMessage);
                               } finally {
                                 Utils.dialogBusy(false);
