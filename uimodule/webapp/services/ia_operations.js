@@ -235,7 +235,6 @@ sap.ui.define([
                     return;
                   }
                 message = "Documento de informe ambiental creado con éxito.";
-                // Invocar el MessagePopover usando el MessageHandler
                 Utils.showMessage( message , "Creación de Documento", "SUCCESS");
 
                 return oNewIaDocument;
@@ -281,7 +280,7 @@ sap.ui.define([
                     return;
                   }
 				  message = "Documento Informe Ambiental actualizado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
+
 				  Utils.showMessage( message , "Actualización Exitosa", "SUCCESS");
 				  Utils.dialogBusy(false);
 			} catch ( error ) {
@@ -311,7 +310,7 @@ sap.ui.define([
                     return;
                   }
 				  message = "Documento Informe Ambiental enviado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
+
 				  Utils.showMessage( message , "Envío de Documentación", "SUCCESS");
 				  Utils.dialogBusy(false);
 
@@ -335,7 +334,7 @@ sap.ui.define([
                     return;
                   }
 				  message = "Documentación Informe Ambiental evaluado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
+
 				  Utils.showMessage( message , "Aprobación", "SUCCESS");
 				  Utils.dialogBusy(false);
 			} catch ( error ) {
@@ -356,7 +355,7 @@ sap.ui.define([
                     return;
                   }
 				  message = "Documento informe ambiental rechazado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
+
 				  Utils.showMessage( message , "Devolución", "SUCCESS");
 				  Utils.dialogBusy(false);
 			} catch ( error ) {
