@@ -205,10 +205,12 @@ sap.ui.define([
 			return await oData.json();
 		  },
 
-		  setUrl: function (urlCatalog, _urlWF, urlDMS) {
+		  setUrl: function (urlCatalog, _urlWF, urlDMS,  urlUserApi, urlPdfApi) {
 			this._urlCatalog = urlCatalog;	
 			this._urlWF = _urlWF;
 			this._urlDMS = urlDMS;	
+			this._urlUserApi = urlUserApi;
+			this._urlPdfApi = urlPdfApi;
         },
 
         getDocumentos: async function () {
