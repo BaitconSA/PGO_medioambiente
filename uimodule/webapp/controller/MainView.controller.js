@@ -572,6 +572,7 @@ sap.ui.define([
                 const oModel = this.getView().getModel("mainModel");
                 const sObraID = oModel.getProperty("/ObraID");
                 const sP3Codigo = oModel.getProperty("/HeaderInfo/p3");
+                const sEstado = (sAction === "Save" || sAction === "SaveEdition" ) ? "BO" : "PI";
                 const sRegistroProveedor = oModel.getProperty("/HeaderInfo/supplierRegistration");
                 const fechaActual = new Date();
                 const mesActual = (fechaActual.getMonth() + 1).toString().padStart(2, '0');
@@ -603,7 +604,7 @@ sap.ui.define([
                               }
                               try {
                                 const oPayload = {
-                                    estado_ID: sAction === "Save" ? "BO" : "PI",
+                                    estado_ID: sEstado,
                                     mes: parseInt(mesActual),
                                     mes_informar: sMesInformar,
                                     desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
@@ -637,10 +638,11 @@ sap.ui.define([
                     } 
                  
                     // --- FIN Lógica para guardar ---
-                } else if (sAction === "SaveEdition") {
+                } else if (sAction === "SaveEdition" || sAction === "SaveSendEdition") {
                     // Lógica para Editar y Guardar
                     const IDdesempenioAmbiental = oModel.getProperty("/DatosFormularioPSDA/EditSection/selectedRow/ID");
                     const aOrderNotes = oModel.getProperty("/OrderNotesTableEditData/nota_pedido");
+                    const sEstado = (sAction === "SaveEdition") ? "BO" : "PI";
                     const aUploadNotasPedido = aOrderNotes.map(item => ({ nota_pedido_ID: item.ID }));
                     const sMesInformar = oModel.getProperty("/DatosFormularioPSDA/EditSection/mesInformar");
                     const oDocument = oModel.getProperty("/DatosFormularioPSDA/EditSection/documentAttachmentData");
@@ -648,7 +650,7 @@ sap.ui.define([
                     const invalidField = this._validateFields("SaveEdition");
                     
                     if (invalidField) { // Validación de campos obligatorios PSDA
-                        let confirmMessage = this.getResourceBundle().getText("savePSDAConfirm");
+                        let confirmMessage = this.getResourceBundle().getText("saveUpdatePSDAConfirm");
                         MessageBox.confirm(confirmMessage, {
                             actions: [MessageBox.Action.CANCEL, "Aceptar"],
                             emphasizedAction: "Aceptar",
@@ -657,7 +659,7 @@ sap.ui.define([
                                 return;
                               try {
                                 const oPayload = {
-                                    estado_ID: "BO",
+                                    estado_ID: sEstado,
                                     mes: parseInt(mesActual),
                                     mes_informar: sMesInformar,
                                     desempenio_nota_pedido: aUploadNotasPedido, // Coleccion de notas de pedido
@@ -1566,10 +1568,10 @@ sap.ui.define([
                         oModel.setProperty("/DatosFormularioPSDA/EditSection/validation/mesInformarTextValueState", "");
                     }
 
-                    if (!aOrderNotesTableData || aOrderNotesTableData.length === 0) {
+                  /*  if (!aOrderNotesTableData || aOrderNotesTableData.length === 0) {
                         MessageBox.error("Debe agregar al menos una nota de pedido antes de guardar.")
                         return;
-                    }
+                    } */
 
                     if (!aDocumentPSDA || Object.keys(aDocumentPSDA).length === 0) {
                         // El objeto está vacío
@@ -1746,10 +1748,10 @@ sap.ui.define([
                     }
 
 
-                    if (!aOrderNotesTableData || aOrderNotesTableData.length === 0) {
+                  /*  if (!aOrderNotesTableData || aOrderNotesTableData.length === 0) {
                         MessageBox.error("Debe agregar al menos una nota de pedido antes de guardar.")
                         return;
-                    }
+                    }*/
 
                     if (!aDocumentsPSDA || Object.keys(aDocumentsPSDA).length === 0) {
                         // El objeto está vacío
