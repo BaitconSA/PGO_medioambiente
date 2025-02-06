@@ -403,7 +403,7 @@ sap.ui.define(
 			},
 
 			_getControlForThis: function (oView, fechaCreacion, estado, mesInformar) {
-				const aEstadoSetOK = ["PI", "PA", "AP"];
+				const aEstadoSetOK = ["PI", "PJA", "AP"];
 				const aEstadoSet = ["PE", "BO", "RE"];
 				const today = new Date();
 				today.setHours(0, 0, 0, 0);
