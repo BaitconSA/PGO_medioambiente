@@ -338,6 +338,7 @@ sap.ui.define(
 
 					if(oResponsableAmbientalData.value && oResponsableAmbientalData.value.length > 0 ) {
 						oModel.setProperty("/ResponsableAmbiental", oResponsableAmbientalData.value[0] );
+						oModel.setProperty("/DesempenioAmbientalID", oResponsableAmbientalData.value[0] );
 					}
 
 					if(oUserRolesData["value"].includes("PGO_Contratista")) {
