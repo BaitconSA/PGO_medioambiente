@@ -608,7 +608,7 @@ sap.ui.define(
                         } 
                         item.permisos = permisos;
                     });
-                } else if (oUserRolesData.value.includes("PGO_AreaMedioAmbiente")) {
+                } else if (oUserRolesData.value.includes("PGO_AreaMedioambiente")) {
                     // Verificar permisos para PGO_Inspector
                     oInformesData.value.forEach(item => {
                         const permisos = {
@@ -629,6 +629,7 @@ sap.ui.define(
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true; 
+                            canApprove: false,
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
                         }
@@ -658,7 +659,7 @@ sap.ui.define(
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
                         }
-                        
+
                         item.permisos = permisos;
                     });
             
