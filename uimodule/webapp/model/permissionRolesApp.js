@@ -627,11 +627,10 @@ sap.ui.define(
                             permisos.canEdit = false;
                             permisos.canDelete = false;
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
-                            permisos.canEdit = false;
-                            permisos.canDelete = false;
-                            permisos.canNextApprove = true,
-                            permisos.canView = true;
+                        } else if (item.estado_ID === "PJA") {
+                            permisos.canView = true; 
+                            permisos.canNextApprove = true;
+                            permisos.canReject = true;
                         }
 
                         item.permisos = permisos;
@@ -649,6 +648,17 @@ sap.ui.define(
                             canDownloadFile: false,
                             canDeleteFile: false
                         };
+
+                        if (item.estado_ID === "PI") {
+                            permisos.canEdit = false;
+                            permisos.canDelete = false;
+                            permisos.canView = true;
+                        } else if (item.estado_ID === "PJA") {
+                            permisos.canView = true; 
+                            permisos.canNextApprove = true;
+                            permisos.canReject = true;
+                        }
+                        
                         item.permisos = permisos;
                     });
             
@@ -664,6 +674,16 @@ sap.ui.define(
                             canDownloadFile: false,
                             canDeleteFile: false
                         };
+
+                        if (item.estado_ID === "PI") {
+                            permisos.canEdit = false;
+                            permisos.canDelete = false;
+                            permisos.canView = true;
+                        } else if (item.estado_ID === "PJA") {
+                            permisos.canView = true; 
+                            permisos.canNextApprove = true;
+                            permisos.canReject = true;
+                        }
                         item.permisos = permisos;
                     });
             
@@ -679,6 +699,16 @@ sap.ui.define(
                             canDownloadFile: false,
                             canDeleteFile: false
                         };
+
+                        if (item.estado_ID === "PI") {
+                            permisos.canEdit = false;
+                            permisos.canDelete = false;
+                            permisos.canView = true;
+                        } else if (item.estado_ID === "PJA") {
+                            permisos.canView = true; 
+                            permisos.canNextApprove = true;
+                            permisos.canReject = true;
+                        }
                         item.permisos = permisos;
                     });
                 } else {
