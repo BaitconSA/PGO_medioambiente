@@ -485,8 +485,8 @@ sap.ui.define(
                     (P3) => P3.ID === sKey
                 );
 
-				const emptyOrderNote = { nro_nota_pedido: "", descripcion: "Seleccione del listado una Nota de Pedido -" };
-				const aOrderNotes = [emptyOrderNote, ...aP3Selected[0].nota_pedido.filter(np => np.estado_ID !== "BO")];
+	
+				const aOrderNotes = [...aP3Selected[0].nota_pedido.filter(np => np.estado_ID !== "BO")];
 
                 const sPathHeader = "/HeaderInfo";
     
