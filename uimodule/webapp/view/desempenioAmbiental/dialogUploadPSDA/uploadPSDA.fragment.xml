@@ -1,6 +1,6 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:layout="sap.ui.layout" xmlns:u="sap.ui.unified">
 
-    <Dialog id="dialogUploadPSDA" title="{i18n>dialogTitle}" class="sapUiResponsiveContentPadding">
+    <Dialog id="dialogUploadPSDA" title="{i18n>dialogTitlePSDA}" class="sapUiResponsiveContentPadding">
         <content>
             <!-- Mes a Informar -->
             <Label text="{i18n>monthToInform}" labelFor="monthComboBox" class="sapUiSmallMarginEnd"/>
