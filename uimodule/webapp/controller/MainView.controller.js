@@ -37,7 +37,7 @@ sap.ui.define([
                 this._oMainModel = ModelConfig.createMainModel();
                 this.getView().setModel( this._oMainModel, "mainModel" );
 
-                const sObraID = this.getOwnerComponent().getComponentData()?.startupParameters.ID || ["79bc29e7-4ddd-4cb6-a73a-fb0137e0338d"];
+                const sObraID = this.getOwnerComponent().getComponentData()?.startupParameters.ID || ["ce839e1c-7d9d-4807-a7eb-512086929b0a"];
                 
                 this._loadData( sObraID );   
             },
@@ -176,7 +176,8 @@ sap.ui.define([
 
             _setIconTabsP3: function (oEvent , sP3id ) {
               const oView = this.getView();
-              this._oMainModel = ModelConfig.buildHeaderInfo(oView, oEvent, this._oMainModel, sP3id);
+              const oModel = this.getModel("mainModel");
+              this._oMainModel = ModelConfig.buildHeaderInfo(oView, oEvent, oModel, sP3id);
               Utils.dialogBusy(false);
             },
 

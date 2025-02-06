@@ -482,7 +482,7 @@ sap.ui.define(
                 const oObraData = oModel.getProperty("/ObraData");
 
                 const aP3Selected = aP3List.filter(
-                    (P3) => P3.ID === sKeyP3
+                    (P3) => P3.ID === sKey
                 );
 
 				const emptyOrderNote = { nro_nota_pedido: "", descripcion: "Seleccione del listado una Nota de Pedido -" };

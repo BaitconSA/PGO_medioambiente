@@ -25,7 +25,7 @@
                     backgroundDesign="Transparent"
                     class="sapUiResponsiveContentPadding"
                     id="IconTabP3_ID"
-                    select="setIconTabsP3">
+                    select="_setIconTabsP3">
                         <content>
                             <!-- Formulario -->
                             <core:Fragment fragmentName="uimodule.view.mainForm.MainForm" type="XML"/>   
