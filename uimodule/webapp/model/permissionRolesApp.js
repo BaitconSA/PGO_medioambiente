@@ -660,6 +660,12 @@ sap.ui.define(
                             permisos.canReject = true;
                         } else if (item.estado_ID === "AP") {
                             permisos.canView = true; 
+                            permisos.canSend = false;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
+                            permisos.canDeleteFile = false;
+                            permisos.canEdit = false;
                         }
 
                         item.permisos = permisos;
@@ -690,6 +696,12 @@ sap.ui.define(
                             permisos.canReject = true;
                         } else if (item.estado_ID === "AP") {
                             permisos.canView = true; 
+                            permisos.canSend = false;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
+                            permisos.canDeleteFile = false;
+                            permisos.canEdit = false;
                         }
 
                         item.permisos = permisos;
@@ -720,6 +732,12 @@ sap.ui.define(
                             permisos.canReject = true;
                         } else if (item.estado_ID === "AP") {
                             permisos.canView = true; 
+                            permisos.canSend = false;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
+                            permisos.canDeleteFile = false;
+                            permisos.canEdit = false;
                         }
                         item.permisos = permisos;
                     });
@@ -749,6 +767,12 @@ sap.ui.define(
                             permisos.canReject = true;
                         } else if (item.estado_ID === "AP") {
                             permisos.canView = true; 
+                            permisos.canSend = false;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
+                            permisos.canDeleteFile = false;
+                            permisos.canEdit = false;
                         }
                         item.permisos = permisos;
                     });
