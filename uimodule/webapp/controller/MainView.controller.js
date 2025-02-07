@@ -52,8 +52,8 @@ sap.ui.define([
             
                     if (isLocalhost) {
                         // Lógica para LOCAL TESTING
-                      // oUserRolesData = { value: ["PGO_Inspector"] };
-                        oUserRolesData = { value: ["PGO_Contratista"] };
+                       oUserRolesData = { value: ["PGO_JefeArea"] };
+                       // oUserRolesData = { value: ["PGO_Contratista"] };
                         oUserData = { "Nombre": "gustavo.quintana@datco.net" };
                     } else {
                         try {

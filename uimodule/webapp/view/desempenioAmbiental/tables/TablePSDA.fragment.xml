@@ -75,6 +75,7 @@
                                 type="Accept" 
                                 press="onApprovePSDA" 
                                 class="sapUiSmallMarginEnd"
+                                tooltip="Aceptar"
                                 visible="{mainModel>permisos/canApprove}" />
                             <Button
                                 icon="sap-icon://decline" 

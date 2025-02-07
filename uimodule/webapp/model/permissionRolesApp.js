@@ -348,12 +348,14 @@ sap.ui.define(
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true; 
+                            permisos.canApprove = true;
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
-                            permisos.canNextApprove = true;
-                            permisos.canReject = true;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
                         }
 
                         item.permisos = permisos;
@@ -378,10 +380,11 @@ sap.ui.define(
                             permisos.canView = true; 
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
-                            permisos.canNextApprove = true;
-                            permisos.canReject = true;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
                         }
                         item.permisos = permisos;
                     });
@@ -405,10 +408,11 @@ sap.ui.define(
                             permisos.canView = true; 
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
-                            permisos.canNextApprove = true;
-                            permisos.canReject = true;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
                         }
                         item.permisos = permisos;
                     });
@@ -432,10 +436,11 @@ sap.ui.define(
                             permisos.canView = true; 
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
-                            permisos.canNextApprove = true;
-                            permisos.canReject = true;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
                         }
                         item.permisos = permisos;
                     });
@@ -459,7 +464,7 @@ sap.ui.define(
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         }
 
@@ -483,7 +488,7 @@ sap.ui.define(
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         }
                         item.permisos = permisos;
@@ -506,7 +511,7 @@ sap.ui.define(
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         }
                         item.permisos = permisos;
@@ -529,7 +534,7 @@ sap.ui.define(
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         }
                         item.permisos = permisos;
@@ -552,7 +557,7 @@ sap.ui.define(
 
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
@@ -577,7 +582,7 @@ sap.ui.define(
 
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
@@ -601,7 +606,7 @@ sap.ui.define(
 
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
@@ -625,7 +630,7 @@ sap.ui.define(
 
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
