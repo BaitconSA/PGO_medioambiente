@@ -338,6 +338,7 @@ sap.ui.define(
 
 					if(oResponsableAmbientalData.value && oResponsableAmbientalData.value.length > 0 ) {
 						oModel.setProperty("/ResponsableAmbiental", oResponsableAmbientalData.value[0] );
+						oModel.setProperty("/DesempenioAmbientalID", oResponsableAmbientalData.value[0] );
 					}
 
 					if(oUserRolesData["value"].includes("PGO_Contratista")) {
@@ -403,7 +404,7 @@ sap.ui.define(
 			},
 
 			_getControlForThis: function (oView, fechaCreacion, estado, mesInformar) {
-				const aEstadoSetOK = ["PI", "PA", "AP"];
+				const aEstadoSetOK = ["PI", "PJA", "AP"];
 				const aEstadoSet = ["PE", "BO", "RE"];
 				const today = new Date();
 				today.setHours(0, 0, 0, 0);
@@ -481,11 +482,11 @@ sap.ui.define(
                 const oObraData = oModel.getProperty("/ObraData");
 
                 const aP3Selected = aP3List.filter(
-                    (P3) => P3.ID === sKeyP3
+                    (P3) => P3.ID === sKey
                 );
 
-				const emptyOrderNote = { nro_nota_pedido: "", descripcion: "Seleccione del listado una Nota de Pedido -" };
-				const aOrderNotes = [emptyOrderNote, ...aP3Selected[0].nota_pedido.filter(np => np.estado_ID !== "BO")];
+	
+				const aOrderNotes = [...aP3Selected[0].nota_pedido.filter(np => np.estado_ID !== "BO")];
 
                 const sPathHeader = "/HeaderInfo";
     

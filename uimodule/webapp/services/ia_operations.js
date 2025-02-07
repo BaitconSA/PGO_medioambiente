@@ -235,10 +235,9 @@ sap.ui.define([
                     return;
                   }
                 message = "Documento de informe ambiental creado con éxito.";
-                // Invocar el MessagePopover usando el MessageHandler
                 Utils.showMessage( message , "Creación de Documento", "SUCCESS");
 
-                return oNewCdaDocument;
+                return oNewIaDocument;
             } catch (error) {
                 console.error("Error al crear el documento:", error);
                 throw error;  // Puedes manejar este error de otras maneras si lo prefieres
@@ -281,7 +280,7 @@ sap.ui.define([
                     return;
                   }
 				  message = "Documento Informe Ambiental actualizado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
+
 				  Utils.showMessage( message , "Actualización Exitosa", "SUCCESS");
 				  Utils.dialogBusy(false);
 			} catch ( error ) {
@@ -311,7 +310,7 @@ sap.ui.define([
                     return;
                   }
 				  message = "Documento Informe Ambiental enviado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
+
 				  Utils.showMessage( message , "Envío de Documentación", "SUCCESS");
 				  Utils.dialogBusy(false);
 
@@ -335,7 +334,7 @@ sap.ui.define([
                     return;
                   }
 				  message = "Documentación Informe Ambiental evaluado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
+
 				  Utils.showMessage( message , "Aprobación", "SUCCESS");
 				  Utils.dialogBusy(false);
 			} catch ( error ) {
@@ -356,7 +355,7 @@ sap.ui.define([
                     return;
                   }
 				  message = "Documento informe ambiental rechazado con éxito.";
-				  // Invocar el MessagePopover usando el MessageHandler
+
 				  Utils.showMessage( message , "Devolución", "SUCCESS");
 				  Utils.dialogBusy(false);
 			} catch ( error ) {
@@ -365,26 +364,31 @@ sap.ui.define([
 			}
 		},
 
-		_sendWorkflowNotification: async function( sSectionTab, oDataDocument, aRecipients, sAction )  {
-
+		_sendWorkflowNotification: async function( sSectionTab, oDataDocument, aRecipients, sAction, perfil )  {
+			let message = "";
+			if(perfil === "Contratista" || perfil === "Inspector" || perfil === "JefeInspeccion" || perfil === "JefeArea"){
+				message = "Tiene datos o documentación para evaluar."
+			} else {
+				message = "Documento evaluado con éxito."
+			}
 			if ( sAction === "SendToApprove") {
 				try {
 					const oWfPayload = {
 						"definitionId": "pgo.wfnotificacion",
 						"context": {
 							"subject": `${oDataDocument.nombreObra} - Informes Ambientales`,
-							"description": `Tiene datos o documentación para evaluar.
+							"description": `${message}
 								Puede acceder al documento desde Gestionar Obras -> Acciones -> Documentación -> Medioambiente y Calidad -> Sección ${sSectionTab} -> Planilla N° ${oDataDocument.numero_planilla}`,
 							"recipients": aRecipients
 						}
 					};
 	
 					const oResponseWf = await this.postWorkflow(oWfPayload);
-					if (oResponseWf !== 201) {
+					if (oResponseWf.status !== 201) {
 						let message = "Error al enviar la notificación";
 						Utils.showMessage(message, "Error", "ERROR");
 					} else {
-						Utils.showMessage("Notificación de workflow enviada exitosamente", "Éxito", "SUCCESS");
+						Utils.showMessage("Notificación enviada exitosamente", "Éxito", "SUCCESS");
 					}
 				} catch (error) {
 					console.error("Error al enviar la notificación de workflow:", error);
@@ -403,11 +407,11 @@ sap.ui.define([
 					};
 	
 					const oResponseWf = await this.postWorkflow(oWfPayload);
-					if (oResponseWf !== 201) {
+					if (oResponseWf.status !== 201) {
 						let message = "Error al enviar la notificación";
 						Utils.showMessage(message, "Error", "ERROR");
 					} else {
-						Utils.showMessage("Notificación de workflow enviada exitosamente", "Éxito", "SUCCESS");
+						Utils.showMessage("Notificación enviada exitosamente", "Éxito", "SUCCESS");
 					}
 				} catch (error) {
 					console.error("Error al enviar la notificación de workflow:", error);

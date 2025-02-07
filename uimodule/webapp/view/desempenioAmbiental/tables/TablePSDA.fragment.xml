@@ -41,7 +41,7 @@
                 <ColumnListItem>
                     <cells>
                         <Text text="{mainModel>numero_planilla}" />
-                        <Text text="{fechaUltimoMesInformado}" />
+                        <Text text="{path: 'mainModel>fecha_entrega', formatter: '.formatterDateFront'}" />
                         <GenericTag text="{mainModel>control/descripcion}" design="StatusIconHidden" status="{mainModel>control/state}" />              
                         <ObjectStatus text="{mainModel>estado/descripcion}" inverted="true" state="{mainModel>estado/color}"/>
                         <Label text="{observation}" />
@@ -56,18 +56,21 @@
                                 color="#212121" 
                                 src="sap-icon://edit"  
                                 press="onEditPSDA" 
+                                tooltip="Editar"
                                 class="sapUiSmallMarginEnd"
                                 visible="{mainModel>permisos/canEdit}" />
                             <core:Icon 
                                 src="sap-icon://delete" 
                                 color="#FF5733" 
                                 press="onDeletePsdaDocument" 
+                                tooltip="Eliminar"
                                 class="sapUiSmallMarginEnd"
                                 visible="{mainModel>permisos/canDelete}" />
                             <core:Icon 
                                 src="sap-icon://paper-plane" 
                                 color="#27ae60" 
                                 press="onSendPSDA" 
+                                tooltip="Enviar"
                                 class="sapUiSmallMarginEnd"
                                 visible="{mainModel>permisos/canSend}" />
                             <Button
@@ -75,11 +78,13 @@
                                 type="Accept" 
                                 press="onApprovePSDA" 
                                 class="sapUiSmallMarginEnd"
+                                tooltip="Aceptar"
                                 visible="{mainModel>permisos/canApprove}" />
                             <Button
                                 icon="sap-icon://decline" 
                                 type="Reject" 
                                 press="onRejectPSDA" 
+                                tooltip="Rechazar"
                                 class="sapUiSmallMarginEnd"
                                 visible="{mainModel>permisos/canReject}" />
                         </HBox>

@@ -132,6 +132,8 @@ sap.ui.define([
 			  respFolderRegistros.json(),
 			]);
 		  },
+
+		  
 	  
 		  getFormDMS: function (folder) {
 			const oForm = new FormData();
@@ -363,26 +365,31 @@ sap.ui.define([
 			}
 		},
 
-		_sendWorkflowNotification: async function( sSectionTab, oDataDocument, aRecipients, sAction )  {
-
+		_sendWorkflowNotification: async function( sSectionTab, oDataDocument, aRecipients, sAction, perfil )  {
+			let message = "";
+			if(perfil === "Contratista" || perfil === "Inspector" || perfil === "JefeInspeccion" || perfil === "JefeArea"){
+				message = "Tiene datos o documentación para evaluar."
+			} else {
+				message = "Documento evaluado con éxito."
+			}
 			if ( sAction === "SendToApprove") {
 				try {
 					const oWfPayload = {
 						"definitionId": "pgo.wfnotificacion",
 						"context": {
 							"subject": `${oDataDocument.nombreObra} - Planilla Control de Desvío Ambiental`,
-							"description": `Tiene datos o documentación para evaluar.
+							"description": `${message}
 								Puede acceder al documento desde Gestionar Obras -> Acciones -> Documentación -> Medioambiente y Calidad -> Sección ${sSectionTab} -> Planilla N° ${oDataDocument.numero_planilla}`,
 							"recipients": aRecipients
 						}
 					};
 	
 					const oResponseWf = await this.postWorkflow(oWfPayload);
-					if (oResponseWf !== 201) {
+					if (oResponseWf.status !== 201) {
 						let message = "Error al enviar la notificación";
 						Utils.showMessage(message, "Error", "ERROR");
 					} else {
-						Utils.showMessage("Notificación de workflow enviada exitosamente", "Éxito", "SUCCESS");
+						Utils.showMessage("Notificación enviada exitosamente", "Éxito", "SUCCESS");
 					}
 				} catch (error) {
 					console.error("Error al enviar la notificación de workflow:", error);
@@ -401,11 +408,11 @@ sap.ui.define([
 					};
 	
 					const oResponseWf = await this.postWorkflow(oWfPayload);
-					if (oResponseWf !== 201) {
+					if (oResponseWf.status !== 201) {
 						let message = "Error al enviar la notificación";
 						Utils.showMessage(message, "Error", "ERROR");
 					} else {
-						Utils.showMessage("Notificación de workflow enviada exitosamente", "Éxito", "SUCCESS");
+						Utils.showMessage("Notificación enviada exitosamente", "Éxito", "SUCCESS");
 					}
 				} catch (error) {
 					console.error("Error al enviar la notificación de workflow:", error);

@@ -18,7 +18,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Contratista"
                         };
                         if (item.estado_ID === "BO") {
                             permisos.canEdit = true;
@@ -46,7 +47,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Contratista"
                         };
                         if (item.estado_ID === "BO") {
                             permisos.canEdit = true;
@@ -74,7 +76,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Contratista"
                         };
                         if (item.estado_ID === "BO") {
                             permisos.canEdit = true;
@@ -102,7 +105,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Contratista"
                         };
                         if (item.estado_ID === "BO") {
                             permisos.canEdit = true;
@@ -130,7 +134,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Inspector"
                         };
 
                          if (item.estado_ID === "PI") {
@@ -156,7 +161,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Inspector"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canApprove = true;
@@ -180,7 +186,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Inspector"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canApprove = true;
@@ -204,7 +211,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Inspector"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canApprove = true;
@@ -229,7 +237,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeInspeccion"
                         };
 
                         if (item.estado_ID === "PI") {
@@ -255,7 +264,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeInspeccion"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canApprove = true;
@@ -279,7 +289,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeInspeccion"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canApprove = true;
@@ -303,7 +314,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeInspeccion"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canApprove = true;
@@ -328,19 +340,22 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
 
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true; 
+                            permisos.canApprove = true;
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
-                            permisos.canNextApprove = true;
-                            permisos.canReject = true;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
                         }
 
                         item.permisos = permisos;
@@ -356,7 +371,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
@@ -364,10 +380,11 @@ sap.ui.define(
                             permisos.canView = true; 
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
-                            permisos.canNextApprove = true;
-                            permisos.canReject = true;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
                         }
                         item.permisos = permisos;
                     });
@@ -382,7 +399,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
@@ -390,10 +408,11 @@ sap.ui.define(
                             permisos.canView = true; 
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
-                            permisos.canNextApprove = true;
-                            permisos.canReject = true;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
                         }
                         item.permisos = permisos;
                     });
@@ -408,7 +427,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
@@ -416,10 +436,11 @@ sap.ui.define(
                             permisos.canView = true; 
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
-                            permisos.canNextApprove = true;
-                            permisos.canReject = true;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
                         }
                         item.permisos = permisos;
                     });
@@ -435,14 +456,15 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
 
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         }
 
@@ -459,13 +481,14 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         }
                         item.permisos = permisos;
@@ -481,13 +504,14 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         }
                         item.permisos = permisos;
@@ -503,13 +527,14 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         }
                         item.permisos = permisos;
@@ -526,12 +551,13 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Director"
                         };
 
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
@@ -550,12 +576,13 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Director"
                         };
 
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
@@ -573,12 +600,13 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Director"
                         };
 
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
@@ -596,19 +624,164 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Director"
                         };
 
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
-                        } else if (item.estado_ID === "PA") {
+                        } else if (item.estado_ID === "AP") {
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true;
                         } 
                         item.permisos = permisos;
                     });
-                } else if (oUserRolesData.value.includes("PGO_AreaMedioAmbiente")) {
+                } else if (oUserRolesData.value.includes("PGO_AreaMedioambiente")) {
+                    // Verificar permisos para PGO_Inspector
+                    oInformesData.value.forEach(item => {
+                        const permisos = {
+                            canEdit: false,
+                            canDelete: false,
+                            canApprove: false,
+                            canSend: false,
+                            canNextApprove: false,
+                            canReject: false,
+                            canView: false,
+                            canDownloadFile: false,
+                            canDeleteFile: false,
+                            perfil: "AreaMedioambiente"
+                            
+                        };
+
+                         if (item.estado_ID === "PI") {
+                            permisos.canEdit = false;
+                            permisos.canDelete = false;
+                            permisos.canView = true;
+                        } else if (item.estado_ID === "PJA") {
+                            permisos.canView = true; 
+                            permisos.canApprove = true,
+                            permisos.canNextApprove = true;
+                            permisos.canReject = true;
+                        } else if (item.estado_ID === "AP") {
+                            permisos.canView = true; 
+                            permisos.canSend = false;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
+                            permisos.canDeleteFile = false;
+                            permisos.canEdit = false;
+                        }
+
+                        item.permisos = permisos;
+                    });
+                    
+                    oControlesData.value.forEach(item => {
+                        const permisos = {
+                            canEdit: false,
+                            canDelete: false,
+                            canApprove: false,
+                            canSend: false,
+                            canNextApprove: false,
+                            canReject: false,
+                            canView: false,
+                            canDownloadFile: false,
+                            canDeleteFile: false,
+                            perfil: "AreaMedioambiente"
+                        };
+
+                        if (item.estado_ID === "PI") {
+                            permisos.canEdit = false;
+                            permisos.canDelete = false;
+                            permisos.canView = true;
+                        } else if (item.estado_ID === "PJA") {
+                            permisos.canView = true; 
+                            permisos.canApprove = true,
+                            permisos.canNextApprove = true;
+                            permisos.canReject = true;
+                        } else if (item.estado_ID === "AP") {
+                            permisos.canView = true; 
+                            permisos.canSend = false;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
+                            permisos.canDeleteFile = false;
+                            permisos.canEdit = false;
+                        }
+
+                        item.permisos = permisos;
+                    });
+            
+                    oInformesAmbientalesData.value.forEach(item => {
+                        const permisos = {
+                            canEdit: false,
+                            canDelete: false,
+                            canApprove: false,
+                            canSend: false,
+                            canNextApprove: false,
+                            canReject: false,
+                            canView: false,
+                            canDownloadFile: false,
+                            canDeleteFile: false,
+                            perfil: "AreaMedioambiente"
+                        };
+
+                        if (item.estado_ID === "PI") {
+                            permisos.canEdit = false;
+                            permisos.canDelete = false;
+                            permisos.canView = true;
+                        } else if (item.estado_ID === "PJA") {
+                            permisos.canView = true; 
+                            permisos.canApprove = true,
+                            permisos.canNextApprove = true;
+                            permisos.canReject = true;
+                        } else if (item.estado_ID === "AP") {
+                            permisos.canView = true; 
+                            permisos.canSend = false;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
+                            permisos.canDeleteFile = false;
+                            permisos.canEdit = false;
+                        }
+                        item.permisos = permisos;
+                    });
+            
+                    oDocumentacionAdicionalData.value.forEach(item => {
+                        const permisos = {
+                            canEdit: false,
+                            canDelete: false,
+                            canApprove: false,
+                            canSend: false,
+                            canNextApprove: false,
+                            canReject: false,
+                            canView: false,
+                            canDownloadFile: false,
+                            canDeleteFile: false,
+                            perfil: "AreaMedioambiente"
+                        };
+
+                        if (item.estado_ID === "PI") {
+                            permisos.canEdit = false;
+                            permisos.canDelete = false;
+                            permisos.canView = true;
+                        } else if (item.estado_ID === "PJA") {
+                            permisos.canView = true; 
+                            permisos.canApprove = true,
+                            permisos.canNextApprove = true;
+                            permisos.canReject = true;
+                        } else if (item.estado_ID === "AP") {
+                            permisos.canView = true; 
+                            permisos.canSend = false;
+                            permisos.canApprove = false;
+                            permisos.canNextApprove = false;
+                            permisos.canReject = false;
+                            permisos.canDeleteFile = false;
+                            permisos.canEdit = false;
+                        }
+                        item.permisos = permisos;
+                    });
+                } else {
                     // Verificar permisos para PGO_Inspector
                     oInformesData.value.forEach(item => {
                         const permisos = {
@@ -630,9 +803,9 @@ sap.ui.define(
                         } else if (item.estado_ID === "PA") {
                             permisos.canEdit = false;
                             permisos.canDelete = false;
-                            permisos.canNextApprove = true,
+                            permisos.canNextApprove = false,
                             permisos.canView = true;
-                        }
+                        } 
 
                         item.permisos = permisos;
                     });
