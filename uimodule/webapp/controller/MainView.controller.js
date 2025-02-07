@@ -2261,13 +2261,18 @@ sap.ui.define([
             },   
 
             formatterDateFront: function (date) {
-                 // Separar la fecha por guiones
-                const partes = date.split('-');
+                if(date) {
+                     // Separar la fecha por guiones
+                    const partes = date.split('-');
 
-                // Reorganizar las partes de la fecha al formato dd-mm-yyyy
-                const fechaTransformada = `${partes[2]}-${partes[1]}-${partes[0]}`;
+                    // Reorganizar las partes de la fecha al formato dd-mm-yyyy
+                    const fechaTransformada = `${partes[2]}-${partes[1]}-${partes[0]}`;
 
-                return fechaTransformada;
+                    return fechaTransformada;
+                } else {
+                    return null;
+                }
+    
             }
 
         });
