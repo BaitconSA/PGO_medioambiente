@@ -896,7 +896,7 @@ sap.ui.define([
                 
                             const sSectionTab = "Planilla de Seguimiento Desempeño Ambiental";
                             // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
-                            await PSDA_operations._sendWorkflowNotification( sSectionTab, oSelectedRow, aResponsablesMediAmbiente, "SendToApprove" );
+                            await PSDA_operations._sendWorkflowNotification( sSectionTab, oSelectedRow, aResponsablesMediAmbiente, "SendToApprove", oSelectedRow.permisos.perfil );
                         } catch (error) {
                             console.error("Error al aprobar el documento:", error);
                             Utils.showMessage("Error al aprobar el documento PSDA", "Error", "ERROR");
@@ -1044,7 +1044,7 @@ sap.ui.define([
 
                             const sSectionTab = "Informes Ambientales";
                             // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
-                            await CDA_operations._sendWorkflowNotification( sSectionTab, oSelectedRow, aResponsablesMediAmbiente, "SendToApprove" );
+                            await CDA_operations._sendWorkflowNotification( sSectionTab, oSelectedRow, aResponsablesMediAmbiente, "SendToApprove", oSelectedRow.permisos.perfil );
                            
             
                         } catch (error) {
@@ -1314,7 +1314,7 @@ sap.ui.define([
 
                             const sSectionTab = "Controles Desvíos Ambientales";
                             // Envío de Notificación de Workflow, aunque normalmente se haría solo tras éxito
-                            await CDA_operations._sendWorkflowNotification( sSectionTab, oSelectedRow, aResponsablesMediAmbiente, "SendToApprove" );
+                            await CDA_operations._sendWorkflowNotification( sSectionTab, oSelectedRow, aResponsablesMediAmbiente, "SendToApprove", oSelectedRow.permisos.perfil );
             
                         } catch (error) {
                             console.error("Error al aprobar el documento:", error);

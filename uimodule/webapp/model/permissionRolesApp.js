@@ -18,7 +18,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Contratista"
                         };
                         if (item.estado_ID === "BO") {
                             permisos.canEdit = true;
@@ -46,7 +47,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Contratista"
                         };
                         if (item.estado_ID === "BO") {
                             permisos.canEdit = true;
@@ -74,7 +76,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Contratista"
                         };
                         if (item.estado_ID === "BO") {
                             permisos.canEdit = true;
@@ -102,7 +105,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Contratista"
                         };
                         if (item.estado_ID === "BO") {
                             permisos.canEdit = true;
@@ -130,7 +134,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Inspector"
                         };
 
                          if (item.estado_ID === "PI") {
@@ -156,7 +161,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Inspector"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canApprove = true;
@@ -180,7 +186,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Inspector"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canApprove = true;
@@ -204,7 +211,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Inspector"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canApprove = true;
@@ -229,7 +237,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeInspeccion"
                         };
 
                         if (item.estado_ID === "PI") {
@@ -255,7 +264,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeInspeccion"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canApprove = true;
@@ -279,7 +289,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeInspeccion"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canApprove = true;
@@ -303,7 +314,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeInspeccion"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canApprove = true;
@@ -328,7 +340,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
 
                         if (item.estado_ID === "PI") {
@@ -356,7 +369,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
@@ -382,7 +396,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
@@ -408,7 +423,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
@@ -435,7 +451,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
 
                         if (item.estado_ID === "PI") {
@@ -459,7 +476,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
@@ -481,7 +499,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
@@ -503,7 +522,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "JefeArea"
                         };
                         if (item.estado_ID === "PI") {
                             permisos.canView = true;
@@ -526,7 +546,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Director"
                         };
 
                         if (item.estado_ID === "PI") {
@@ -550,7 +571,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Director"
                         };
 
                         if (item.estado_ID === "PI") {
@@ -573,7 +595,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Director"
                         };
 
                         if (item.estado_ID === "PI") {
@@ -596,7 +619,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "Director"
                         };
 
                         if (item.estado_ID === "PI") {
@@ -620,7 +644,9 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "AreaMedioambiente"
+                            
                         };
 
                          if (item.estado_ID === "PI") {
@@ -647,7 +673,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "AreaMedioambiente"
                         };
 
                         if (item.estado_ID === "PI") {
@@ -674,7 +701,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "AreaMedioambiente"
                         };
 
                         if (item.estado_ID === "PI") {
@@ -700,7 +728,8 @@ sap.ui.define(
                             canReject: false,
                             canView: false,
                             canDownloadFile: false,
-                            canDeleteFile: false
+                            canDeleteFile: false,
+                            perfil: "AreaMedioambiente"
                         };
 
                         if (item.estado_ID === "PI") {
