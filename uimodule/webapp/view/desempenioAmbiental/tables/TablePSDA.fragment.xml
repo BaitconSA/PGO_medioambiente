@@ -41,7 +41,7 @@
                 <ColumnListItem>
                     <cells>
                         <Text text="{mainModel>numero_planilla}" />
-                        <Text text="{fechaUltimoMesInformado}" />
+                        <Text text="{path: 'mainModel>fecha_entrega', formatter: '.formatterDateFront'}" />
                         <GenericTag text="{mainModel>control/descripcion}" design="StatusIconHidden" status="{mainModel>control/state}" />              
                         <ObjectStatus text="{mainModel>estado/descripcion}" inverted="true" state="{mainModel>estado/color}"/>
                         <Label text="{observation}" />
