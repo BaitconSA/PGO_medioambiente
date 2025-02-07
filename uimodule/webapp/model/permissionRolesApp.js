@@ -658,6 +658,8 @@ sap.ui.define(
                             permisos.canApprove = true,
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
+                        } else if (item.estado_ID === "AP") {
+                            permisos.canView = true; 
                         }
 
                         item.permisos = permisos;
@@ -686,6 +688,8 @@ sap.ui.define(
                             permisos.canApprove = true,
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
+                        } else if (item.estado_ID === "AP") {
+                            permisos.canView = true; 
                         }
 
                         item.permisos = permisos;
@@ -714,6 +718,8 @@ sap.ui.define(
                             permisos.canApprove = true,
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
+                        } else if (item.estado_ID === "AP") {
+                            permisos.canView = true; 
                         }
                         item.permisos = permisos;
                     });
@@ -741,6 +747,8 @@ sap.ui.define(
                             permisos.canApprove = true,
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
+                        } else if (item.estado_ID === "AP") {
+                            permisos.canView = true; 
                         }
                         item.permisos = permisos;
                     });
@@ -768,7 +776,7 @@ sap.ui.define(
                             permisos.canDelete = false;
                             permisos.canNextApprove = false,
                             permisos.canView = true;
-                        }
+                        } 
 
                         item.permisos = permisos;
                     });
