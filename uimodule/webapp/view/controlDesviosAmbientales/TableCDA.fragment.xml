@@ -53,6 +53,7 @@
                                             xmlns:core="sap.ui.core"
                                             src="sap-icon://detail-view"
                                             color="#2471a3"
+                                            tooltip="Visualizar Detalles"
                                             press="onViewDetails($event, 'documentCDA_details')"
                                             class="sapUiSmallMarginEnd"
                                             visible="{mainModel>permisos/canView}" />
@@ -60,17 +61,20 @@
                                         color="#212121" 
                                         src="sap-icon://edit"
                                         press="onEditCDA" 
+                                        tooltip="Editar"
                                         class="sapUiSmallMarginEnd"
                                         visible="{mainModel>permisos/canEdit}" />
                                     <core:Icon 
                                         src="sap-icon://delete" 
                                         color="#FF5733" 
+                                        tooltip="Eliminar"
                                         press="onDeleteCdaDocument" 
                                         class="sapUiSmallMarginEnd" 
                                         visible="{mainModel>permisos/canDelete}"/>       
                                     <core:Icon 
                                         src="sap-icon://paper-plane" 
                                         color="#27ae60" 
+                                        tooltip="Enviar"
                                         press="onSendCDA" 
                                         class="sapUiSmallMarginEnd" 
                                         visible="{mainModel>permisos/canSend}"/>
@@ -78,12 +82,14 @@
                                         icon="sap-icon://accept" 
                                         type="Accept" 
                                         press="onApproveCDA" 
+                                        tooltip="Aprobar"
                                         class="sapUiSmallMarginEnd"
                                         visible="{mainModel>permisos/canApprove}" />
                                     <Button
                                         icon="sap-icon://decline" 
                                         type="Reject" 
                                         press="onRejectCDA" 
+                                        tooltip="Rechazar"
                                         class="sapUiSmallMarginEnd"
                                         visible="{mainModel>permisos/canReject}" />
                                 </HBox>
