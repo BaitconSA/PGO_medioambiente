@@ -49,7 +49,7 @@
                         <cells>
                             <Text text="{mainModel>descripcion}" />
                             <Text text="{mainModel>comentarios}" />
-                            <Text text="{mainModel>fecha_Entrega}" />
+                            <Text text="{mainModel>fecha_entrega}" />
                             <ObjectStatus text="{mainModel>estado/descripcion}" inverted="true" state="{mainModel>estado/color}"/>
                             <Text text="{mainModel>observaciones}" />
                             <HBox>
