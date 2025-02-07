@@ -629,7 +629,7 @@ sap.ui.define(
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true; 
-                            canApprove: false,
+                            permisos.canApprove = true,
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
                         }
@@ -656,6 +656,7 @@ sap.ui.define(
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true; 
+                            permisos.canApprove = true,
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
                         }
@@ -682,6 +683,7 @@ sap.ui.define(
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true; 
+                            permisos.canApprove = true,
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
                         }
@@ -707,6 +709,7 @@ sap.ui.define(
                             permisos.canView = true;
                         } else if (item.estado_ID === "PJA") {
                             permisos.canView = true; 
+                            permisos.canApprove = true,
                             permisos.canNextApprove = true;
                             permisos.canReject = true;
                         }
