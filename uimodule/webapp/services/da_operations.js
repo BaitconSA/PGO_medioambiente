@@ -186,24 +186,31 @@ sap.ui.define([
 			return oForm;
 		},
 
-		  postDMSFile: async function (File, Obra, Proveedor, P3, Folder) {
-			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${Folder}/`;
-			const oForm = new FormData();
-			oForm.append("cmisaction", "createDocument");
-			oForm.append("propertyId[0]", "cmis:name");
-			oForm.append("propertyValue[0]", File.PSDA_firmada_nombre);
-			oForm.append("propertyId[1]", "cmis:objectTypeId");
-			oForm.append("propertyValue[1]", "cmis:document");
-			oForm.append("_charset_", "UTF-8");
-			oForm.append("includeAllowableActions", true);
-			oForm.append("succinct", true);
-			oForm.append("media", File);
-			const resp = await fetch(url, {
-			  method: "POST",
-			  body: oForm,
-			});
-			return await resp.json();
-		  },
+		postDMSFile: async function (File, Obra, Proveedor, P3, Folder) {
+			try {
+				const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${Folder}/`;
+				const oForm = new FormData();
+				oForm.append("cmisaction", "createDocument");
+				oForm.append("propertyId[0]", "cmis:name");
+				oForm.append("propertyValue[0]", File.PSDA_firmada_nombre);
+				oForm.append("propertyId[1]", "cmis:objectTypeId");
+				oForm.append("propertyValue[1]", "cmis:document");
+				oForm.append("_charset_", "UTF-8");
+				oForm.append("includeAllowableActions", "true");
+				oForm.append("succinct", "true");
+				oForm.append("media", File.file || File);
+		
+				const resp = await fetch(url, { method: "POST", body: oForm });
+		
+				if (!resp.ok) {
+					throw new Error(`Error en la subida: ${resp.statusText}`);
+				}
+				return await resp.json();
+			} catch (error) {
+				console.error("Error al subir el archivo al DMS:", error);
+				return { success: false, message: error.message };
+			}
+		},		
 	  
 		  getFileDMS: async function (sObraID, sRegistroProveedor, sP3Codigo, sFolder, oDocumentData) {
 			debugger
