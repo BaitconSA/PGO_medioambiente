@@ -2144,7 +2144,7 @@ sap.ui.define([
                     }
                     
                     // Descargar archivo desde DMS con la ruta específica
-                    await DA_operations.downloadDMSFile(oDocumentData.ruta, oDocumentData.nombre_archivo, sObraID, sRegistroProveedor, sP3Codigo, sFolder);
+                    await DA_operations.getFileDMS(oDocumentData.ruta, oDocumentData.nombre_archivo, sObraID, sRegistroProveedor, sP3Codigo, sFolder);
                     
                     MessageToast.show("Descarga completada.");
                 } catch (error) {
