@@ -121,53 +121,57 @@ sap.ui.define([
 			});
 			return response;
 		  },
-
-		  createFolderDMS: async function (Obra, Proveedor, P3) {
+		
+		createFoldersDMS: async function (oObra_ID, oRegistro, oP3) {
 			let basePath = `${this._urlDMS}/Obras`;
 		
-			try {
-				// Crear la jerarquía de carpetas
-				await this.ensureFolderExists(basePath, `${Obra}_${Proveedor}`);
-				await this.ensureFolderExists(`${basePath}/${Obra}_${Proveedor}`, P3);
-				await this.ensureFolderExists(`${basePath}/${Obra}_${Proveedor}/${P3}`, "Documentos Adicionales");
+			// Verificar y crear cada carpeta en orden
+			basePath = await this.ensureFolderExists(basePath, `${oObra_ID}_${oRegistro}`);
+			basePath = await this.ensureFolderExists(basePath, oP3);
+			basePath = await this.ensureFolderExists(basePath, "Documentos Adicionales");
+		  }, 
+
+		  ensureFolderExists: async function (parentPath, folder) {
+			const folderPath = `${parentPath}/${folder}`;
+			const exists = await this.checkFolderExists(folderPath);
 		
+			if (!exists) {
+				console.log(`⚠️ La carpeta ${folder} NO existe. Creando en: ${folderPath}`);
+				await this.createFolder(parentPath, folder);
+			} else {
+				console.log(`✅ La carpeta ${folder} YA existe en: ${folderPath}`);
+			}
+		
+			return folderPath; // Devuelve el nuevo path para continuar con la jerarquía
+		},
+
+		checkFolderExists: async function (url) {
+			try {
+				const response = await fetch(url, { method: "GET" });
+				return response.ok; // Devuelve true si la carpeta existe
 			} catch (error) {
-				console.error("Error al crear carpetas en DMS:", error);
-				throw new Error("No se pudieron crear todas las carpetas en DMS.");
+				console.error("Error verificando la carpeta:", error);
+				return false;
 			}
 		},
+
+		createFolder: async function (path, folder) {
+			const url = `${path}`;
+			const oForm = new FormData();
+			oForm.append("cmisaction", "createFolder");
+			oForm.append("propertyId[0]", "cmis:name");
+			oForm.append("propertyValue[0]", folder);
+			oForm.append("propertyId[1]", "cmis:objectTypeId");
+			oForm.append("propertyValue[1]", "cmis:folder");
+			oForm.append("_charset_", "UTF-8");
+			oForm.append("succinct", true);
 		
-		ensureFolderExists: async function (parentPath, folderName) {
-			const folderPath = `${parentPath}/${folderName}`;
+			const resp = await fetch(url, {
+				method: "POST",
+				body: oForm,
+			});
 		
-			try {
-				// Verificar si la carpeta ya existe
-				const response = await fetch(folderPath, { method: "GET" });
-		
-				if (response.ok) {
-					return folderPath; // La carpeta ya existe
-				}
-				
-				if (response.status !== 404) {
-					throw new Error(`Error verificando la existencia de la carpeta: ${response.statusText}`);
-				}
-		
-				// Si no existe, intentar crearla
-				const createResponse = await fetch(folderPath, {
-					method: "POST",
-					body: this.getFormDMS(folderName),
-				});
-		
-				if (!createResponse.ok) {
-					throw new Error(`Error al crear la carpeta ${folderName}: ${createResponse.statusText}`);
-				}
-		
-				return folderPath; // Retornar la nueva ruta creada
-		
-			} catch (error) {
-				console.error(`Error al verificar/crear la carpeta ${folderName}:`, error);
-				throw error;
-			}
+			return await resp.json();
 		},
 		
 		getFormDMS: function (folder) {
@@ -181,7 +185,7 @@ sap.ui.define([
 			oForm.append("succinct", true);
 			return oForm;
 		},
-				
+
 		  postDMSFile: async function (File, Obra, Proveedor, P3, Folder) {
 			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${Folder}/`;
 			const oForm = new FormData();
