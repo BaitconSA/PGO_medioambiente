@@ -2122,7 +2122,6 @@ sap.ui.define([
             },
 
             onDownloadDA: async function(oEvent) {
-                debugger
                 try {
                     Utils.dialogBusy(true);
                     
@@ -2130,6 +2129,7 @@ sap.ui.define([
                     const sObraID = oModel.getProperty("/ObraID");
                     const sRegistroProveedor = oModel.getProperty("/HeaderInfo/supplierRegistration");
                     const sP3Codigo = oModel.getProperty("/HeaderInfo/p3");
+                    const sPi = oModel.getProperty("/HeaderInfo/pi"); // Asegúrate de obtener PI
                     const sFolder = "Documentos Adicionales";
                     
                     // Obtener el documento seleccionado desde el botón en la fila
@@ -2143,8 +2143,18 @@ sap.ui.define([
                         return;
                     }
                     
-                    // Descargar archivo desde DMS con la ruta específica
-                    await DA_operations.getFileDMS(oDocumentData.ruta, oDocumentData.nombre_archivo, sObraID, sRegistroProveedor, sP3Codigo, sFolder);
+                    // Descargar archivo desde DMS
+                    const blob = await DA_operations.getFileDMS(sObraID, sRegistroProveedor, sP3Codigo, sPi, sFolder, oDocumentData.nombre_archivo);
+                    
+                    // Crear un enlace de descarga y ejecutarlo
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = oDocumentData.nombre_archivo;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
                     
                     MessageToast.show("Descarga completada.");
                 } catch (error) {
@@ -2153,6 +2163,7 @@ sap.ui.define([
                     Utils.dialogBusy(false);
                 }
             },
+            
 
             createPdf: async function () {
                 const oModel = this.getView().getModel("mainModel");
