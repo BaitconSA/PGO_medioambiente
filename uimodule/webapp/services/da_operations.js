@@ -123,16 +123,31 @@ sap.ui.define([
 		  },
 
 		  createFolderDMS: async function (Obra, Proveedor, P3) {
-			const urlPrincipal = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}`;
-			const respFolderRegistros = await fetch(urlPrincipal, {
-			  method: "POST",
-			  body: this.getFormDMS(`Documentos Adicionales`),
-			});
+			let basePath = `${this._urlDMS}/Obras`;
 		
-			return await Promise.all([
-			  respFolderRegistros.json()
-			]);
-		  },
+			// Verificar y crear cada carpeta en orden
+			basePath = await this.ensureFolderExists(basePath, `${Obra}_${Proveedor}`);
+			basePath = await this.ensureFolderExists(basePath, `${Obra}_${Proveedor}/${P3}`);
+			await this.ensureFolderExists(basePath, "Documentos Adicionales");
+		},
+		
+		ensureFolderExists: async function (parentPath, folderName) {
+			const folderPath = `${parentPath}/${folderName}`;
+			
+			// Verificar si la carpeta existe con un GET
+			const response = await fetch(folderPath, { method: "GET" });
+		
+			if (response.status === 200) {
+				return folderPath;
+			} else {
+				// Si no existe, crearla
+				await fetch(parentPath, {
+					method: "POST",
+					body: this.getFormDMS(folderName),
+				});
+				return folderPath;
+			}
+		},		
 	  
 		  getFormDMS: function (folder) {
 			const oForm = new FormData();
@@ -151,7 +166,7 @@ sap.ui.define([
 			const oForm = new FormData();
 			oForm.append("cmisaction", "createDocument");
 			oForm.append("propertyId[0]", "cmis:name");
-			oForm.append("propertyValue[0]", File.name);
+			oForm.append("propertyValue[0]", File.PSDA_firmada_nombre);
 			oForm.append("propertyId[1]", "cmis:objectTypeId");
 			oForm.append("propertyValue[1]", "cmis:document");
 			oForm.append("_charset_", "UTF-8");

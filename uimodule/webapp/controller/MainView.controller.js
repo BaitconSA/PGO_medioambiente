@@ -52,8 +52,8 @@ sap.ui.define([
             
                     if (isLocalhost) {
                         // Lógica para LOCAL TESTING
-                       oUserRolesData = { value: ["PGO_JefeArea"] };
-                       // oUserRolesData = { value: ["PGO_Contratista"] };
+                       //oUserRolesData = { value: ["PGO_JefeArea"] };
+                        oUserRolesData = { value: ["PGO_Contratista"] };
                         oUserData = { "Nombre": "gustavo.quintana@datco.net" };
                     } else {
                         try {
@@ -2119,6 +2119,39 @@ sap.ui.define([
                         Utils.dialogBusy(false);
                      }
                }
+            },
+
+            onDownloadDA: async function(oEvent) {
+                debugger
+                try {
+                    Utils.dialogBusy(true);
+                    
+                    const oModel = this.getView().getModel("mainModel");
+                    const sObraID = oModel.getProperty("/ObraID");
+                    const sRegistroProveedor = oModel.getProperty("/HeaderInfo/supplierRegistration");
+                    const sP3Codigo = oModel.getProperty("/HeaderInfo/p3");
+                    const sFolder = "Documentos Adicionales";
+                    
+                    // Obtener el documento seleccionado desde el botón en la fila
+                    const oButton = oEvent.getSource();
+                    const oContext = oButton.getBindingContext("mainModel");
+                    const oDocumentData = oContext.getObject();
+                    
+                    if (!oDocumentData.ruta || !oDocumentData.nombre_archivo) {
+                        MessageToast.show("El documento no tiene una ruta válida para la descarga.");
+                        Utils.dialogBusy(false);
+                        return;
+                    }
+                    
+                    // Descargar archivo desde DMS con la ruta específica
+                    await DA_operations.downloadDMSFile(oDocumentData.ruta, oDocumentData.nombre_archivo, sObraID, sRegistroProveedor, sP3Codigo, sFolder);
+                    
+                    MessageToast.show("Descarga completada.");
+                } catch (error) {
+                    MessageToast.show("Error al descargar el documento.");
+                } finally {
+                    Utils.dialogBusy(false);
+                }
             },
 
             createPdf: async function () {
