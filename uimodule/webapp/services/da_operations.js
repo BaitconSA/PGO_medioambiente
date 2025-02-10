@@ -122,7 +122,7 @@ sap.ui.define([
 			return response;
 		  },
 		
-		createFoldersDMS: async function (oObra_ID, oRegistro, oP3) {
+		createFolderDMS: async function (oObra_ID, oRegistro, oP3) {
 			let basePath = `${this._urlDMS}/Obras`;
 		
 			// Verificar y crear cada carpeta en orden
