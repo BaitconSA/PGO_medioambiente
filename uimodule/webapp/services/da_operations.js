@@ -187,7 +187,7 @@ sap.ui.define([
 		},
 
 		postDMSFile: async function (File, Obra, Proveedor, P3, Folder) {
-			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${Folder}/`;
+			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${Folder}`;
 			const oForm = new FormData();
 			oForm.append("cmisaction", "createDocument");
 			oForm.append("propertyId[0]", "cmis:name");
