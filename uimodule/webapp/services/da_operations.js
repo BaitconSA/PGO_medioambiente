@@ -205,16 +205,12 @@ sap.ui.define([
 			return await resp.json();
 		  },
 	  
-		  getFileDMS: async function (Obra, Proveedor, P3, PI, Folder, FileName) {
-			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${PI}/Registros de obra/${Folder}/${FileName}`;
-			const response = await fetch(url);
-			
-			if (!response.ok) {
-				throw new Error(`Error al descargar archivo: ${response.statusText}`);
-			}
-			
-			return await response.blob();
-		},
+		  getFileDMS: async function (sObraID, sRegistroProveedor, sPi, sFolder, oDocumentData) {
+			debugger
+			const url = `${this._urlDMS}/${sObraID}_${sRegistroProveedor}/${sPi}/${sFolder}/${oDocumentData}`;
+			const file = await fetch(url);
+			return await file.blob();
+		  },
 	  
 		  deleteFileDMS: async function (Obra, Proveedor, P3, PI, Folder, FileName) {
 			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${PI}/Registros de obra/${Folder}/${FileName}`;

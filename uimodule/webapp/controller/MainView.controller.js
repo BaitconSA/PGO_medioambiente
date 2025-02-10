@@ -2003,6 +2003,7 @@ sap.ui.define([
             },
 
             onSaveDA: function( oEvent, sAction ) {
+                debugger
                      // Busy ON
                Utils.dialogBusy(true);
 
@@ -2122,6 +2123,7 @@ sap.ui.define([
             },
 
             onDownloadDA: async function(oEvent) {
+                debugger
                 try {
                     Utils.dialogBusy(true);
                     
@@ -2144,24 +2146,25 @@ sap.ui.define([
                     }
                     
                     // Descargar archivo desde DMS
-                    const blob = await DA_operations.getFileDMS(sObraID, sRegistroProveedor, sP3Codigo, sPi, sFolder, oDocumentData.nombre_archivo);
-                    
-                    // Crear un enlace de descarga y ejecutarlo
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = oDocumentData.nombre_archivo;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                    
+                    const oFile = await DA_operations.getFileDMS(sObraID, sRegistroProveedor, sP3Codigo, sFolder, oDocumentData.nombre_archivo);
+                    this.downloadFile(oFile, oDocumentData.nombre_archivo);
                     MessageToast.show("Descarga completada.");
                 } catch (error) {
                     MessageToast.show("Error al descargar el documento.");
                 } finally {
                     Utils.dialogBusy(false);
                 }
+            },
+
+            downloadFile: function (imageBlob, archivo) {
+                const imageURL = URL.createObjectURL(imageBlob);
+                const anchor = document.createElement("a");
+                anchor.href = imageURL;
+                anchor.download = archivo;
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+                URL.revokeObjectURL(imageURL);
             },
             
 
