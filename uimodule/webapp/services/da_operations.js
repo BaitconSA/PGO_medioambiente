@@ -205,9 +205,9 @@ sap.ui.define([
 			return await resp.json();
 		  },
 	  
-		  getFileDMS: async function (sObraID, sRegistroProveedor, sPi, sFolder, oDocumentData) {
+		  getFileDMS: async function (sObraID, sRegistroProveedor, sP3Codigo, sFolder, oDocumentData) {
 			debugger
-			const url = `${this._urlDMS}/${sObraID}_${sRegistroProveedor}/${sPi}/${sFolder}/${oDocumentData}`;
+			const url = `${this._urlDMS}/${sObraID}_${sRegistroProveedor}/${sP3Codigo}/${sFolder}/${oDocumentData}`;
 			const file = await fetch(url);
 			return await file.blob();
 		  },
