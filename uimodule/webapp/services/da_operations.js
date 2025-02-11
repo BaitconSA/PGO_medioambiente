@@ -185,32 +185,69 @@ sap.ui.define([
 			oForm.append("succinct", true);
 			return oForm;
 		},
-
-		postDMSFile: async function (File, Obra, Proveedor, P3, Folder) {
-			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${Folder}`;
+		  
+		  postDMSFile: async function (File, Obra, Proveedor, P3, Folder) {
+			const uploadUrl = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${Folder}`;
 			const oForm = new FormData();
 			oForm.append("cmisaction", "createDocument");
 			oForm.append("propertyId[0]", "cmis:name");
-			oForm.append("propertyValue[0]", File.PSDA_firmada_nombre);
+			oForm.append("propertyValue[0]", file.PSDA_firmada_nombre);
 			oForm.append("propertyId[1]", "cmis:objectTypeId");
 			oForm.append("propertyValue[1]", "cmis:document");
+			oForm.append("file", file);
 			oForm.append("_charset_", "UTF-8");
-			oForm.append("includeAllowableActions", true);
-			oForm.append("succinct", true);
-			oForm.append("media", File);
-			const resp = await fetch(url, {
-			  method: "POST",
-			  body: oForm,
-			});
-			return await resp.json();
-		  },		
-	  
+		
+			try {
+				const resp = await fetch(uploadUrl, {
+					method: "POST",
+					body: oForm,
+				});
+		
+				if (resp.ok) {
+					const data = await resp.json();
+					console.log("Archivo subido exitosamente:", data);
+					return data;
+				} else {
+					console.error("Error al subir el archivo:", resp.statusText);
+				}
+			} catch (error) {
+				console.error("Error durante la subida del archivo:", error);
+			}
+		
+			return false;
+		},
+
+		  
+		/*
 		  getFileDMS: async function (sObraID, sRegistroProveedor, sP3Codigo, sFolder, oDocumentData) {
 			debugger
 			const url = `${this._urlDMS}/${sObraID}_${sRegistroProveedor}/${sP3Codigo}/${sFolder}/${oDocumentData}`;
 			const file = await fetch(url);
 			return await file.blob();
 		  },
+		*/
+
+		  getFileDMS: async function (sObraID, sRegistroProveedor, sP3Codigo, sFolder, oDocumentData) {
+			const downloadUrl = `${this._urlDMS}/${sObraID}_${sRegistroProveedor}/${sP3Codigo}/${sFolder}/${oDocumentData}`;
+		
+			try {
+				const resp = await fetch(downloadUrl, {
+					method: "GET",
+				});
+		
+				if (resp.ok) {
+					const blob = await resp.blob();
+					console.log(`Archivo ${oDocumentData} descargado exitosamente del DMS.`);
+					return blob;
+				} else {
+					console.error(`Error al descargar el archivo ${oDocumentData}:`, resp.statusText);
+					return null;
+				}
+			} catch (error) {
+				console.error(`Error durante la descarga del archivo ${oDocumentData}:`, error);
+				return null;
+			}
+		},
 	  
 		  deleteFileDMS: async function (Obra, Proveedor, P3, PI, Folder, FileName) {
 			const url = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${PI}/Registros de obra/${Folder}/${FileName}`;

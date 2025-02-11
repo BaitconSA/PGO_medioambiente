@@ -2146,26 +2146,29 @@ sap.ui.define([
                     }
                     
                     // Descargar archivo desde DMS
-                    const oFile = await DA_operations.getFileDMS(sObraID, sRegistroProveedor, sP3Codigo, sFolder, oDocumentData.nombre_archivo);
-                    this.downloadFile(oFile, oDocumentData.nombre_archivo);
-                    MessageToast.show("Descarga completada.");
-                } catch (error) {
-                    MessageToast.show("Error al descargar el documento.");
-                } finally {
-                    Utils.dialogBusy(false);
-                }
-            },
+                    await DA_operations.getFileDMS(sObraID, sRegistroProveedor, sP3Codigo, sFolder, oDocumentData.nombre_archivo)
+                        .then((fileBlob) => {
+                        if (fileBlob) {
+                            const url = window.URL.createObjectURL(fileBlob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = fileName;
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            sap.m.MessageToast.show(`El archivo ${fileName} se descargó correctamente.`);
+                        } else {
+                            sap.m.MessageBox.error(`No se pudo descargar el archivo ${fileName}.`);
+                        }
+                    })
+                        MessageToast.show("Descarga completada.");
+                    } catch (error) {
+                        MessageToast.show("Error al descargar el documento.");
+                    } finally {
+                        Utils.dialogBusy(false);
+                    }
+                },
 
-            downloadFile: function (imageBlob, archivo) {
-                const imageURL = URL.createObjectURL(imageBlob);
-                const anchor = document.createElement("a");
-                anchor.href = imageURL;
-                anchor.download = archivo;
-                document.body.appendChild(anchor);
-                anchor.click();
-                document.body.removeChild(anchor);
-                URL.revokeObjectURL(imageURL);
-            },
+            
             
 
             createPdf: async function () {
