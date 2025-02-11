@@ -186,7 +186,7 @@ sap.ui.define([
 			return oForm;
 		},
 		  
-		  postDMSFile: async function (file, Obra, Proveedor, P3, Folder) {
+		  postDMSFile: async function (file, Obra, Proveedor, P3, Folder, oFileData) {
 			const uploadUrl = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${Folder}`;
 			const oForm = new FormData();
 			oForm.append("cmisaction", "createDocument");
@@ -194,7 +194,7 @@ sap.ui.define([
 			oForm.append("propertyValue[0]", file.PSDA_firmada_nombre);
 			oForm.append("propertyId[1]", "cmis:objectTypeId");
 			oForm.append("propertyValue[1]", "cmis:document");
-			oForm.append("file", file);
+			oForm.append("file", oFileData);
 			oForm.append("_charset_", "UTF-8");
 		
 			try {

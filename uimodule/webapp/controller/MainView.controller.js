@@ -2020,6 +2020,7 @@ sap.ui.define([
                 const sDescription = oModel.getProperty("/DatosFormularioDA/payload/uploadDA/descripcion");
                 const sComents = oModel.getProperty("/DatosFormularioDA/payload/uploadDA/comentarios"); 
                 const aUploadDocumentDA = oModel.getProperty("/DatosFormularioDA/payload/uploadDA/documento/DocumentacionAdicional");
+                const oFileData = oModel.getProperty("/DatosFormularioDA/payload/uploadDA/documento/File");
                    
                 if (aUploadDocumentDA && Array.isArray(aUploadDocumentDA) && aUploadDocumentDA.length > 0) {
                  aUploadDocumentDA.forEach(doc => {
@@ -2055,7 +2056,7 @@ sap.ui.define([
                                 const sFolder = "Documentos Adicionales";
                                     /* -- Post información adjunto al servicio -- */
                                  aUploadDocumentDA.forEach(doc => {
-                                    DA_operations.postDMSFile( doc, sObraID , sRegistroProveedor, sP3Codigo, sFolder );
+                                    DA_operations.postDMSFile( doc, sObraID , sRegistroProveedor, sP3Codigo, sFolder, oFileData);
                                 });
                                
                                // ----> Cerrar dialogo "  -- Control Desvio Ambiental CDA --"
