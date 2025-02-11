@@ -186,7 +186,7 @@ sap.ui.define([
 			return oForm;
 		},
 		  
-		  postDMSFile: async function (File, Obra, Proveedor, P3, Folder) {
+		  postDMSFile: async function (file, Obra, Proveedor, P3, Folder) {
 			const uploadUrl = `${this._urlDMS}/Obras/${Obra}_${Proveedor}/${P3}/${Folder}`;
 			const oForm = new FormData();
 			oForm.append("cmisaction", "createDocument");
