@@ -2152,12 +2152,12 @@ sap.ui.define([
                             const url = window.URL.createObjectURL(fileBlob);
                             const a = document.createElement("a");
                             a.href = url;
-                            a.download = fileName;
+                            a.download = oDocumentData.nombre_archivo;
                             a.click();
                             window.URL.revokeObjectURL(url);
-                            sap.m.MessageToast.show(`El archivo ${fileName} se descargó correctamente.`);
+                            sap.m.MessageToast.show(`El archivo ${oDocumentData.nombre_archivo} se descargó correctamente.`);
                         } else {
-                            sap.m.MessageBox.error(`No se pudo descargar el archivo ${fileName}.`);
+                            sap.m.MessageBox.error(`No se pudo descargar el archivo ${oDocumentData.nombre_archivo}.`);
                         }
                     })
                         MessageToast.show("Descarga completada.");
